@@ -68,8 +68,8 @@
         greg: d.gd + ' ' + window.AzanLang.names('greg')[d.gm - 1] + ' ' + d.gy,
         shamsi: sh.day + ' ' + window.AzanLang.names('shamsi')[sh.month - 1] + ' ' + sh.year,
         hijri: hijriLabel(d, hj),
-        fajr: t.fajr, sunrise: t.sunrise, dhuhr: t.dhuhr, asr: t.asr,
-        sunset: t.sunset, maghrib: t.maghrib, isha: t.isha, midnight: t.midnight
+        fajr: t.fajr, sunrise: t.sunrise, dhuhr: t.dhuhr,
+        sunset: t.sunset, maghrib: t.maghrib, midnight: t.midnight
       };
     });
   }
@@ -88,8 +88,8 @@
       '<th>' + window.AzanLang.t('pdf_fajr') + '</th><th>' + window.AzanLang.t('pdf_sunrise') + '</th><th>' + window.AzanLang.t('pdf_dhuhr') + '</th><th>' + window.AzanLang.t('pdf_sunset') + '</th><th>' + window.AzanLang.t('pdf_maghrib') + '</th><th>' + window.AzanLang.t('pdf_midnight') + '</th></tr>';
     var body = rows.map(function (r) {
       return '<tr><td>' + r.weekday + '</td><td>' + fa(r.greg) + '</td><td>' + fa(r.shamsi) + '</td><td>' + fa(r.hijri) + '</td>' +
-        '<td>' + fa(r.fajr) + '</td><td>' + fa(r.sunrise) + '</td><td>' + fa(r.dhuhr) + '</td><td>' + fa(r.asr) + '</td>' +
-        '<td>' + fa(r.sunset) + '</td><td>' + fa(r.maghrib) + '</td><td>' + fa(r.isha) + '</td><td>' + fa(r.midnight) + '</td></tr>';
+        '<td>' + fa(r.fajr) + '</td><td>' + fa(r.sunrise) + '</td><td>' + fa(r.dhuhr) + '</td>' +
+        '<td>' + fa(r.sunset) + '</td><td>' + fa(r.maghrib) + '</td><td>' + fa(r.midnight) + '</td></tr>';
     }).join('');
     var dir = window.AzanLang.isRtl() ? 'rtl' : 'ltr';
     return '<div style="font-family:Vazirmatn,Tahoma,sans-serif;direction:' + dir + ';color:#000;background:#fff;padding:18px;width:1000px">' +
