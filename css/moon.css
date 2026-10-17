@@ -1,0 +1,33 @@
+/* Copyright (c) 2026 azangoo.com. All rights reserved.
+   Copying, reuse, modification or redistribution of this code, or of its calculations,
+   is prohibited without written permission. See the Terms and conditions page. */
+/* Moon card (رؤیت ماه)
+   Images: images/moon/MoonL01..99.gif (lit on left), MoonR01..99.gif (lit on right),
+   Moon00.gif (new moon), Moon100.gif (full moon). The number is the illumination percent. */
+
+/* the moon picture sits in a rectangular "night sky" box: stars as background, the moon (round) in the middle */
+.moon{
+  display:flex;justify-content:center;align-items:center;padding:18px;border-radius:14px;overflow:hidden;
+  background:#0a1530 url("../images/moon-bg.webp") center/cover no-repeat;
+  border:1px solid rgba(240,213,138,.45);box-shadow:inset 0 0 30px rgba(0,0,0,.35)
+}
+
+.moon-img{
+  flex:none;width:104px;height:104px;display:block;
+  border-radius:50%;object-fit:cover;
+  box-shadow:0 0 0 1px rgba(240,213,138,.4),0 0 22px rgba(240,213,138,.35)
+}
+
+.moon dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.85rem}
+.moon dt{opacity:.75}
+.moon dd{font-weight:700;text-align:left;direction:ltr}
+
+.moon-info{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;margin-top:12px;font-size:.88rem}
+.moon-info dt{opacity:.8}
+.moon-info dd{font-weight:700;text-align:left;direction:ltr;margin:0}
+.moon-info dd.sub{grid-column:1/-1;margin:-4px 0 4px;font-size:.8rem;font-weight:400;opacity:.85;text-align:right;direction:rtl}
+.moon-text{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--panel);border:1px solid rgba(210,169,75,.25);font-size:.85rem;line-height:1.9}
+.moon-start{font-weight:700;color:var(--ivory);margin-top:10px}
+.moon-why{margin-top:10px}
+.moon-why:empty{display:none}
+.moon-note{margin:8px 0 0;font-size:.75rem;opacity:.75;line-height:1.7}

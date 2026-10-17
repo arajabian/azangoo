@@ -1,0 +1,391 @@
+/* Copyright (c) 2026 azangoo.com. All rights reserved.
+   Copying, reuse, modification or redistribution of this code, or of its calculations,
+   is prohibited without written permission. See the Terms and conditions page. */
+/* اذان گو - responsive prayer times page */
+:root{
+  --night:#0b2530; --night2:#12384a; --lapis:#1c4a7a; --turq:#2fa7a0;
+  --gold:#d2a94b; --gold2:#f0d58a; --ivory:#f4ecd8; --ink:#0a1a22;
+  --tile:rgba(18,56,74,.82); --line:rgba(210,169,75,.45);
+  --bg-a:#1c4a7a; --bg-b:#0b2530;
+  --panel:rgba(11,37,48,.45); --panel-strong:rgba(11,37,48,.85); --panel-soft:rgba(11,37,48,.35);
+  --text:#f4ecd8; --heading:#f0d58a; --muted:rgba(244,236,216,.65);
+  --mosque-top:rgba(40,95,125,.62); --mosque-bottom:rgba(4,18,26,.9);
+  --r:14px;
+}
+/* light theme: the same layout with light panels and dark text */
+:root[data-theme="light"]{
+  --night:#ffffff; --night2:#eef5f7; --lapis:#dbeaf0; --turq:#2fa7a0;
+  --gold:#c9982f; --gold2:#8a6a1f; --ivory:#13303a; --ink:#0a1a22;
+  --tile:rgba(255,255,255,.9); --line:rgba(160,120,40,.55);
+  --bg-a:#e9f3f6; --bg-b:#cfe4ea;
+  --panel:rgba(255,255,255,.92); --panel-strong:#ffffff; --panel-soft:rgba(255,255,255,.75);
+  --text:#13303a; --heading:#8a6a1f; --muted:rgba(19,48,58,.6);
+  --mosque-top:rgba(19,48,58,.10); --mosque-bottom:rgba(19,48,58,.26);
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:Vazirmatn,Tahoma,sans-serif;color:var(--ivory);line-height:1.8;
+  background:
+    url("../images/pattern.svg"),
+    radial-gradient(1200px 600px at 50% -10%,var(--bg-a),var(--bg-b) 70%);
+  background-color:var(--bg-b);min-height:100vh;
+}
+/* mosque skyline: one SVG used as a mask, filled with a theme colour gradient; it stands at the very end of the page,
+   behind the footer, so the cards never cover it */
+:root{--sky-h:clamp(170px,24vw,320px)}
+body{position:relative;padding-bottom:calc(var(--sky-h)*.85)}
+body::before{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:var(--sky-h);z-index:-1;pointer-events:none;
+  background:linear-gradient(to top,var(--mosque-bottom),var(--mosque-top));
+  -webkit-mask:url("../images/mosque.svg?v=3") center bottom/cover no-repeat;
+          mask:url("../images/mosque.svg?v=3") center bottom/cover no-repeat;
+}
+@media print{body::before{display:none}}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--gold2);outline-offset:2px}
+.wrap{max-width:1240px;margin-inline:auto;padding:0 14px 40px}
+
+/* header */
+.top{text-align:center;padding:22px 10px 8px}
+.logo{
+  font-family:"Aref Ruqaa",serif;font-size:clamp(3rem,10vw,5.2rem);line-height:1.2;color:var(--heading);
+  text-shadow:0 2px 0 #6b4f12,0 0 30px rgba(210,169,75,.35);
+}
+.logo small{display:block;font:500 .95rem Vazirmatn;color:var(--ivory);opacity:.8;text-shadow:none;margin-top:-6px}
+.verse{
+  margin:12px auto 0;max-width:820px;padding:9px 16px;border-block:1px solid var(--line);
+  font-size:.92rem;color:var(--heading)
+}
+
+/* date tiles */
+.dates{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:6px 0;width:100%}
+.dates .date{flex:0 0 calc(50% - 5px);max-width:calc(50% - 5px)}
+.date{
+  background:var(--tile);border:1px solid var(--line);border-radius:var(--r);padding:10px 8px;text-align:center;
+  position:relative
+}
+.date::before{content:"";position:absolute;inset:4px;border:1px dashed rgba(210,169,75,.25);border-radius:10px;pointer-events:none}
+.date{min-width:0;overflow:hidden;padding:10px 6px}
+.date b{display:block;font-size:clamp(1.1rem,5vw,2rem);line-height:1.2;color:var(--heading);overflow-wrap:anywhere}
+.date span{display:block;font-size:clamp(.72rem,3vw,.85rem);opacity:.85;line-height:1.5;overflow-wrap:anywhere}
+.date #d-zone{font-size:clamp(.66rem,2.6vw,.75rem);direction:ltr;opacity:.7}
+.date b.clock{font-size:clamp(.95rem,4.4vw,1.6rem);font-variant-numeric:tabular-nums;direction:ltr;white-space:nowrap}
+
+/* layout */
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.card{background:var(--tile);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0}
+.card h2{
+  font:700 1.05rem Vazirmatn;color:var(--heading);margin-bottom:10px;display:flex;align-items:center;gap:8px
+}
+.card h2::after{content:"";flex:1;height:1px;background:linear-gradient(to left,var(--line),transparent)}
+
+/* prayer times */
+.times{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;list-style:none;padding:0}
+.times li{
+  display:flex;justify-content:space-between;align-items:center;gap:6px;
+  background:var(--panel);border:1px solid rgba(210,169,75,.25);border-radius:10px;padding:8px 12px
+}
+.times time{font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;color:var(--heading)}
+.times li.next{background:var(--gold);color:var(--ink);border-color:var(--heading)}
+.times li.next time{color:var(--ink)}
+.place{font-size:.85rem;opacity:.85;margin-bottom:8px;direction:ltr;text-align:right}
+
+/* map */
+.mapframe{
+  padding:10px;border-radius:var(--r);
+  background:
+    repeating-linear-gradient(45deg,var(--gold) 0 6px,#8a6a1f 6px 12px);
+  box-shadow:0 0 0 2px var(--night),0 0 0 3px var(--gold),0 14px 30px rgba(0,0,0,.4)
+}
+.mapframe .inner{border:3px solid var(--night);border-radius:8px;overflow:hidden;background:#cfe0e0}
+#map{height:min(62vw,420px);min-height:280px;width:100%}
+.coords{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:12px}
+.coords label{font-size:.82rem;opacity:.9;display:block}
+.coords label.full{grid-column:1/-1}
+.coords input{
+  width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--night);color:var(--ivory);direction:ltr;text-align:left
+}
+.btn{
+  grid-column:1/-1;font:700 1rem Vazirmatn;padding:11px;border-radius:10px;border:0;cursor:pointer;
+  background:linear-gradient(var(--gold2),var(--gold));color:var(--ink)
+}
+.hint{font-size:.82rem;opacity:.8;margin-top:10px}
+
+/* side cards */
+.reciters{display:grid;gap:8px;font-size:.92rem}
+.reciters label{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--panel);cursor:pointer}
+.reciters input{accent-color:var(--gold)}
+.audio{width:100%;margin-top:10px;height:40px}
+
+footer{text-align:center;font-size:.8rem;opacity:.7;margin-top:26px}
+
+/* tablet */
+@media(min-width:640px){
+  .dates .date{flex:0 0 calc(25% - 7.5px);max-width:calc(25% - 7.5px)}
+  .times{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+/* desktop: map center, times right, side tools left (RTL order) */
+@media(min-width:980px){
+  .grid{grid-template-columns:260px 1fr 280px;align-items:start}
+  .times{grid-template-columns:1fr}
+  .col-main{order:0}
+}
+@media(max-width:979px){
+  .col-main{order:-1}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* map search box */
+.search{display:flex;gap:8px}
+.search input{
+  flex:1;min-width:0;font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+  background:var(--night);color:var(--ivory)
+}
+.search input::placeholder{color:var(--muted)}
+.search button{
+  font:700 1rem Vazirmatn;padding:0 18px;border:0;border-radius:10px;cursor:pointer;
+  background:linear-gradient(var(--gold2),var(--gold));color:var(--ink)
+}
+.msg{font-size:.82rem;min-height:1.6em;margin:4px 2px 8px;color:var(--heading)}
+.card .mapframe{margin-top:0}
+
+/* qibla */
+.qibla{margin-top:12px;padding:8px 12px;border-radius:10px;background:var(--panel);border:1px solid rgba(210,169,75,.25);color:var(--heading);font-weight:700;font-size:.92rem}
+.qibla-tag{
+  display:flex;align-items:center;justify-content:center;white-space:nowrap;
+  background:var(--gold);color:var(--ink);border:2px solid var(--night);border-radius:13px;
+  font:700 .8rem Vazirmatn,sans-serif
+}
+
+/* adhan player */
+.auto{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.9rem;cursor:pointer}
+.auto input{accent-color:var(--gold)}
+
+/* calendar card */
+.calendar .tabs{display:flex;gap:6px;margin-bottom:0}
+.calendar .tab{
+  flex:1;font:700 .95rem Vazirmatn;padding:9px 6px;border:1px solid var(--line);border-bottom:0;
+  border-radius:10px 10px 0 0;background:var(--panel-soft);color:var(--ivory);cursor:pointer
+}
+.calendar .tab.active{background:var(--tile);color:var(--heading);border-top:3px solid var(--gold)}
+.cal-panel{
+  display:grid;gap:12px;justify-items:center;padding:16px 12px;background:var(--night);
+  border:1px solid var(--line);border-radius:0 0 var(--r) var(--r)
+}
+.cal-label{font-weight:700;color:var(--heading)}
+.cal-panel select{
+  width:70%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--night2);color:var(--ivory)
+}
+.cal-ok{width:auto;padding:9px 34px;margin-top:4px;grid-column:auto}
+.cal-panel .msg{margin:0;text-align:center}
+
+/* header banner */
+.top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;padding:4px 0 0}
+.top-side{display:flex;align-items:center;min-width:0;max-width:100%}
+.top-side .lang-select{max-width:100%;min-width:0}
+.top-start{justify-content:flex-start}
+.top-end{justify-content:flex-end}
+/* one logo box for every language: same place and size, the artwork fits inside */
+
+/* footer: donation and copyright */
+.site-foot{margin-top:26px;text-align:center;display:grid;gap:8px;justify-items:center}
+.foot-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:10px}
+.foot-actions .btn,.foot-actions .donate-btn,.foot-actions .save-btn{width:auto;min-width:150px;height:44px;margin:0;padding:0 22px;display:inline-flex;align-items:center;justify-content:center;font:700 .95rem Vazirmatn,sans-serif;border-radius:12px;line-height:1}
+.foot-actions .donate{margin:0;display:flex}
+.donate{margin:0}
+.donate-btn{grid-column:auto;width:auto;direction:ltr}
+.save-btn{width:auto;grid-column:auto}
+.save-confirm{background:var(--tile);border:1px solid var(--gold);border-radius:var(--r);padding:12px 14px;max-width:360px;text-align:center}
+.save-confirm[hidden]{display:none}
+.save-confirm p{margin:0 0 10px;font-weight:700;color:var(--heading)}
+.save-actions{display:flex;gap:10px;justify-content:center}
+.save-yes,.save-no{width:auto;padding:8px 26px;grid-column:auto}
+.copyright{font-size:.8rem;opacity:.75;direction:ltr;margin:0}
+
+/* helpers */
+.side{display:grid;gap:14px;min-width:0}
+img{max-width:100%;height:auto}
+.coords input.rtl{direction:rtl;text-align:right}
+
+
+/* right column (prayer times + calendar) */
+.right-col{display:grid;gap:14px;align-content:start;min-width:0}
+
+/* language switch */
+.lang-row{display:flex;justify-content:flex-end;gap:8px;max-width:643px;margin:0 auto 6px}
+.lang-select{font:700 .9rem Vazirmatn,sans-serif;padding:7px 14px;border-radius:999px;border:1px solid var(--gold);background:var(--panel-strong);color:var(--heading);cursor:pointer}
+.lang-btn{font:700 .85rem Vazirmatn,sans-serif;padding:6px 14px;border-radius:999px;border:1px solid var(--gold);background:var(--panel);color:var(--heading);cursor:pointer}
+.lang-btn:hover{background:var(--gold);color:var(--ink)}
+html[dir="ltr"] .search{flex-direction:row}
+
+/* contact dialog */
+.contact-dlg{background:var(--night2);color:var(--ivory);border:1px solid var(--gold);border-radius:var(--r);padding:18px 20px;max-width:min(420px,92vw);box-shadow:0 14px 40px rgba(0,0,0,.55)}
+.contact-dlg::backdrop{background:rgba(0,0,0,.55)}
+.contact-dlg p{margin:0 0 12px;line-height:1.9}
+.contact-mail{text-align:center;direction:ltr;font-weight:700}
+.contact-mail a{color:var(--heading)}
+.contact-dlg .save-actions{justify-content:center}
+
+/* countdown line under the prayer times */
+.countdown{margin:12px 0 0;text-align:center;font-weight:700;color:var(--heading);font-size:.95rem;min-height:1.6em}
+
+/* annual calendar */
+.annual-btn{width:100%;margin-top:4px}
+.annual-box{margin-top:12px}
+.annual-title{font-weight:700;color:var(--heading);margin:0 0 8px}
+.annual-scroll{overflow-x:auto}
+table.annual{width:100%;border-collapse:collapse;font-size:.78rem;min-width:360px}
+table.annual th,table.annual td{padding:6px 4px;border-bottom:1px solid rgba(210,169,75,.25);text-align:center;white-space:nowrap}
+table.annual th{color:var(--heading);font-weight:700}
+
+/* Ramadan box */
+.ramadan{margin-top:6px;border-top:1px dashed rgba(210,169,75,.35);padding-top:6px}
+.ramadan[hidden]{display:none}
+.ram-remind{justify-content:center;margin-top:6px}
+
+/* header dropdowns sit beside the logo; on small screens they become smaller */
+@media(max-width:480px){.top-side .lang-select{font-size:.8rem;padding:6px 8px;min-width:104px}}
+
+/* nothing may be wider than the screen */
+img,select,input,button{max-width:100%}
+.wrap{overflow-x:hidden}
+
+/* current-location button next to search */
+.search .gps-btn{flex:none;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--gold);background:var(--panel);color:var(--heading);cursor:pointer;padding:0}
+.search .gps-btn:hover{background:var(--gold);color:var(--ink)}
+/* search: a small gold icon button, the same size as the location button next to it */
+.search .search-btn{flex:none;width:46px;height:46px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px}
+.search .search-btn:hover{filter:brightness(1.08)}
+
+
+/* round frame around the logo, with the site name under it */
+.logo-box{width:clamp(84px,12vw,110px);height:clamp(84px,12vw,110px);border-radius:50%;border:2px solid var(--gold);background:var(--panel);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(210,169,75,.12)}
+.logo-img{display:block;width:auto;height:72%;max-width:72%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+.logo-caption{margin:0;font:700 clamp(11px,2.6vw,13px) Vazirmatn,sans-serif;letter-spacing:.5px;color:var(--heading);direction:ltr;text-align:center}
+
+/* home: one small box that opens the city list */
+.city-box{display:grid;justify-items:center;gap:8px;margin:10px auto 4px;padding:12px 16px;max-width:420px;border:1px solid var(--gold);border-radius:var(--r);background:var(--panel)}
+.city-box-text{margin:0;font-weight:700;color:var(--heading);text-align:center}
+.city-list-btn{display:inline-block;padding:9px 22px;border-radius:12px;background:linear-gradient(var(--gold2),var(--gold));color:var(--ink);font-weight:700;text-decoration:none}
+
+/* city lists (country list and per-country lists) */
+.list-tools{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.list-tools input,.list-tools select{font:inherit;padding:9px 12px;border-radius:10px;border:1px solid var(--gold);background:#fff;color:#13303a;min-width:0}
+.country-list,.city-list{list-style:none;padding:0;margin:0}
+.country-list li,.city-list li{padding:6px 0;border-bottom:1px solid rgba(210,169,75,.25)}
+.country-list .count{opacity:.7;font-size:.85rem}
+
+/* terms link in the footer */
+.terms-line{margin:6px 0 0;text-align:center;font-size:.85rem}
+.terms-link{color:var(--heading)}
+
+/* save-defaults pop-up */
+.save-dlg{text-align:center}
+.save-dlg p{margin:0 0 14px;font-weight:700;color:var(--heading)}
+
+/* daily dua timer and the footer spacing */
+.dua-timer{margin:6px 0 0;text-align:center;font-size:.9rem;font-weight:700;color:var(--heading);min-height:1.4em}
+.terms-line{margin:0}
+
+/* ---- header: mihrab arch with a tiled turquoise dome behind the logo ----
+   The header grid and the order of the dropdowns and the logo are unchanged; the arch is only a picture behind the logo. */
+:root{--arch-w:min(600px,92vw)}
+.logo-wrap{position:relative;padding-top:calc(var(--arch-w)*.215)}
+.logo-wrap::before{
+  content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:var(--arch-w);height:calc(var(--arch-w)*.4333);pointer-events:none;z-index:0;
+  background:url("../images/mihrab.svg") center top/100% 100% no-repeat;
+  -webkit-mask-image:linear-gradient(#000 82%,transparent 100%);mask-image:linear-gradient(#000 82%,transparent 100%);
+}
+.logo-wrap>*{position:relative;z-index:1}
+.top-side{align-self:center}
+/* wide screens: the middle column is as wide as the arch, so each dropdown sits right beside it
+   (start side = right in RTL pages, so "flex-end" means the end next to the arch) */
+@media(min-width:901px){
+  .top{grid-template-columns:minmax(0,1fr) var(--arch-w) minmax(0,1fr)}
+  .top-start{justify-content:flex-end}
+  .top-end{justify-content:flex-start}
+  .logo-wrap{justify-self:center}
+}
+/* narrow screens: dropdowns on their own row (same sides as before), logo and arch below */
+@media(max-width:900px){
+  .top{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"s e" "l l"}
+  .top-start{grid-area:s}
+  .top-end{grid-area:e}
+  .logo-wrap{grid-area:l;justify-self:center}
+}
+
+/* ---- icons: line style, one colour (they take the colour of the text next to them, so they follow the dark/light
+   theme and the gold of the site). Small SVG pictures used as masks on ::before / ::after, so the translated texts and
+   the page scripts are not touched. ---- */
+:root{
+  --i-calc:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%225%22 y=%223%22 width=%2214%22 height=%2218%22 rx=%222%22/%3E%3Cpath d=%22M8 7h8v3H8zM8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01%22/%3E%3C/svg%3E");
+  --i-check:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 12.5l4.5 4.5L19 7.5%22/%3E%3C/svg%3E");
+  --i-cal2:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%224%22 y=%225.5%22 width=%2216%22 height=%2214.5%22 rx=%222%22/%3E%3Cpath d=%22M4 10h16M8.5 3.5v4M15.5 3.5v4M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17h.01M12 17h.01%22/%3E%3C/svg%3E");
+  --i-bell:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z%22/%3E%3Cpath d=%22M10 21a2 2 0 0 0 4 0%22/%3E%3C/svg%3E");
+  --i-moonstar:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z%22/%3E%3Cpath d=%22M17.5 3v4M15.5 5h4%22/%3E%3C/svg%3E");
+  --i-moon:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z%22/%3E%3C/svg%3E");
+  --i-sunrise:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 20h18M6.5 20a5.5 5.5 0 0 1 11 0M12 3.5v7M8.8 6.7 12 3.5l3.2 3.2%22/%3E%3C/svg%3E");
+  --i-sunset:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 20h18M6.5 20a5.5 5.5 0 0 1 11 0M12 3.5v7M8.8 7.3 12 10.5l3.2-3.2%22/%3E%3C/svg%3E");
+  --i-sun:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%224%22/%3E%3Cpath d=%22M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8%22/%3E%3C/svg%3E");
+  --i-clock:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.5%22/%3E%3Cpath d=%22M12 7v5l3 2%22/%3E%3C/svg%3E");
+  --i-phase:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.5%22/%3E%3Cpath d=%22M12 3.5a8.5 8.5 0 0 0 0 17z%22 fill=%22%23000%22/%3E%3C/svg%3E");
+  --i-speaker:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 9.5v5h4l5 4v-13l-5 4z%22/%3E%3Cpath d=%22M16 9.2a4 4 0 0 1 0 5.6M18.6 6.6a8 8 0 0 1 0 10.8%22/%3E%3C/svg%3E");
+  --i-calendar:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%224%22 y=%225.5%22 width=%2216%22 height=%2214.5%22 rx=%222%22/%3E%3Cpath d=%22M4 10h16M8.5 3.5v4M15.5 3.5v4%22/%3E%3C/svg%3E");
+  --i-compass:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M15.8 8.2l-2 5.6-5.6 2 2-5.6z%22/%3E%3C/svg%3E");
+  --i-save:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 4h11l3 3v13H5z%22/%3E%3Cpath d=%22M8 4v5h7V4M8 20v-6h8v6%22/%3E%3C/svg%3E");
+  --i-mail:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%225.5%22 width=%2218%22 height=%2213%22 rx=%222%22/%3E%3Cpath d=%22M3.5 7l8.5 6.2L20.5 7%22/%3E%3C/svg%3E");
+  --i-heart:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.4a4.2 4.2 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z%22/%3E%3C/svg%3E");
+  --i-globe:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M3 12h18M12 3c3.2 3 3.2 15 0 18M12 3c-3.2 3-3.2 15 0 18%22/%3E%3C/svg%3E");
+}
+/* one rule gives every icon its size and its place at the start of the text (right side in RTL pages) */
+.times li>span::before,
+.card h2::before,.qibla::before,
+#saveDefaults::before,#contactBtn::before,.donate-btn::before,.city-list-btn::before,
+.calc-btn::before,.cal-ok:not(.annual-btn)::before,.annual-btn::before{
+  content:"";display:inline-block;flex:none;width:1.25em;height:1.25em;vertical-align:-.28em;
+  margin-inline-end:.5em;background:currentColor;
+  -webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat;
+}
+.card h2::before{width:1.25em;height:1.25em;vertical-align:baseline;margin-inline-end:.55em}
+/* 1) prayer times, in the order of the list */
+.times li:nth-child(1)>span::before{--ic:var(--i-moonstar)}
+.times li:nth-child(2)>span::before{--ic:var(--i-sunrise)}
+.times li:nth-child(3)>span::before{--ic:var(--i-sun)}
+.times li:nth-child(4)>span::before{--ic:var(--i-sunset)}
+.times li:nth-child(5)>span::before{--ic:var(--i-sunset)}
+.times li:nth-child(6)>span::before{--ic:var(--i-moon)}
+.times li:nth-child(7)>span::before{--ic:var(--i-moonstar)}
+/* 2) card titles and qibla */
+#t-h::before{--ic:var(--i-clock)}
+#mo-h::before{--ic:var(--i-phase)}
+#a-h::before{--ic:var(--i-speaker)}
+#cal-h::before{--ic:var(--i-calendar)}
+.qibla::before{--ic:var(--i-compass)}
+/* 3) footer buttons */
+#saveDefaults::before{--ic:var(--i-save)}
+#contactBtn::before{--ic:var(--i-mail)}
+.donate-btn::before{--ic:var(--i-heart)}
+.city-list-btn::before{--ic:var(--i-globe)}
+/* 4) the four date cards: a small icon in the top corner (start side), clock / Shamsi / Hijri / Gregorian */
+.date::after{
+  content:"";position:absolute;top:9px;inset-inline-start:11px;width:1.1rem;height:1.1rem;pointer-events:none;
+  background:var(--heading);opacity:.7;
+  -webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat;
+}
+.dates .date:nth-child(1)::after{--ic:var(--i-clock)}
+.dates .date:nth-child(2)::after{--ic:var(--i-calendar)}
+.dates .date:nth-child(3)::after{--ic:var(--i-moon)}
+.dates .date:nth-child(4)::after{--ic:var(--i-cal2)}
+/* 5) next to the "play adhan and dua automatically" switch */
+.auto>span[data-i18n="auto_label"]::before{
+  content:"";display:inline-block;width:1.2em;height:1.2em;vertical-align:-.25em;margin-inline-end:.45em;
+  background:currentColor;-webkit-mask:var(--i-bell) center/contain no-repeat;mask:var(--i-bell) center/contain no-repeat;
+}
+/* 6) the three action buttons: calculate times, confirm month, annual calendar */
+.calc-btn::before{--ic:var(--i-calc)}
+.cal-ok:not(.annual-btn)::before{--ic:var(--i-check)}
+.annual-btn::before{--ic:var(--i-cal2)}
