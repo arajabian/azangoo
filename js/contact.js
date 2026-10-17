@@ -30,4 +30,18 @@
       ta.remove();
     }
   });
+
+  /* About us: a dialog with the story and purpose of the site (the text comes from lang.js) */
+  var aboutDlg = document.getElementById('aboutDlg'),
+      aboutBtn = document.getElementById('aboutBtn'),
+      closeAbout = document.getElementById('closeAbout');
+  if (aboutDlg && aboutBtn) {
+    aboutBtn.addEventListener('click', function () {
+      if (aboutDlg.showModal) aboutDlg.showModal(); else aboutDlg.setAttribute('open', '');
+      aboutDlg.scrollTop = 0;
+    });
+    if (closeAbout) closeAbout.addEventListener('click', function () {
+      if (aboutDlg.close) aboutDlg.close(); else aboutDlg.removeAttribute('open');
+    });
+  }
 })();

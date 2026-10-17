@@ -12,6 +12,13 @@
   border:1px solid rgba(240,213,138,.45);box-shadow:inset 0 0 30px rgba(0,0,0,.35)
 }
 
+/* the sky behind the moon follows the sun at the selected place (attribute set by js/azan.js):
+   night = the stars above, sunrise / day / sunset = pictures. The pictures are cropped to the box, so the
+   part with the sun stays in view (day: top, sunrise and sunset: bottom). */
+.moon[data-sky="sunrise"]{background-image:url("../images/moon-sky-sunrise.webp");background-position:center bottom}
+.moon[data-sky="day"]{background-image:url("../images/moon-sky-day.webp");background-position:center top}
+.moon[data-sky="sunset"]{background-image:url("../images/moon-sky-sunset.webp");background-position:center bottom}
+
 .moon-img{
   flex:none;width:104px;height:104px;display:block;
   border-radius:50%;object-fit:cover;

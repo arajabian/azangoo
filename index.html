@@ -41,8 +41,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/azan.css?v=20261022">
-<link rel="stylesheet" href="css/moon.css?v=20261020">
+<link rel="stylesheet" href="css/azan.css?v=20261031">
+<link rel="stylesheet" href="css/moon.css?v=20261027">
 </head>
 <body>
 <div class="wrap">
@@ -164,7 +164,7 @@
           <button type="submit" class="btn cal-ok"><span data-i18n="cal_ok">تایید</span></button>
           <p class="msg" id="calMsg" role="status"></p>
         </form>
-        <button type="button" class="btn cal-ok annual-btn" id="annualBtn" data-i18n="annual_btn">تقویم سالانه</button>
+        <button type="button" class="btn cal-ok annual-btn" id="annualBtn" aria-expanded="false" aria-controls="annualBox" data-i18n="annual_btn">تقویم سالانه</button>
         <div class="annual-box" id="annualBox"></div>
       </section>
       
@@ -174,17 +174,13 @@
   <footer class="site-foot">
     <div class="foot-actions">
       <button type="button" id="saveDefaults" class="btn save-btn"><span data-i18n="save_btn">ذخیره پیش‌فرض‌ها</span></button>
-      <button type="button" class="btn save-btn" id="contactBtn" data-i18n="contact_btn">تماس با ما</button>
       <form class="donate" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
             <input type="hidden" name="cmd" value="_s-xclick">
             <input type="hidden" name="hosted_button_id" value="3QYFTJCUQAEKL">
             <button type="submit" class="btn donate-btn" data-i18n="donate" data-i18n-attr="title:donate_title">Donation</button>
           </form>
-    </div>
-    <section class="city-box" aria-label="Cities">
-      <p class="city-box-text" data-i18n="cities_box">اوقات شرعی شهرهای دنیا</p>
       <a class="city-list-btn" id="cityListLink" href="fa/prayer-times/index.html" data-i18n="city_list_btn">فهرست شهرها</a>
-    </section>
+    </div>
     <dialog class="contact-dlg save-dlg" id="saveDlg">
       <p data-i18n="save_q">تنظیمات فعلی شما (مکان روی نقشه، صدای اذان، پخش خودکار اذان و دعا، زبان و تم تیره/روشن) به‌عنوان پیش‌فرض در همین مرورگر ذخیره می‌شود و دفعهٔ بعد خودکار بارگذاری خواهد شد. پیش‌فرض‌های قبلی شما جایگزین می‌شوند. ذخیره شود؟</p>
       <div class="save-actions">
@@ -200,6 +196,21 @@
         <button type="button" class="btn save-no" id="locNo" data-i18n="loc_no">فعلاً نه</button>
       </div>
     </dialog>
+    <dialog class="contact-dlg about-dlg" id="aboutDlg" aria-labelledby="aboutTitle">
+      <h2 id="aboutTitle" data-i18n="about_title">دربارهٔ اذان گو</h2>
+      <div class="about-body">
+        <p data-i18n="about_p1"></p>
+        <p data-i18n="about_p2"></p>
+        <p data-i18n="about_p3"></p>
+        <p data-i18n="about_p4"></p>
+        <p data-i18n="about_p5"></p>
+        <p class="about-dua" lang="ar" dir="rtl">اللَّهُمَّ عَجِّلْ لِوَلِيِّكَ الْفَرَجَ</p>
+        <p data-i18n="about_p6"></p>
+      </div>
+      <div class="save-actions">
+        <button type="button" class="btn save-no" id="closeAbout" data-i18n="close_btn">بستن</button>
+      </div>
+    </dialog>
     <dialog class="contact-dlg" id="contactDlg">
       <p data-i18n="contact_text">شما می‌توانید با ایمیل زیر جهت هرگونه سوال، پیشنهاد و یا انتقاد با ما در تماس باشید:</p>
       <p class="contact-mail"><a href="mailto:info.azangoo@gmail.com">info.azangoo@gmail.com</a></p>
@@ -210,19 +221,19 @@
       <p class="msg" id="copyMsg" role="status"></p>
     </dialog>
     <p class="copyright">© 2026 azangoo.com · All rights reserved</p>
-    <p class="terms-line"><a class="terms-link" href="fa/terms/index.html" data-i18n="terms_link">شرایط استفاده</a> · <a class="terms-link privacy-link" href="fa/privacy/index.html" data-i18n="privacy_link">حریم خصوصی</a></p>
+    <p class="terms-line"><button type="button" class="link-btn" id="aboutBtn" data-i18n="about_btn">درباره ما</button> · <button type="button" class="link-btn" id="contactBtn" data-i18n="contact_btn">تماس با ما</button> · <a class="terms-link" href="fa/terms/index.html" data-i18n="terms_link">شرایط استفاده</a> · <a class="terms-link privacy-link" href="fa/privacy/index.html" data-i18n="privacy_link">حریم خصوصی</a></p>
   </footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lang.js?v=20261026"></script>
+<script src="js/lang.js?v=20261029"></script>
 <script src="js/official.js"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js"></script>
 <script src="js/calendar-pdf.js?v=20261023"></script>
-<script src="js/contact.js"></script>
+<script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
-<script src="js/calendar.js"></script>
-<script src="js/azan.js?v=20261026"></script>
+<script src="js/calendar.js?v=20261031"></script>
+<script src="js/azan.js?v=20261027"></script>
 </body>
 </html>
