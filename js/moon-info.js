@@ -313,8 +313,7 @@
   /* The "why" line under the moon card.
      - official month (listed in data/official-months.json): says the month follows the official announcement,
        and how it differs from the site's own prediction when it does;
-     - predicted month of 30 days: says why it is not 29, i.e. why the new crescent cannot be seen with the
-       naked eye on the evening of day 29 (before conjunction / moon sets before the sun / too thin and too close to the sun). */
+     - predicted month of 30 days: one short sentence that the crescent of the evening of day 29 is not visible. */
   function buildWhy(o, entry, start, nextStart, lat, lng, off, now) {
     var A = root.AzanLang;
     if (entry) {
@@ -334,13 +333,31 @@
       return A.t("moon_follow_official", { cur: o.cur, len: fa(o.len) });
     }
     if (o.len !== 30) return "";
-    var d = o.len - 1, ev = evening(nextStart - 2 * DAY, lat, lng);       /* sunset of day 29 */
-    var vars = { cur: o.cur, next: o.next, len: fa(o.len), d: fa(d) };
-    if (!ev || ev.visible) return A.t("moon_why_generic", vars);
-    vars.illum = A.percent(ev.illum.toFixed(2));
-    if (ev.age <= 0) return A.t("moon_why_conj", vars);
-    if (ev.dur <= 0) return A.t("moon_why_set", vars);
-    return A.t("moon_why_thin", vars);
+    var ev = evening(nextStart - 2 * DAY, lat, lng);       /* sunset of day 29 */
+    if (!ev || ev.visible) return "";
+    return A.t("moon_why_short", { cur: o.cur, len: fa(o.len), d: fa(o.len - 1) });
+  }
+
+  /* Best time and place to see the next new crescent: the evening of the last day of the month (the evening the
+     month-start rule looks at). The best moment is 4/9 of the way from sunset to moonset (Yallop); the text gives
+     that time, the height of the Moon above the horizon and its direction, and how it can be seen (Odeh zones:
+     V >= 5.65 naked eye, V >= 2 optical aid and possibly naked eye, V >= -0.96 optical aid only, below: not visible).
+     Nothing is shown once that moment has passed. */
+  function buildBest(o, nextStart, lat, lng, off, now) {
+    var A = root.AzanLang, ev = evening(nextStart - DAY, lat, lng);
+    if (!ev) return "";
+    var bt = null, m = null;
+    if (ev.age > 0 && ev.dur > 0) { bt = ev.t + (4 / 9) * ev.dur * MIN; m = moonAt(bt, lat, lng); }
+    if (now > (bt !== null ? bt : ev.t)) return "";
+    var g = new Date(ev.t + off * 3600000);
+    var vars = { next: o.next, weekday: A.names("weekdays")[g.getUTCDay()], gd: fa(g.getUTCDate()), gm: A.names("greg")[g.getUTCMonth()] };
+    if (bt === null || ev.V < -0.96) return A.t("moon_best_none", vars);
+    vars.time = hm(bt, off);
+    vars.mins = fa(Math.round((bt - ev.t) / MIN));
+    vars.alt = fa(Math.max(1, Math.round(m.alt)));
+    vars.dir = dirText(m.az);
+    vars.how = A.t(ev.V >= 5.65 ? "moon_best_naked" : (ev.V >= 2 ? "moon_best_aid" : "moon_best_optical"));
+    return A.t("moon_best", vars) + " " + A.t("moon_best_tip");
   }
 
   /* local calendar date (YYYY-MM-DD) of an instant at a fixed offset */
@@ -391,6 +408,7 @@
       out.text = buildText(out);
       out.startText = buildStartText(out) + " " + root.AzanLang.t(entry ? "official_mark" : "predicted_mark");
       out.whyText = buildWhy(out, entry, start, nextStart, lat, lng, off, now);
+      out.bestText = buildBest(out, nextStart, lat, lng, off, now);
     }
     return out;
   }
@@ -416,6 +434,7 @@
     }
     put("mStart", o.startText || "");
     put("mWhy", o.whyText || "");
+    put("mBest", o.bestText || "");
     var img = document.getElementById("moonImg");
     if (img) {
       var src = "images/moon/" + o.img;
