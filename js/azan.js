@@ -269,6 +269,7 @@
       lastRecalc=Date.now();
       paintTimes();
       markNext();
+      updateMoonSky();
       if(window.MoonInfo)MoonInfo.update(ll.lat,ll.lng,o.h);
       window.AzanPlace={latitude:ll.lat,longitude:ll.lng,zoneName:o.zone,fallbackOffsetHours:o.h};
       tick(true);
@@ -294,6 +295,29 @@
     for(var k in timeEls)timeEls[k].parentNode.classList.toggle("next",k===next);
   }
   setInterval(markNext,30000);
+
+  /* the sky behind the moon picture: sunrise, day, sunset or night, by the local time of the selected place.
+     "sunrise" and "sunset" last SKY_SPAN minutes before and after the real sunrise / sunset (not the maghrib adhan). */
+  var SKY_SPAN=30;
+  function skyState(now,sr,ss){
+    if(ss<sr)ss+=1440;                                      /* sunset after midnight (far north or south) */
+    for(var d=-1440;d<=1440;d+=1440){
+      var n=now+d;
+      if(Math.abs(n-sr)<=SKY_SPAN)return "sunrise";
+      if(Math.abs(n-ss)<=SKY_SPAN)return "sunset";
+      if(n>sr+SKY_SPAN&&n<ss-SKY_SPAN)return "day";
+    }
+    return "night";
+  }
+  function updateMoonSky(){
+    var box=document.querySelector(".moon");
+    if(!box)return;
+    var sr=lastTimes?toMin(lastTimes.sunrise):null, ss=lastTimes?toMin(lastTimes.sunset):null;
+    if(sr===null||ss===null){box.setAttribute("data-sky","night");return}   /* no place or no sunrise / sunset: the starry sky */
+    var n=new Date(Date.now()+lastOffset*3600000);
+    box.setAttribute("data-sky",skyState(n.getUTCHours()*60+n.getUTCMinutes(),sr,ss));
+  }
+  setInterval(updateMoonSky,30000);
 
   /* countdown to the next adhan (fajr, dhuhr, maghrib, tomorrow's fajr) */
   var cdEl=document.getElementById("countdown");
@@ -604,9 +628,9 @@
     if((!dayOn&&!ramOn)||!userWantsDua()){duaTimerEl.textContent="";return}
     var nowS=d.getUTCHours()*3600+d.getUTCMinutes()*60+d.getUTCSeconds();
     var best=null;
-    function show(start,key,wd){
-      var rem=Math.ceil(start-nowS);
-      duaTimerEl.textContent=A.t(key,{day:A.names("weekdays")[wd],start:hhmmss(start%86400),h:A.num(Math.floor(rem/3600)),m:A.num(Math.floor(rem%3600/60)),s:A.num(rem%60)});
+    /* one line: which dua, at what time it starts, and before which adhan (no countdown) */
+    function show(start,key,wd,kind){
+      duaTimerEl.textContent=A.t(key,{day:A.names("weekdays")[wd],start:hhmmss(start%86400),adhan:A.t("adhan_"+kind)});
     }
     if(dayOn){
       var dur=dailyPlayer.duration;
@@ -615,7 +639,7 @@
         var m=toMin(lastTimes[k]);
         if(m===null)return;
         var start=m*60-1-dur;
-        if(start>nowS&&(best===null||start<best.start))best={start:start,key:"dua_timer",wd:d.getUTCDay()};
+        if(start>nowS&&(best===null||start<best.start))best={start:start,key:"dua_timer",wd:d.getUTCDay(),kind:k};
       });
     }
     if(ramOn){
@@ -624,16 +648,16 @@
         var mm=toMin(lastTimes[S.kind]);
         if(mm===null)return;
         var rs=mm*60-1-ramTotal(S);
-        if(rs>nowS&&(best===null||rs<best.start))best={start:rs,key:S.timerKey,wd:d.getUTCDay()};
+        if(rs>nowS&&(best===null||rs<best.start))best={start:rs,key:S.timerKey,wd:d.getUTCDay(),kind:S.kind};
       });
     }
-    if(best){show(best.start,best.key,best.wd);return}
+    if(best){show(best.start,best.key,best.wd,best.kind);return}
     /* today is over: tomorrow's dua before tomorrow's Fajr (the Ramadan Sahar dua or the daily dua), if tomorrow's month has one */
     var d2=new Date(d.getTime()+86400000), fn=toMin(lastTimes.fajrNext);
     if(fn===null){duaTimerEl.textContent="";return}
     if(ramadanOn(d2)){
       ramPrepare(RAM_SETS.sahar);
-      show(fn*60-1-ramTotal(RAM_SETS.sahar)+86400,RAM_SETS.sahar.timerKey,d2.getUTCDay());
+      show(fn*60-1-ramTotal(RAM_SETS.sahar)+86400,RAM_SETS.sahar.timerKey,d2.getUTCDay(),"fajr");
       return;
     }
     if(!dailyOn(d2)){duaTimerEl.textContent="";return}
@@ -645,7 +669,7 @@
     }
     var durT=nextDuaPlayer.duration;
     if(!isFinite(durT)||durT<=0){duaTimerEl.textContent=A.t("dua_loading");return}
-    show(fn*60-1-durT+86400,"dua_timer",d2.getUTCDay());
+    show(fn*60-1-durT+86400,"dua_timer",d2.getUTCDay(),"fajr");
   }
   setInterval(updateDuaTimer,1000);
 

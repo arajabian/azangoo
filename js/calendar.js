@@ -104,7 +104,14 @@
     });
     annualBox.innerHTML = html + '</tbody></table></div>';
   }
+  /* one button opens and closes the annual calendar: open -> close it, closed -> open it */
   if (annualBtn) annualBtn.addEventListener('click', function () {
+    if (annualBox && annualBox.innerHTML) {
+      annualBox.innerHTML = '';
+      annualBtn.setAttribute('aria-expanded', 'false');
+      return;
+    }
+    annualBtn.setAttribute('aria-expanded', 'true');
     annualYear = null;
     renderAnnual();
   });
