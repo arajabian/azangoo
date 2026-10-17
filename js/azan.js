@@ -401,35 +401,44 @@
   var nextDuaPlayer=new Audio();
   nextDuaPlayer.preload="metadata";
 
-  /* Ramadan dua before the maghrib adhan: the files A..I play one after another and the last one ends 1 second
-     before the adhan. data/doa.json decides (flag "ramadan" per Hijri month); where it is on, it replaces the daily dua
-     before maghrib only (fajr and dhuhr keep the daily dua). One player plays the whole list; the other audio
-     objects only read the lengths (and warm the cache shortly before the start). */
-  var RAM_FILES=["A","B","C","D","E","F","G","H","I"].map(function(x){return "audio/doa/ramadan/Dua-Eftar-"+x+".mp3"});
-  var RAM_FALLBACK=[62.454,164.452,134.646,158.114,135.414,56.785,143.12,78.833,69.115];   /* lengths in seconds, used until the browser reports the real ones */
+  /* Ramadan duas (flag "ramadan" per Hijri month in data/doa.json). There are two sets of files; each set plays one file after
+     another in letter order and its last file ends 1 second before the adhan:
+       sahar = Dua_for_Sahar-A..H before the fajr adhan,  iftar = Dua-Eftar-A..I before the maghrib adhan.
+     Where the flag is on, the Ramadan dua replaces the daily dua before fajr and before maghrib (dhuhr keeps the daily dua).
+     One player plays a whole set; the other audio objects only read the lengths (and warm the cache shortly before the start).
+     A person who arrives in the middle hears the rest, from that point. */
+  function ramFiles(prefix,letters){return letters.split("").map(function(x){return "audio/doa/ramadan/"+prefix+x+".mp3"})}
+  var RAM_SETS={
+    sahar:{kind:"fajr",timerKey:"dua_timer_sahar",files:ramFiles("Dua_for_Sahar-","ABCDEFGH"),
+           fallback:[317.44,292.467,234.005,334.472,298.58,5.695,319.426,404.01]},          /* lengths in seconds, used until the browser reports the real ones */
+    iftar:{kind:"maghrib",timerKey:"dua_timer_iftar",files:ramFiles("Dua-Eftar-","ABCDEFGHI"),
+           fallback:[62.454,164.452,134.646,158.114,135.414,56.785,143.12,78.833,69.115]}
+  };
+  var RAM_LIST=[RAM_SETS.sahar,RAM_SETS.iftar];
+  RAM_LIST.forEach(function(S){S.pre=null;S.warm=false;S.busy=false});
   var ramPlayer=new Audio();
   ramPlayer.preload="auto";
-  var ramPre=null, ramWarm=false, ramIdx=0, ramChain=false, ramBusy=false;
-  function ramPrepare(){
-    if(ramPre)return;
-    ramPre=RAM_FILES.map(function(f){var a=new Audio();a.preload="metadata";a.src=f;return a});
+  var ramCur=null, ramIdx=0, ramChain=false;                 /* the set that is playing, the file in it, and whether the next file follows */
+  function ramPrepare(S){
+    if(S.pre)return;
+    S.pre=S.files.map(function(f){var a=new Audio();a.preload="metadata";a.src=f;return a});
   }
-  function ramWarmUp(){
-    if(ramWarm||!ramPre)return;
-    ramWarm=true;
-    ramPre.forEach(function(a){a.preload="auto";try{a.load()}catch(e){}});
+  function ramWarmUp(S){
+    if(S.warm||!S.pre)return;
+    S.warm=true;
+    S.pre.forEach(function(a){a.preload="auto";try{a.load()}catch(e){}});
   }
-  function ramDurations(){
-    return RAM_FILES.map(function(f,i){
-      var d=ramPre&&ramPre[i]?ramPre[i].duration:NaN;
-      return (isFinite(d)&&d>0)?d:RAM_FALLBACK[i];
+  function ramDurations(S){
+    return S.files.map(function(f,i){
+      var d=S.pre&&S.pre[i]?S.pre[i].duration:NaN;
+      return (isFinite(d)&&d>0)?d:S.fallback[i];
     });
   }
-  function ramTotal(){return ramDurations().reduce(function(a,b){return a+b},0)}
-  /* play file number idx from offset seconds; done(true|false) tells whether it started */
-  function playRamAt(idx,off,done){
-    ramIdx=idx;
-    var f=RAM_FILES[idx], settled=false, timer=null;
+  function ramTotal(S){return ramDurations(S).reduce(function(a,b){return a+b},0)}
+  /* play file number idx of set S from offset seconds; done(true|false) tells whether it started */
+  function playRamAt(S,idx,off,done){
+    ramCur=S; ramIdx=idx;
+    var f=S.files[idx], settled=false, timer=null;
     function finish(ok){
       if(settled)return;
       settled=true;
@@ -453,8 +462,9 @@
     if(ramPlayer.readyState>=1)go(); else ramPlayer.addEventListener("loadedmetadata",go);
   }
   ramPlayer.addEventListener("ended",function(){
-    if(!ramChain)return;
-    if(ramIdx+1<RAM_FILES.length)playRamAt(ramIdx+1,0,function(ok){if(!ok)ramChain=false});
+    if(!ramChain||!ramCur)return;
+    var S=ramCur;
+    if(ramIdx+1<S.files.length)playRamAt(S,ramIdx+1,0,function(ok){if(!ok)ramChain=false});
     else ramChain=false;
   });
 
@@ -538,25 +548,28 @@
       }
     });
   }
-  /* the Ramadan dua before maghrib: files A..I in a row; someone who arrives in the middle hears the rest */
-  function checkRamadanDua(nowMs,day){
-    ramPrepare();
-    if(!userWantsDua())return;
-    var m=toMin(lastTimes.maghrib);
+  /* a Ramadan dua (set S) before its adhan: the files in a row; someone who arrives in the middle hears the rest */
+  function checkRamSet(S,nowMs,day){
+    ramPrepare(S);
+    var m=toMin(lastTimes[S.kind]);
     if(m===null)return;
-    var endMs=m*60000-1000, startMs=endMs-ramTotal()*1000;
-    if(nowMs<endMs&&startMs-nowMs<20*60000)ramWarmUp();      /* fetch the files shortly before they are needed */
-    var key=day+"maghribramdua";
-    if(doaFired[key]||ramBusy)return;
+    var endMs=m*60000-1000, startMs=endMs-ramTotal(S)*1000;
+    if(nowMs<endMs&&startMs-nowMs<20*60000)ramWarmUp(S);     /* fetch the files shortly before they are needed */
+    var key=day+S.kind+"ramdua";
+    if(doaFired[key]||S.busy)return;
     if(nowMs>=startMs&&nowMs<endMs-500){
-      var pos=(nowMs-startMs)/1000, durs=ramDurations(), i=0;
+      var pos=(nowMs-startMs)/1000, durs=ramDurations(S), i=0;
       while(i<durs.length-1&&pos>=durs[i]){pos-=durs[i];i++}
-      ramBusy=true;
-      playRamAt(i,pos,function(ok){
-        ramBusy=false;
+      S.busy=true;
+      playRamAt(S,i,pos,function(ok){
+        S.busy=false;
         if(ok){doaFired[key]=true;ramChain=true}
       });
     }
+  }
+  function checkRamadanDua(nowMs,day){
+    if(!userWantsDua())return;                              /* the user's automatic adhan and dua switch */
+    RAM_LIST.forEach(function(S){checkRamSet(S,nowMs,day)});
   }
   function checkDua(){
     if(!lastTimes||!doaList)return;
@@ -566,8 +579,8 @@
     if(!dayOn&&!ramOn)return;
     var nowMs=now.getUTCHours()*3600000+now.getUTCMinutes()*60000+now.getUTCSeconds()*1000+now.getUTCMilliseconds();
     var day=now.getUTCFullYear()+"-"+now.getUTCMonth()+"-"+now.getUTCDate();
-    /* where the Ramadan dua is on, it replaces the daily dua before maghrib only */
-    if(dayOn)checkDailyDua(nowMs,day,ramOn?["fajr","dhuhr"]:["fajr","dhuhr","maghrib"]);
+    /* where the Ramadan dua is on, it replaces the daily dua before fajr and before maghrib (dhuhr keeps the daily dua) */
+    if(dayOn)checkDailyDua(nowMs,day,ramOn?["dhuhr"]:["fajr","dhuhr","maghrib"]);
     if(ramOn)checkRamadanDua(nowMs,day);
   }
   setInterval(checkDua,250);
@@ -598,7 +611,7 @@
     if(dayOn){
       var dur=dailyPlayer.duration;
       if(!isFinite(dur)||dur<=0){duaTimerEl.textContent=A.t("dua_loading");return}
-      (ramOn?["fajr","dhuhr"]:["fajr","dhuhr","maghrib"]).forEach(function(k){
+      (ramOn?["dhuhr"]:["fajr","dhuhr","maghrib"]).forEach(function(k){
         var m=toMin(lastTimes[k]);
         if(m===null)return;
         var start=m*60-1-dur;
@@ -606,16 +619,23 @@
       });
     }
     if(ramOn){
-      ramPrepare();
-      var mm=toMin(lastTimes.maghrib);
-      if(mm!==null){
-        var rs=mm*60-1-ramTotal();
-        if(rs>nowS&&(best===null||rs<best.start))best={start:rs,key:"dua_timer_ram",wd:d.getUTCDay()};
-      }
+      RAM_LIST.forEach(function(S){
+        ramPrepare(S);
+        var mm=toMin(lastTimes[S.kind]);
+        if(mm===null)return;
+        var rs=mm*60-1-ramTotal(S);
+        if(rs>nowS&&(best===null||rs<best.start))best={start:rs,key:S.timerKey,wd:d.getUTCDay()};
+      });
     }
     if(best){show(best.start,best.key,best.wd);return}
-    /* today is over: tomorrow's dua before tomorrow's Fajr, if tomorrow's month has one */
-    var d2=new Date(d.getTime()+86400000);
+    /* today is over: tomorrow's dua before tomorrow's Fajr (the Ramadan Sahar dua or the daily dua), if tomorrow's month has one */
+    var d2=new Date(d.getTime()+86400000), fn=toMin(lastTimes.fajrNext);
+    if(fn===null){duaTimerEl.textContent="";return}
+    if(ramadanOn(d2)){
+      ramPrepare(RAM_SETS.sahar);
+      show(fn*60-1-ramTotal(RAM_SETS.sahar)+86400,RAM_SETS.sahar.timerKey,d2.getUTCDay());
+      return;
+    }
     if(!dailyOn(d2)){duaTimerEl.textContent="";return}
     var tf=DUA_FILES[d2.getUTCDay()];
     if(nextDuaPlayer.getAttribute("data-file")!==tf){
@@ -623,8 +643,7 @@
       nextDuaPlayer.src=tf;
       nextDuaPlayer.load();
     }
-    var durT=nextDuaPlayer.duration, fn=toMin(lastTimes.fajrNext);
-    if(fn===null){duaTimerEl.textContent="";return}
+    var durT=nextDuaPlayer.duration;
     if(!isFinite(durT)||durT<=0){duaTimerEl.textContent=A.t("dua_loading");return}
     show(fn*60-1-durT+86400,"dua_timer",d2.getUTCDay());
   }
@@ -702,7 +721,7 @@
     });
   }
 
-  /* after-adhan dua: after the fajr or maghrib adhan ends, in Jumada II, Rajab, Sha'ban and Ramadan */
+  /* after-adhan dua: only after the maghrib adhan (the old after-fajr dua was removed; the Sahar dua now plays before fajr) */
   var duaPlayer=new Audio();
   var pendingAfter=null;
   /* Hijri month number of a local date (d has the local date in its UTC fields); official list first */
@@ -711,36 +730,47 @@
     var e=window.AzanOfficial?window.AzanOfficial.covering(ymd):null;
     return e?+e.hijriMonth:partsOf(fHijri,d).month;
   }
-  function duaMonth(){
-    var d=new Date(Date.now()+lastOffset*3600000), m=hijriMonthOf(d);
-    return m===6||m===7||m===8||m===9;
-  }
   player.addEventListener("ended",function(){
     mutedAuto=false; player.muted=false;
     adhanMsg.textContent="";
     var kind=pendingAfter;
     pendingAfter=null;
     if(!kind)return;
+    /* after the maghrib adhan: the Iftar dua, always exactly 1 second after the adhan ends, when the "ramadan" flag of the
+       Hijri month in data/doa.json is 1 and the automatic adhan and dua switch is on. */
     setTimeout(function(){
-      if(!autoEl.checked||!duaMonth())return;
-      duaPlayer.src=kind==="fajr"?"audio/Sahar_after_Azan.mp3":"audio/Eftar_after_Azan.mp3";
+      if(!autoEl.checked)return;
+      if(!ramadanOn(new Date(Date.now()+lastOffset*3600000)))return;
+      var f="audio/doa/ramadan/Eftar_after_Azan.mp3";
+      if(duaPlayer.getAttribute("data-file")!==f){duaPlayer.setAttribute("data-file",f);duaPlayer.src=f;}
+      try{duaPlayer.currentTime=0}catch(e){}
       var p=duaPlayer.play();
       if(p&&p.catch)p.catch(function(){});                    /* file missing or playback blocked */
-    },2000);
+    },1000);
   });
 
   player.preload="auto";
   /* The browser may block sound until the person has touched the page. In that case the adhan is started
      silently (always allowed) at the right position, and the first touch anywhere turns the sound on. */
   var mutedAuto=false, mutedName="";
+  /* the Iftar dua file is loaded while the maghrib adhan plays, so it can start on time after it */
+  function prepareAfter(kind){
+    if(kind!=="maghrib"||!autoEl.checked)return;
+    if(!ramadanOn(new Date(Date.now()+lastOffset*3600000)))return;
+    var f="audio/doa/ramadan/Eftar_after_Azan.mp3";
+    if(duaPlayer.getAttribute("data-file")!==f){
+      duaPlayer.setAttribute("data-file",f);duaPlayer.preload="auto";duaPlayer.src=f;
+      try{duaPlayer.load()}catch(e){}
+    }
+  }
   function playAdhan(name,key,kind,offset){
     if(!player.paused)return;                                  /* already playing */
     try{ player.currentTime=offset||0; }catch(e){}
     player.muted=false;
     var p=player.play();
-    function ok(){ played=key; pendingAfter=kind; adhanMsg.textContent=window.AzanLang.t("playing",{name:name}); updateCountdown(); }
+    function ok(){ played=key; pendingAfter=kind; prepareAfter(kind); adhanMsg.textContent=window.AzanLang.t("playing",{name:name}); updateCountdown(); }
     function silent(){
-      played=key; pendingAfter=kind; mutedAuto=true; mutedName=name;
+      played=key; pendingAfter=kind; prepareAfter(kind); mutedAuto=true; mutedName=name;
       adhanMsg.textContent=window.AzanLang.t("adhan_muted");
       updateCountdown();
     }
@@ -783,7 +813,7 @@
       /* from the start of the adhan until the end of the recording: a person who arrives in the middle hears it from that point */
       var len=(isFinite(dur)&&dur>0)?dur*1000-500:2500;
       if(nowMs>=startMs&&nowMs<startMs+len){
-        playAdhan(window.AzanLang.t(x[1]),key,(x[0]==="fajr"||x[0]==="maghrib")?x[0]:null,(nowMs-startMs)/1000);
+        playAdhan(window.AzanLang.t(x[1]),key,x[0]==="maghrib"?"maghrib":null,(nowMs-startMs)/1000);
       }
     });
   }

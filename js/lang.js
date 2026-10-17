@@ -24,7 +24,8 @@
 
   var D = {
     fa: {
-      dua_timer_ram: 'دعای رمضان ساعت {start} شروع می‌شود؛ {h}:{m}:{s} مانده',
+      dua_timer_sahar: 'دعای سحر ماه رمضان ساعت {start} شروع می‌شود؛ {h}:{m}:{s} مانده',
+      dua_timer_iftar: 'دعای افطار ماه رمضان ساعت {start} شروع می‌شود؛ {h}:{m}:{s} مانده',
       adhan_now: 'در حال پخش اذان…', adhan_muted: 'اذان بی‌صدا شروع شد؛ برای شنیدن صدا یک بار روی صفحه بزنید.',
       times_title: 'اوقات شرعی امروز', imsak: 'امساک', fajr: 'اذان صبح', sunrise: 'طلوع آفتاب',
       dhuhr: 'اذان ظهر', sunset: 'غروب آفتاب', maghrib: 'اذان مغرب', midnight: 'نیمه شب',
@@ -96,7 +97,8 @@
  dates_label: 'تاریخ و ساعت', tiles_label: 'تاریخ و ساعت'
     },
     en: {
-      dua_timer_ram: 'Ramadan dua starts at {start}; {h}:{m}:{s} left',
+      dua_timer_sahar: 'Ramadan Sahar dua starts at {start}; {h}:{m}:{s} left',
+      dua_timer_iftar: 'Ramadan Iftar dua starts at {start}; {h}:{m}:{s} left',
       adhan_now: 'Adhan is playing…', adhan_muted: 'The adhan started silently because the browser blocks sound; tap the page once to hear it.',
       times_title: 'Prayer times today', imsak: 'Imsak', fajr: 'Fajr adhan', sunrise: 'Sunrise',
       dhuhr: 'Dhuhr adhan', sunset: 'Sunset', maghrib: 'Maghrib adhan', midnight: 'Midnight',
@@ -168,7 +170,8 @@
  dates_label: 'Date and time', tiles_label: 'Date and time'
     },
     ur: {
-      dua_timer_ram: 'رمضان کی دعا {start} پر شروع ہوگی؛ {h}:{m}:{s} باقی',
+      dua_timer_sahar: 'رمضان کی سحری کی دعا {start} پر شروع ہوگی؛ {h}:{m}:{s} باقی',
+      dua_timer_iftar: 'رمضان کی افطار کی دعا {start} پر شروع ہوگی؛ {h}:{m}:{s} باقی',
       adhan_now: 'اذان چل رہی ہے…', adhan_muted: 'براؤزر آواز روک رہا ہے، اس لیے اذان بغیر آواز شروع ہوئی؛ آواز سننے کے لیے صفحے پر ایک بار ٹیپ کریں۔',
       times_title: 'آج کے اوقات نماز', imsak: 'امساک', fajr: 'فجر کی اذان', sunrise: 'طلوع آفتاب',
       dhuhr: 'ظہر کی اذان', sunset: 'غروب آفتاب', maghrib: 'مغرب کی اذان', midnight: 'نصف شب',
@@ -239,7 +242,8 @@
       pdf_maghrib: 'مغرب', pdf_isha: 'عشا', pdf_midnight: 'نصف شب'
     },
     ar: {
-      dua_timer_ram: 'يبدأ دعاء رمضان في {start}؛ متبقٍ {h}:{m}:{s}',
+      dua_timer_sahar: 'يبدأ دعاء سحور شهر رمضان في {start}؛ متبقٍ {h}:{m}:{s}',
+      dua_timer_iftar: 'يبدأ دعاء إفطار شهر رمضان في {start}؛ متبقٍ {h}:{m}:{s}',
       adhan_now: 'جارٍ تشغيل الأذان…', adhan_muted: 'بدأ الأذان بدون صوت لأن المتصفح يمنع الصوت؛ انقر على الصفحة مرة واحدة لسماعه.',
       times_title: 'أوقات الصلاة اليوم',
       imsak: 'الإمساك',
