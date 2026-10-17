@@ -37,4 +37,6 @@
 .moon-start{font-weight:700;color:var(--ivory);margin-top:10px}
 .moon-why{margin-top:10px}
 .moon-why:empty{display:none}
+.moon-best{margin-top:10px}
+.moon-best:empty{display:none}
 .moon-note{margin:8px 0 0;font-size:.75rem;opacity:.75;line-height:1.7}
