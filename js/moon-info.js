@@ -3,22 +3,27 @@
    is prohibited without written permission. See the Terms and conditions page. */
 /* Moon for the selected place: illumination, moonrise and moonset with directions,
    sunset data, and whether the new crescent is visible (which decides 29 or 30 days).
-   Astronomy: low-precision formulas from Meeus, "Astronomical Algorithms" (moon to about 0.3 degrees).
+   Astronomy: Meeus, "Astronomical Algorithms" ch. 47 (moon position to about 0.01 degree, new moon times to about 1 minute).
    Crescent visibility: Odeh V-criterion (M. Sh. Odeh, Experimental Astronomy 18, 2004, 39-64). This is an estimate, not an official sighting. */
 (function (root) {
   "use strict";
   var RAD = Math.PI / 180, DEG = 180 / Math.PI, DAY = 86400000, MIN = 60000;
   var VISIBLE = 2.0;     /* Odeh V at or above this counts as visible (optical aid at the low end) */
-  var SEMI = 15.5;       /* moon semidiameter in arcminutes, used for the crescent width */
+  var MOON_K = 0.2725;   /* moon radius / earth radius: semidiameter = K x horizontal parallax */
   var H0_MOON = 0;       /* moon rise and set: altitude threshold is applied in moonAt */
   var H0_SUN = -0.8333;  /* sunset altitude with refraction and semidiameter, degrees */
 
-  /* Meeus table 47.A (longitude) and 47.B (latitude): [D, M, M', F, coefficient] */
+  /* Meeus, Astronomical Algorithms ch. 47, table 47.A (longitude, 1e-6 degree) and 47.B (latitude): [D, M, M', F, coefficient] */
   var MT = [[0,0,1,0,6288774],[2,0,-1,0,1274027],[2,0,0,0,658314],[0,0,2,0,213618],[0,1,0,0,-185116],
     [0,0,0,2,-114332],[2,0,-2,0,58793],[2,-1,-1,0,57066],[2,0,1,0,53322],[2,-1,0,0,45758],
-    [0,1,-1,0,-40923],[1,0,0,0,-34720],[0,1,1,0,-30383],[2,0,0,-2,15327],[0,0,1,2,12529],[0,0,1,-2,-10980]];
+    [0,1,-1,0,-40923],[1,0,0,0,-34720],[0,1,1,0,-30383],[2,0,0,-2,15327],[0,0,1,2,-12528],
+    [0,0,1,-2,10980],[4,0,-1,0,10675],[0,0,3,0,10034],[4,0,-2,0,8548],[2,1,-1,0,-7888],
+    [2,1,0,0,-6766],[1,0,-1,0,-5163],[1,1,0,0,4987],[2,-1,1,0,4036],[2,0,2,0,3994],
+    [4,0,0,0,3861],[2,0,-3,0,3665],[0,1,-2,0,-2689],[2,0,-1,2,-2602],[2,-1,-2,0,2390]];
   var BT = [[0,0,0,1,5128122],[0,0,1,1,280602],[0,0,1,-1,277693],[2,0,0,-1,173237],[2,0,-1,1,55413],
-    [2,0,-1,-1,46271],[2,0,0,1,32573],[0,0,2,1,17198],[2,0,1,-1,9266],[0,0,2,-1,8822]];
+    [2,0,-1,-1,46271],[2,0,0,1,32573],[0,0,2,1,17198],[2,0,1,-1,9266],[0,0,2,-1,8822],
+    [2,-1,0,-1,8216],[2,0,-2,-1,4324],[2,0,1,1,4200],[2,1,0,-1,-3359],[2,-1,-1,1,2463],
+    [2,-1,0,1,2211],[2,-1,-1,-1,2065],[0,1,-1,-1,-1870],[4,0,-1,-1,1828],[0,1,0,1,-1794]];
 
   function norm(a) { a = a % 360; return a < 0 ? a + 360 : a; }
   function wrap(a) { a = norm(a); return a > 180 ? a - 360 : a; }
@@ -53,13 +58,31 @@
     var dec = Math.atan(s2 / Math.sqrt(1 - s2 * s2));
     return { ra: norm(ra * DEG), dec: dec * DEG, dist: 60.40974 * Math.sqrt(u) };
   }
+  var DELTA_T = 69000;                                  /* TT - UT in ms (about 69 s in 2026) */
   function moonEcl(ms) {
-    var jd = ms / DAY + 2440587.5;
-    var s = moonSeries(jd);
-    var t = cen(ms), e = (23.439291 - 0.0130042 * t) * RAD;
-    var ra = s.ra * RAD, dec = s.dec * RAD;
-    var lon = norm(Math.atan2(Math.sin(ra) * Math.cos(e) + Math.tan(dec) * Math.sin(e), Math.cos(ra)) * DEG);
-    return { lon: lon, par: Math.asin(1 / s.dist) * DEG, dist: s.dist, eq: { ra: s.ra, dec: s.dec } };
+    var t = cen(ms + DELTA_T), t2 = t * t, t3 = t2 * t, t4 = t3 * t;
+    var Lp = 218.3164477 + 481267.88123421 * t - 0.0015786 * t2 + t3 / 538841 - t4 / 65194000;
+    var D = (297.8501921 + 445267.1114034 * t - 0.0018819 * t2 + t3 / 545868 - t4 / 113065000) * RAD;
+    var M = (357.5291092 + 35999.0502909 * t - 0.0001536 * t2 + t3 / 24490000) * RAD;
+    var Mp = (134.9633964 + 477198.8675055 * t + 0.0087414 * t2 + t3 / 69699 - t4 / 14712000) * RAD;
+    var F = (93.2720950 + 483202.0175233 * t - 0.0036539 * t2 - t3 / 3526000 + t4 / 863310000) * RAD;
+    var A1 = (119.75 + 131.849 * t) * RAD, A2 = (53.09 + 479264.290 * t) * RAD, A3 = (313.45 + 481266.484 * t) * RAD;
+    var E = 1 - 0.002516 * t - 0.0000074 * t2, LpR = Lp * RAD;
+    function sum(tab, useSin) {
+      var r = 0;
+      for (var i = 0; i < tab.length; i++) {
+        var q = tab[i], arg = q[0] * D + q[1] * M + q[2] * Mp + q[3] * F, m = Math.abs(q[1]);
+        r += q[4] * (m === 1 ? E : (m === 2 ? E * E : 1)) * Math.sin(arg);
+      }
+      return r;
+    }
+    var sl = sum(MT) + 3958 * Math.sin(A1) + 1962 * Math.sin(LpR - F) + 318 * Math.sin(A2);
+    var sb = sum(BT) - 2235 * Math.sin(LpR) + 382 * Math.sin(A3) + 175 * Math.sin(A1 - F) + 175 * Math.sin(A1 + F) +
+             127 * Math.sin(LpR - Mp) - 115 * Math.sin(LpR + Mp);
+    var lon = norm(Lp + sl / 1e6 - 0.004777 * Math.sin((125.04452 - 1934.136261 * t) * RAD));   /* apparent: nutation in longitude */
+    var lat = sb / 1e6;
+    var s = moonSeries(ms / DAY + 2440587.5);             /* distance only */
+    return { lon: lon, lat: lat, par: Math.asin(1 / s.dist) * DEG, dist: s.dist, eq: eqFromEcl(lon, lat, cen(ms)) };
   }
 
   function sunEcl(ms) {
@@ -86,8 +109,9 @@
   }
   function moonAt(ms, lat, lng) {
     var m = moonEcl(ms), h = horiz(m.eq, ms, lat, lng);
+    h.geo = h.alt;                                     /* altitude of the Moon's centre seen from the centre of the Earth */
     h.alt -= (41.685 / m.dist - 0.567);                /* old code: rise and set when this is 0 (includes parallax) */
-    h.lon = m.lon; h.eq = m.eq;
+    h.lon = m.lon; h.eq = m.eq; h.dist = m.dist;
     return h;
   }
   function sunAt(ms, lat, lng) {
@@ -128,8 +152,13 @@
     var t = ss.t, mA = moonAt(t, lat, lng), sA = sunAt(t, lat, lng);
     var age = wrap(mA.lon - sA.lon);
     var arcl = sep(sA.eq, mA.eq);
-    var W = SEMI * (1 - Math.cos(arcl * RAD));                       /* crescent width, arcminutes */
-    var V = (mA.alt - sA.alt) - (-0.1018 * W * W * W + 0.7319 * W * W - 6.3226 * W + 7.1651);
+    /* Odeh uses what an observer on the ground sees: the topocentric altitude of the Moon's centre (parallax taken off,
+       no refraction, like the Sun's altitude) and the topocentric semidiameter */
+    var hp = Math.asin(1 / mA.dist);                                 /* horizontal parallax, radians */
+    var topoAlt = mA.geo - hp * DEG * Math.cos(mA.geo * RAD);
+    var sd = MOON_K * hp * DEG * 60 * (1 + Math.sin(mA.geo * RAD) * Math.sin(hp));   /* semidiameter, arcminutes */
+    var W = sd * (1 - Math.cos(arcl * RAD));                         /* crescent width, arcminutes */
+    var V = (topoAlt - sA.alt) - (-0.1018 * W * W * W + 0.7319 * W * W - 6.3226 * W + 7.1651);
     var dur = 0;
     if (mA.alt > H0_MOON) {
       var set = crossings(function (x) { return moonAt(x, lat, lng).alt; }, H0_MOON, t, t + 12 * 3600000)
