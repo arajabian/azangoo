@@ -39,4 +39,7 @@
 .moon-why:empty{display:none}
 .moon-best{margin-top:10px}
 .moon-best:empty{display:none}
+.moon-text:empty{display:none}
+.moon-more[hidden],.moon-more-btn[hidden]{display:none}
+.moon-more-btn{margin-top:12px}
 .moon-note{margin:8px 0 0;font-size:.75rem;opacity:.75;line-height:1.7}

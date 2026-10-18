@@ -313,7 +313,7 @@
   /* The "why" line under the moon card.
      - official month (listed in data/official-months.json): says the month follows the official announcement,
        and how it differs from the site's own prediction when it does;
-     - predicted month of 30 days: one short sentence that the crescent of the evening of day 29 is not visible. */
+     - predicted month: why it has 29 or 30 days (the crescent of the evening of day 29 is visible or not); for 30 days also the best moment to try. */
   function buildWhy(o, entry, start, nextStart, lat, lng, off, now) {
     var A = root.AzanLang;
     if (entry) {
@@ -332,10 +332,35 @@
     if (pure && pure.next && (pure.start !== start || pure.next !== nextStart)) {
       return A.t("moon_follow_official", { cur: o.cur, len: fa(o.len) });
     }
-    if (o.len !== 30) return "";
-    var ev = evening(nextStart - 2 * DAY, lat, lng);       /* sunset of day 29 */
-    if (!ev || ev.visible) return "";
-    return A.t("moon_why_short", { cur: o.cur, len: fa(o.len), d: fa(o.len - 1) });
+    /* predicted month: why it has 29 or 30 days, judged by the sunset of day 29 */
+    var A2 = root.AzanLang;
+    if (o.len === 30) {
+      var ev = evening(nextStart - 2 * DAY, lat, lng);       /* sunset of day 29 */
+      if (!ev || ev.visible) return "";
+      var v30 = { cur: o.cur, len: fa(o.len), d: fa(29), illum: A2.percent(ev.illum.toFixed(2)), dur: fa(ev.dur) };
+      return A2.t(ev.dur > 0 ? "moon_why_30" : "moon_why_30_early", v30) + tryText(ev, lat, lng, off, now);
+    }
+    if (o.len === 29) {
+      var ev9 = evening(nextStart - DAY, lat, lng);           /* sunset of day 29 = the last day */
+      if (!ev9 || !ev9.visible) return "";
+      return A2.t("moon_why_29", { cur: o.cur, len: fa(o.len), d: fa(29), illum: A2.percent(ev9.illum.toFixed(2)), dur: fa(ev9.dur) });
+    }
+    return "";
+  }
+
+  /* for a 30-day month: the best moment to try to see the crescent on the evening of day 29 anyway
+     (same moment as in buildBest: 4/9 of the way from sunset to moonset); nothing once that moment has passed */
+  function tryText(ev, lat, lng, off, now) {
+    var A = root.AzanLang, bt = null, m = null;
+    if (ev.age > 0 && ev.dur > 0) { bt = ev.t + (4 / 9) * ev.dur * MIN; m = moonAt(bt, lat, lng); }
+    if (now > (bt !== null ? bt : ev.t)) return "";
+    if (bt === null || ev.V < -0.96) return " " + A.t("moon_try_none");
+    var g = new Date(ev.t + off * 3600000);
+    return " " + A.t("moon_try", {
+      weekday: A.names("weekdays")[g.getUTCDay()], gd: fa(g.getUTCDate()), gm: A.names("greg")[g.getUTCMonth()],
+      time: hm(bt, off), mins: fa(Math.round((bt - ev.t) / MIN)), alt: fa(Math.max(1, Math.round(m.alt))), dir: dirText(m.az),
+      how: A.t(ev.V >= 5.65 ? "moon_best_naked" : (ev.V >= 2 ? "moon_best_aid" : "moon_best_optical"))
+    });
   }
 
   /* Best time and place to see the next new crescent: the evening of the last day of the month (the evening the
@@ -435,12 +460,38 @@
     put("mStart", o.startText || "");
     put("mWhy", o.whyText || "");
     put("mBest", o.bestText || "");
+    arrangeMessages();
     var img = document.getElementById("moonImg");
     if (img) {
       var src = "images/moon/" + o.img;
       if (img.getAttribute("src") !== src) img.setAttribute("src", src);
       img.alt = root.AzanLang.t("moon_alt", { p: fa(o.illumNow.toFixed(1)) });
     }
+  }
+  /* the two main messages (mText, mStart) are always in the card; the why / best-time messages are behind the "more info" button,
+     which shows only when there is something behind it */
+  function arrangeMessages() {
+    var more = document.getElementById("moonMore"), btn = document.getElementById("moonMoreBtn");
+    if (!more || !btn) return;
+    var extra = ["mWhy", "mBest"].some(function (id) { var e = document.getElementById(id); return e && e.textContent; });
+    btn.hidden = !extra;
+    if (!extra) { more.hidden = true; setMoreLabel(false); }
+  }
+  function setMoreLabel(open) {
+    var btn = document.getElementById("moonMoreBtn");
+    if (!btn) return;
+    var key = open ? "moon_less" : "moon_more";
+    btn.setAttribute("data-i18n", key);
+    btn.textContent = root.AzanLang.t(key);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  if (typeof document !== "undefined") {
+    var moreBtn = document.getElementById("moonMoreBtn");
+    if (moreBtn) moreBtn.addEventListener("click", function () {
+      var more = document.getElementById("moonMore");
+      more.hidden = !more.hidden;
+      setMoreLabel(!more.hidden);
+    });
   }
   function update(lat, lng, off) { state = { lat: lat, lng: lng, off: off }; render(); }
   if (typeof window !== "undefined" && window.addEventListener) window.addEventListener("azan:langchange", render);
