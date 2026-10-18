@@ -131,11 +131,23 @@
     return new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
   }
 
-  /* add one rendered month to the PDF, on as many A4 pages as it needs */
-  function addCanvas(pdf, canvas, startNewPage) {
+  /* the small note at the bottom of every page, drawn like the table (with the page font, so it works in every language) */
+  function renderNote() {
+    var A = window.AzanLang, dir = A.isRtl() ? 'rtl' : 'ltr';
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:-10000px;top:0;';
+    box.innerHTML = '<div style="font-family:Vazirmatn,Tahoma,sans-serif;direction:' + dir + ';color:#555;background:#fff;width:1000px;padding:6px 18px;' +
+      'box-sizing:border-box;text-align:center;font-size:11px;line-height:1.7;border-top:1px solid #c9982f">' + A.t('pdf_note') + '</div>';
+    document.body.appendChild(box);
+    return root.html2canvas(box.firstChild, { scale: 2, backgroundColor: '#ffffff' }).finally(function () { box.remove(); });
+  }
+
+  /* add one rendered month to the PDF, on as many A4 pages as it needs; the note goes at the bottom of each page */
+  function addCanvas(pdf, canvas, startNewPage, note) {
     var margin = 8, pageW = 210, pageH = 297;
     var printW = pageW - 2 * margin, ratio = printW / canvas.width;
-    var pagePx = (pageH - 2 * margin) / ratio, y = 0, first = true;
+    var noteH = note ? note.height * (printW / note.width) : 0;       /* height of the note on the page, mm */
+    var pagePx = (pageH - 2 * margin - (note ? noteH + 3 : 0)) / ratio, y = 0, first = true;
     while (y < canvas.height) {
       var h = Math.min(pagePx, canvas.height - y);
       var part = document.createElement('canvas');
@@ -143,6 +155,7 @@
       part.getContext('2d').drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
       if (!first || startNewPage) pdf.addPage();
       pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, printW, h * ratio);
+      if (note) pdf.addImage(note.toDataURL('image/jpeg', 0.92), 'JPEG', margin, pageH - margin - noteH, printW, noteH);
       first = false;
       y += pagePx;
     }
@@ -175,11 +188,11 @@
     var p = opts.place, kind = opts.mode === 'greg' ? 'gregorian' : 'shamsi';
     var months = opts.month === 0 ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] : [opts.month];
     var fileName = 'prayer-times-' + kind + '-' + opts.year + (opts.month === 0 ? '-all' : '-' + pad2(opts.month)) + '.pdf';
-    var pdf = null, chain = ensureLibs().then(function () { pdf = newPdf(); });
+    var pdf = null, note = null, chain = ensureLibs().then(function () { pdf = newPdf(); return renderNote(); }).then(function (c) { note = c; });
     months.forEach(function (m, i) {
       chain = chain.then(function () {
         return renderMonth(opts.mode, opts.year, m, p, opts.city).then(function (canvas) {
-          addCanvas(pdf, canvas, i > 0);
+          addCanvas(pdf, canvas, i > 0, note);
         });
       });
     });
