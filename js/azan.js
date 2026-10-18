@@ -143,16 +143,37 @@
   }
 
   /* find the city name for a point */
-  function reverse(ll){
-    fetch(NOMINATIM+"reverse?format=jsonv2&zoom=10&accept-language=en&lat="+ll.lat+"&lon="+ll.lng)
+  /* name of a found place in the language of the page: the place's own name in that language first (namedetails),
+     then the address parts that the lookup returned in that language */
+  function placeName(d,fallback){
+    var L=window.AzanLang.current(), nd=(d&&d.namedetails)||{}, a=(d&&d.address)||{};
+    return nd["name:"+L]||a.city||a.town||a.village||a.county||a.state||fallback||"";
+  }
+
+  /* the search box is emptied, then filled with the name that was found, in the language of the page */
+  var qEl=document.getElementById("q"), revSeq=0;
+  function reverse(ll,toSearchBox,done){
+    var id=++revSeq;
+    if(toSearchBox)qEl.value="";
+    fetch(NOMINATIM+"reverse?format=jsonv2&zoom=10&namedetails=1&accept-language="+encodeURIComponent(window.AzanLang.current())+"&lat="+ll.lat+"&lon="+ll.lng)
       .then(function(r){return r.json()})
       .then(function(d){
-        var a=d.address||{};
-        cityEl.value=a.city||a.town||a.village||a.county||a.state||"";
+        if(id!==revSeq)return;                              /* a newer place replaced this one */
+        var name=placeName(d,"");
+        cityEl.value=name;
+        if(toSearchBox)qEl.value=name;
+        if(done)done(name);
         showPlace();
       })
       .catch(function(){});
   }
+
+  /* when the language is changed, the place name is read again in the new language */
+  window.addEventListener("azan:langchange",function(){
+    if(!placed)return;
+    var old=cityEl.value, ll=marker.getLatLng(), sameInBox=(qEl.value&&qEl.value===old);
+    reverse(ll,false,function(name){ if(sameInBox)qEl.value=name; });
+  });
 
   /* double click on the map or drag the marker */
   marker.on("drag",updateQibla);
@@ -168,14 +189,14 @@
     var q=document.getElementById("q").value.trim();
     if(!q)return;
     say(window.AzanLang.t("searching"));
-    fetch(NOMINATIM+"search?format=jsonv2&limit=1&addressdetails=1&accept-language=en&q="+encodeURIComponent(q))
+    fetch(NOMINATIM+"search?format=jsonv2&limit=1&addressdetails=1&namedetails=1&accept-language="+encodeURIComponent(window.AzanLang.current())+"&q="+encodeURIComponent(q))
       .then(function(r){return r.json()})
       .then(function(list){
         if(!list.length){say(window.AzanLang.t("not_found"));return}
         var p=list[0],ll=L.latLng(parseFloat(p.lat),parseFloat(p.lon)),a=p.address||{};
         rememberRegion(ll,a.country_code);
         setPos(ll,14);
-        cityEl.value=a.city||a.town||a.village||a.county||p.name||q;
+        cityEl.value=placeName(p,p.name||q);
         showPlace();
         say("");
       })
@@ -686,7 +707,9 @@
     var lat=parseFloat(window.AzanLang.toAscii(latEl.value)),lng=parseFloat(window.AzanLang.toAscii(lngEl.value));
     if(!(lat>=-90&&lat<=90&&lng>=-180&&lng<=180)){say(window.AzanLang.t("bad_coords"));return}
     say("");
-    setPos(L.latLng(lat,lng),15);
+    var ll=L.latLng(lat,lng);
+    setPos(ll,15);
+    reverse(ll,true);
   });
 
   /* ---- adhan sound: plays by itself at fajr, dhuhr and maghrib of the selected place ---- */
@@ -856,7 +879,7 @@
     say(window.AzanLang.t("locating"));
     navigator.geolocation.getCurrentPosition(function(pos){
       var ll=L.latLng(pos.coords.latitude,pos.coords.longitude);
-      setPos(ll,14);reverse(ll);say("");
+      setPos(ll,14);reverse(ll,true);say("");
     },function(err){
       say(window.AzanLang.t(err&&err.code===1?"gps_denied":"geo_denied"));
     },{timeout:10000,maximumAge:300000});
@@ -883,6 +906,7 @@
   if(defaults&&defaults.place&&isFinite(defaults.place.lat)&&isFinite(defaults.place.lng)){   /* saved defaults first */
     cityEl.value=defaults.place.city||"";
     setPos(L.latLng(defaults.place.lat,defaults.place.lng),15);
+    reverse(L.latLng(defaults.place.lat,defaults.place.lng));   /* name in the language of the page */
   }else if(isFinite(qLat)&&isFinite(qLng)&&Math.abs(qLat)<=90&&Math.abs(qLng)<=180){   /* link from a city page, when there are no defaults */
     cityEl.value=qs.get("city")||"";
     rememberRegion(L.latLng(qLat,qLng),qs.get("cc"));   /* the city page already knows the country */

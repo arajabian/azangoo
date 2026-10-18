@@ -80,7 +80,7 @@
 
   /* small logo at the top of the PDF (the same logo in every language) */
   function logoSrc() {
-    return 'images/logo-azangoo-174.png';                  /* the same logo in every language */
+    return 'images/logo-azangoo-348.png';                  /* the same logo as the main page, in every language (larger file for a sharp print) */
   }
 
   function tableHtml(rows, title, subtitle) {
@@ -93,7 +93,11 @@
     }).join('');
     var dir = window.AzanLang.isRtl() ? 'rtl' : 'ltr';
     return '<div style="font-family:Vazirmatn,Tahoma,sans-serif;direction:' + dir + ';color:#000;background:#fff;padding:18px;width:1000px">' +
-      '<div style="text-align:center;margin-bottom:10px"><img src="' + logoSrc() + '" alt="' + window.AzanLang.t('logo_alt') + '" style="display:block;margin:0 auto 6px;width:110px;height:auto">' +
+      '<div style="text-align:center;margin-bottom:10px">' +
+      /* the same round gold frame, logo size and "AzanGoo.com" caption as the logo on the main page (light colours for paper) */
+      '<div style="width:100px;height:100px;margin:0 auto 4px;border-radius:50%;border:2px solid #c9982f;background:#fff;display:flex;align-items:center;justify-content:center">' +
+      '<img src="' + logoSrc() + '" alt="' + window.AzanLang.t('logo_alt') + '" style="display:block;width:auto;height:72px;max-width:72px;object-fit:contain"></div>' +
+      '<div style="font-size:13px;font-weight:700;letter-spacing:.5px;color:#8a6a1f;direction:ltr">AzanGoo.com</div>' +
       '<div style="font-size:18px;font-weight:700;margin-top:4px">' + title + '</div>' +
       '<div style="font-size:13px;margin-top:4px">' + subtitle + '</div></div>' +
       '<table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center">' +
