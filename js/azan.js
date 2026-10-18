@@ -180,8 +180,8 @@
   map.on("zoomend resize",updateQibla);
   updateQibla();
   map.doubleClickZoom.disable();          /* double click now picks a place instead of zooming */
-  map.on("dblclick",function(e){setPos(e.latlng);reverse(e.latlng)});
-  marker.on("dragend",function(){var ll=marker.getLatLng();setPos(ll);reverse(ll)});
+  map.on("dblclick",function(e){setPos(e.latlng);reverse(e.latlng,true)});
+  marker.on("dragend",function(){var ll=marker.getLatLng();setPos(ll);reverse(ll,true)});
 
   /* search box */
   document.getElementById("searchForm").addEventListener("submit",function(e){
