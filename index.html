@@ -18,6 +18,11 @@
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0b2530">
 <link rel="canonical" href="https://www.azangoo.com/">
+<link rel="alternate" hreflang="fa" href="https://www.azangoo.com/fa/">
+<link rel="alternate" hreflang="en" href="https://www.azangoo.com/en/">
+<link rel="alternate" hreflang="ur" href="https://www.azangoo.com/ur/">
+<link rel="alternate" hreflang="ar" href="https://www.azangoo.com/ar/">
+<link rel="alternate" hreflang="x-default" href="https://www.azangoo.com/">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
@@ -41,7 +46,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/azan.css?v=20261102">
+<link rel="stylesheet" href="css/azan.css?v=20261103">
 <link rel="stylesheet" href="css/moon.css?v=20261101">
 </head>
 <body>
@@ -191,6 +196,7 @@
     </dialog>
     <p class="msg" id="saveMsg" role="status"></p>
     <dialog class="contact-dlg" id="locDlg">
+      <div class="lang-pick" id="locLang" role="group" aria-label="Language"></div>
       <p data-i18n="loc_text">برای نشان دادن اوقات شرعی درست برای محل شما، اجازه می‌دهید موقعیت فعلی‌تان خوانده شود؟ موقعیت فقط در مرورگر شما استفاده می‌شود و جایی ذخیره نمی‌شود.</p>
       <div class="save-actions">
         <button type="button" class="btn save-yes" id="locYes" data-i18n="loc_yes">اجازه می‌دهم</button>
@@ -227,7 +233,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lang.js?v=20261101"></script>
+<script src="js/lang.js?v=20261104"></script>
 <script src="js/official.js"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js?v=20261101"></script>

@@ -101,7 +101,8 @@
       about_p6: 'نظرها و پیشنهادهای شما را از راه «تماس با ما» با آغوش باز می‌شنویم.',
       contact_btn: 'تماس با ما', contact_text: 'شما می‌توانید با ایمیل زیر جهت هرگونه سوال، پیشنهاد و یا انتقاد با ما در تماس باشید:', copy_btn: 'کپی ایمیل', copied: 'کپی شد', close_btn: 'بستن',
       clock_zone: 'ساعت محلی', lang_toggle: 'English',
-      qibla_tag: 'قبله', logo_alt: 'اذان گو', page_title: 'اذان گو',
+      qibla_tag: 'قبله', logo_alt: 'اذان گو', page_title: 'اذان گو - اوقات شرعی و تقویم',
+      page_desc: 'اوقات شرعی به وقت محلی هر شهر، تقویم قمری و شمسی، رؤیت ماه و پخش اذان',
       pdf_title: 'اوقات شرعی', pdf_day: 'روز', pdf_greg: 'میلادی', pdf_shamsi: 'شمسی', pdf_hijri: 'قمری',
       pdf_fajr: 'فجر', pdf_sunrise: 'طلوع', pdf_dhuhr: 'ظهر', pdf_asr: 'عصر', pdf_sunset: 'غروب',
       pdf_maghrib: 'مغرب', pdf_isha: 'عشا', pdf_midnight: 'نیمه‌شب',
@@ -185,7 +186,8 @@
       about_p6: 'Your comments and suggestions are always welcome through “Contact us”.',
       contact_btn: 'Contact us', contact_text: 'For any question, suggestion or feedback you can contact us by email:', copy_btn: 'Copy email', copied: 'Copied', close_btn: 'Close',
       clock_zone: 'Local time', lang_toggle: 'اردو',
-      qibla_tag: 'Qibla', logo_alt: 'Azangoo', page_title: 'Azangoo prayer times',
+      qibla_tag: 'Qibla', logo_alt: 'Azangoo', page_title: 'Azangoo - Prayer Times, Calendar and Adhan',
+      page_desc: 'Prayer times for any city by its local time, Hijri and solar calendars, new crescent sighting and adhan playback.',
       pdf_title: 'Prayer times', pdf_day: 'Day', pdf_greg: 'Gregorian', pdf_shamsi: 'Solar Hijri', pdf_hijri: 'Hijri',
       pdf_fajr: 'Fajr', pdf_sunrise: 'Sunrise', pdf_dhuhr: 'Dhuhr', pdf_asr: 'Asr', pdf_sunset: 'Sunset',
       pdf_maghrib: 'Maghrib', pdf_isha: 'Isha', pdf_midnight: 'Midnight',
@@ -268,7 +270,8 @@
       about_p6: '«ہم سے رابطہ کریں» کے ذریعے آپ کی رائے اور تجاویز ہمارے لیے باعثِ مسرت ہوں گی۔',
       contact_btn: 'ہم سے رابطہ کریں', contact_text: 'کسی بھی سوال، تجویز یا تنقید کے لیے آپ اس ای میل پر ہم سے رابطہ کر سکتے ہیں:', copy_btn: 'ای میل کاپی کریں', copied: 'کاپی ہو گیا', close_btn: 'بند کریں',
       clock_zone: 'مقامی وقت', lang_toggle: 'فارسی',
-      qibla_tag: 'قبلہ', logo_alt: 'اذان گو', page_title: 'اذان گو',
+      qibla_tag: 'قبلہ', logo_alt: 'اذان گو', page_title: 'اذان گو - اوقات نماز اور کیلنڈر',
+      page_desc: 'ہر شہر کے مقامی وقت کے مطابق اوقات نماز، ہجری اور شمسی کیلنڈر، ہلال کی رویت اور اذان کی آواز۔',
       dates_label: 'تاریخ اور وقت', tiles_label: 'تاریخ اور وقت',
       pdf_title: 'اوقات نماز', pdf_day: 'دن', pdf_greg: 'عیسوی', pdf_shamsi: 'شمسی', pdf_hijri: 'ہجری',
       pdf_fajr: 'فجر', pdf_sunrise: 'طلوع', pdf_dhuhr: 'ظہر', pdf_asr: 'عصر', pdf_sunset: 'غروب',
@@ -398,7 +401,8 @@
       lang_toggle: 'English',
       qibla_tag: 'القبلة',
       logo_alt: 'اذان گو',
-      page_title: 'أذان گو - أوقات الصلاة',
+      page_title: 'أذان گو - أوقات الصلاة والتقويم',
+      page_desc: 'أوقات الصلاة بالتوقيت المحلي لكل مدينة، التقويم الهجري والشمسي، رؤية الهلال وتشغيل الأذان.',
       pdf_title: 'أوقات الصلاة',
       pdf_day: 'اليوم',
       pdf_greg: 'ميلادي',
@@ -461,10 +465,41 @@
   var AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 
   /* read the saved language once D and LANGS exist */
+  /* order: language in the saved defaults, then the language the visitor picked before, then the browser's language */
+  var LANG_KEY = 'azangoo-lang';
+  function rememberChoice(code) { try { localStorage.setItem(LANG_KEY, code); } catch (e) {} }
+  function detectLang() {
+    try {
+      var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+      var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
+      var codes = list.map(function (x) { return String(x).toLowerCase().split('-')[0]; });
+      if (tz === 'Asia/Tehran' || codes.indexOf('fa') !== -1) return 'fa';   /* Persian anywhere in the list: many Iranians have an English phone */
+      for (var i = 0; i < codes.length; i++) if (codes[i] === 'ar' || codes[i] === 'ur' || codes[i] === 'en') return codes[i];
+    } catch (e) {}
+    return 'en';                                                          /* any other language reads English best */
+  }
+  var chosen = '';
   try {
     var saved = JSON.parse(localStorage.getItem('azangoo-defaults'));
-    if (saved && saved.lang && D[saved.lang]) lang = saved.lang;
-  } catch (e) { lang = 'fa'; }
+    if (saved && saved.lang && D[saved.lang]) chosen = saved.lang;
+  } catch (e) {}
+  if (!chosen) { try { var picked = localStorage.getItem(LANG_KEY); if (picked && D[picked]) chosen = picked; } catch (e) {} }
+  lang = chosen || (D[detectLang()] ? detectLang() : 'fa');
+  /* a language home page (/en/, /fa/ ...) always opens in its own language */
+  try {
+    var pageLang = (typeof document !== 'undefined') ? document.documentElement.getAttribute('data-page-lang') : '';
+    if (pageLang && D[pageLang]) lang = pageLang;
+  } catch (e) {}
+  /* after the visitor changes language on a language home page, the address bar follows (a reload then keeps the language) */
+  function syncUrl(code) {
+    try {
+      if (typeof document === 'undefined' || !document.documentElement.getAttribute('data-page-lang')) return;
+      var m = /^(.*\/)(fa|en|ur|ar)\/(index\.html)?$/.exec(location.pathname);
+      if (!m || !history.replaceState) return;
+      history.replaceState(null, '', m[1] + code + '/' + (m[3] || '') + location.search);
+      document.documentElement.setAttribute('data-page-lang', code);
+    } catch (e) {}
+  }
 
   function t(key, vars) {
     var s = (D[lang] && D[lang][key]) || D.fa[key] || key;
@@ -540,6 +575,12 @@
       sel.value = '';
     }
     document.title = t('page_title');
+    /* description and share texts follow the language too */
+    [['meta[name="description"]', 'page_desc'], ['meta[property="og:title"]', 'page_title'], ['meta[property="og:description"]', 'page_desc'],
+     ['meta[name="twitter:title"]', 'page_title'], ['meta[name="twitter:description"]', 'page_desc']].forEach(function (x) {
+      var m = document.querySelector(x[0]);
+      if (m) m.setAttribute('content', t(x[1]));
+    });
   }
 
   function set(l) {
@@ -555,11 +596,28 @@
   if (typeof document !== 'undefined') {
     var wire = function () {
       apply();
+      /* one-tap language buttons at the top of the location dialog */
+      var pick = document.getElementById('locLang');
+      if (pick) {
+        LANGS.forEach(function (x) {
+          var b = document.createElement('button');
+          b.type = 'button'; b.textContent = x.label; b.setAttribute('lang', x.code); b.setAttribute('data-lang', x.code);
+          b.addEventListener('click', function () { set(x.code); rememberChoice(x.code); syncUrl(x.code); });
+          pick.appendChild(b);
+        });
+        var mark = function () {
+          Array.prototype.forEach.call(pick.children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+        };
+        mark();
+        root.addEventListener('azan:langchange', mark);
+      }
       var sel = document.getElementById('langSelect');
       if (sel) sel.addEventListener('change', function () {
         var chosen = sel.value;
         if (!chosen) return;
         set(chosen);
+        rememberChoice(chosen);
+        syncUrl(chosen);
         sel.value = chosen;                                     /* show the chosen language for a moment */
         setTimeout(function () { sel.value = ''; }, 1000);      /* then back to the "Languages" text */
       });
