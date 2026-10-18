@@ -108,7 +108,7 @@
       clock_zone: 'ساعت محلی', lang_toggle: 'English',
       qibla_tag: 'قبله', logo_alt: 'اذان گو', page_title: 'اذان گو - اوقات شرعی و تقویم',
       page_desc: 'اوقات شرعی به وقت محلی هر شهر، تقویم قمری و شمسی، رؤیت ماه و پخش اذان',
-      pdf_title: 'اوقات شرعی', pdf_note: 'محاسبات ماه قمری بر اساس پیش‌بینی سایت اذان گو می‌باشد و ممکن است با دفاتر مراجع شما متفاوت باشد؛ جهت اطلاعات بیشتر با دفتر مرجع تقلید خود تماس بگیرید.', pdf_day: 'روز', pdf_greg: 'میلادی', pdf_shamsi: 'شمسی', pdf_hijri: 'قمری',
+      pdf_title: 'اوقات شرعی', pdf_note: 'محاسبات ماه قمری بر اساس پیش‌بینی سایت اذان گو می‌باشد و ممکن است با دفاتر مراجع تقلید متفاوت باشد؛ جهت اطلاعات بیشتر با دفتر مرجع تقلید خود تماس بگیرید.', pdf_day: 'روز', pdf_greg: 'میلادی', pdf_shamsi: 'شمسی', pdf_hijri: 'قمری',
       pdf_fajr: 'فجر', pdf_sunrise: 'طلوع', pdf_dhuhr: 'ظهر', pdf_asr: 'عصر', pdf_sunset: 'غروب',
       pdf_maghrib: 'مغرب', pdf_isha: 'عشا', pdf_midnight: 'نیمه‌شب',
  dates_label: 'تاریخ و ساعت', tiles_label: 'تاریخ و ساعت'
@@ -198,7 +198,7 @@
       clock_zone: 'Local time', lang_toggle: 'اردو',
       qibla_tag: 'Qibla', logo_alt: 'Azangoo', page_title: 'Azangoo - Prayer Times, Calendar and Adhan',
       page_desc: 'Prayer times for any city by its local time, Hijri and solar calendars, new crescent sighting and adhan playback.',
-      pdf_title: 'Prayer times', pdf_note: 'Hijri lunar month calculations are based on the Azangoo site’s own prediction and may differ from the offices of your religious authority (marja‘); for more information, please contact your marja‘’s office.', pdf_day: 'Day', pdf_greg: 'Gregorian', pdf_shamsi: 'Solar Hijri', pdf_hijri: 'Hijri',
+      pdf_title: 'Prayer times', pdf_note: 'Hijri lunar month calculations are based on the Azangoo site’s own prediction and may differ from the offices of the maraji‘ (sources of emulation); for more information, please contact your marja‘’s office.', pdf_day: 'Day', pdf_greg: 'Gregorian', pdf_shamsi: 'Solar Hijri', pdf_hijri: 'Hijri',
       pdf_fajr: 'Fajr', pdf_sunrise: 'Sunrise', pdf_dhuhr: 'Dhuhr', pdf_asr: 'Asr', pdf_sunset: 'Sunset',
       pdf_maghrib: 'Maghrib', pdf_isha: 'Isha', pdf_midnight: 'Midnight',
  dates_label: 'Date and time', tiles_label: 'Date and time'
@@ -288,7 +288,7 @@
       qibla_tag: 'قبلہ', logo_alt: 'اذان گو', page_title: 'اذان گو - اوقات نماز اور کیلنڈر',
       page_desc: 'ہر شہر کے مقامی وقت کے مطابق اوقات نماز، ہجری اور شمسی کیلنڈر، ہلال کی رویت اور اذان کی آواز۔',
       dates_label: 'تاریخ اور وقت', tiles_label: 'تاریخ اور وقت',
-      pdf_title: 'اوقات نماز', pdf_note: 'قمری مہینے کا حساب اذان گو سائٹ کی اپنی پیش گوئی کے مطابق ہے اور ممکن ہے آپ کے مرجعِ تقلید کے دفاتر سے مختلف ہو؛ مزید معلومات کے لیے اپنے مرجعِ تقلید کے دفتر سے رابطہ کریں۔', pdf_day: 'دن', pdf_greg: 'عیسوی', pdf_shamsi: 'شمسی', pdf_hijri: 'ہجری',
+      pdf_title: 'اوقات نماز', pdf_note: 'قمری مہینے کا حساب اذان گو سائٹ کی اپنی پیش گوئی کے مطابق ہے اور ممکن ہے مراجعِ تقلید کے دفاتر سے مختلف ہو؛ مزید معلومات کے لیے اپنے مرجعِ تقلید کے دفتر سے رابطہ کریں۔', pdf_day: 'دن', pdf_greg: 'عیسوی', pdf_shamsi: 'شمسی', pdf_hijri: 'ہجری',
       pdf_fajr: 'فجر', pdf_sunrise: 'طلوع', pdf_dhuhr: 'ظہر', pdf_asr: 'عصر', pdf_sunset: 'غروب',
       pdf_maghrib: 'مغرب', pdf_isha: 'عشا', pdf_midnight: 'نصف شب'
     },
@@ -423,7 +423,7 @@
       logo_alt: 'اذان گو',
       page_title: 'أذان گو - أوقات الصلاة والتقويم',
       page_desc: 'أوقات الصلاة بالتوقيت المحلي لكل مدينة، التقويم الهجري والشمسي، رؤية الهلال وتشغيل الأذان.',
-      pdf_title: 'أوقات الصلاة', pdf_note: 'تستند حسابات الشهر القمري إلى تقدير موقع أذان گو، وقد تختلف عن مكاتب مراجعكم؛ لمزيد من المعلومات يرجى مراجعة مكتب مرجع التقليد الخاص بكم.',
+      pdf_title: 'أوقات الصلاة', pdf_note: 'تستند حسابات الشهر القمري إلى تقدير موقع أذان گو، وقد تختلف عن مكاتب مراجع التقليد؛ لمزيد من المعلومات يرجى مراجعة مكتب مرجع التقليد الخاص بكم.',
       pdf_day: 'اليوم',
       pdf_greg: 'ميلادي',
       pdf_shamsi: 'شمسي',

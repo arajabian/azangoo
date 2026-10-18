@@ -232,8 +232,8 @@ function listHead(lang, title, desc, rootRel) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="${BASE}/images/og-image.png">
-<link rel="icon" href="${rootRel}favicon.ico?v=3" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="${rootRel}icons/icon-32.png?v=3">
+<link rel="icon" href="${rootRel}favicon.ico?v=4" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="${rootRel}icons/icon-32.png?v=4">
 <style>
 body{font-family:Vazirmatn,Tahoma,sans-serif;margin:0;background:#0b2530;color:#f4ecd8;line-height:1.8}
 main{max-width:980px;margin:0 auto;padding:18px}

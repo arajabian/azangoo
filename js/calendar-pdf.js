@@ -80,7 +80,7 @@
 
   /* small logo at the top of the PDF (the same logo in every language) */
   function logoSrc() {
-    return 'images/logo-new-448.png';                  /* the same logo as the main page, in every language (larger file for a sharp print) */
+    return 'images/azangoo-logo-448.webp';                  /* the same logo as the main page, in every language (larger file for a sharp print) */
   }
 
   function tableHtml(rows, title, subtitle) {
