@@ -224,6 +224,10 @@ html[dir="ltr"] .search{flex-direction:row}
 /* contact dialog */
 .contact-dlg{background:var(--night2);color:var(--ivory);border:1px solid var(--gold);border-radius:var(--r);padding:18px 20px;max-width:min(420px,92vw);box-shadow:0 14px 40px rgba(0,0,0,.55)}
 .contact-dlg::backdrop{background:rgba(0,0,0,.55)}
+/* language buttons at the top of the location dialog (always left to right, each name in its own script) */
+.lang-pick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;direction:ltr;margin:0 0 12px}
+.lang-pick button{font:600 .95rem Vazirmatn,sans-serif;padding:6px 14px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--ivory);cursor:pointer}
+.lang-pick button[aria-pressed="true"]{background:var(--gold);color:var(--ink)}
 .contact-dlg p{margin:0 0 12px;line-height:1.9}
 /* about dialog: wider, and the text scrolls inside it on small screens */
 .about-dlg{margin:auto;max-width:min(560px,94vw);max-height:86vh;overflow:auto}

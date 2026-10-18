@@ -4,6 +4,7 @@
    is prohibited without written permission. See the Terms and conditions page. */
 /* Builds static city pages (HTML with today's times and the month table) for search engines.
    Usage: node tools/build-pages.js [outputDir]
+          HOME_ONLY=1 node tools/build-pages.js [outputDir]   (only the home page of each language, added to the sitemap)
    The calculations are the same modules the interactive page uses (js/*.js). */
 'use strict';
 const fs = require('fs');
@@ -139,7 +140,7 @@ function page(c, lang, data, now) {
   const T = TXT[lang], name = c.name[lang], country = c.country[lang];
   const la = c.lat.toFixed(4), lo = c.lng.toFixed(4);
   const alternates = langsOf(c).map(l => `<link rel="alternate" hreflang="${l}" href="${urlFor(l, c)}">`).join('\n');
-  const interactive = `${ROOT_REL}index.html?lat=${c.lat}&lng=${c.lng}&city=${encodeURIComponent(c.name.en)}&cc=${c.cc}`;   /* relative: works on any domain */
+  const interactive = `${ROOT_REL}${lang}/index.html?lat=${c.lat}&lng=${c.lng}&city=${encodeURIComponent(name)}&cc=${c.cc}`;   /* relative: works on any domain */
   return `<!DOCTYPE html>
 <html lang="${lang}" dir="${DIR[lang]}">
 <head>
@@ -181,7 +182,7 @@ th[scope=row]{text-align:${DIR[lang] === 'rtl' ? 'right' : 'left'}}
 </head>
 <body>
 <main data-lat="${c.lat}" data-lng="${c.lng}" data-zone="${esc(c.zone)}" data-lang="${lang}">
-<nav class="links"><a href="${ROOT_REL}index.html">${esc(T.home)}</a><a href="../index.html">${esc(LIST[lang].back)}</a><a href="${esc(interactive)}">${esc(T.open)}</a></nav>
+<nav class="links"><a href="${ROOT_REL}${lang}/index.html">${esc(T.home)}</a><a href="../index.html">${esc(LIST[lang].back)}</a><a href="${esc(interactive)}">${esc(T.open)}</a></nav>
 <nav class="links terms-nav"><a href="${ROOT_REL}${lang}/terms/index.html">${esc(TERMS_LABEL[lang])}</a><a href="${ROOT_REL}${lang}/privacy/index.html">${esc(PRIVACY_LABEL[lang])}</a></nav>
 <nav class="langs-other" aria-label="${esc(OTHER_LABEL[lang])}"><span>${esc(OTHER_LABEL[lang])}:</span> ${langsOf(c).map(l => l === lang ? `<span aria-current="page">${esc(c.name[l] + (l === 'en' ? ', ' : '، ') + c.country[l])}</span>` : `<a href="${linkFor(l, c)}" lang="${l}" hreflang="${l}">${esc(c.name[l] + (l === 'en' ? ', ' : '، ') + c.country[l])}</a>`).join(' · ')}</nav>
 <h1>${esc(T.h1(name, country))}</h1>
@@ -249,7 +250,7 @@ li{padding:6px 0;border-bottom:1px solid rgba(210,169,75,.25)}
 </head>
 <body>
 <main>
-<nav><a class="home" href="${rootRel}index.html">${esc(T_HOME[lang])}</a></nav>
+<nav><a class="home" href="${rootRel}${lang}/index.html">${esc(T_HOME[lang])}</a></nav>
 <h1>${esc(L.h1)}</h1>
 <p>${esc(desc)}</p>
 `;
@@ -310,6 +311,81 @@ function textPage(lang, T2) {
   return listHead(lang, T2.title + ' | Azangoo', T2.desc, '../../').replace(`<h1>${esc(LIST[lang].h1)}</h1>`, `<h1>${esc(T2.title)}</h1>`) +
     `<p>${esc(T2.intro)}</p>\n${body}\n<p class="count">${esc(T2.updated)}</p>\n` +
     `</main>\n</body>\n</html>\n`;
+}
+
+
+/* ---------- the home page in each language: /fa/ /en/ /ur/ /ar/ : the same page as index.html, with its own address,
+   title, description and text already in the language (so search engines see the language without running scripts) ---------- */
+const OG_LOCALE = { fa: 'fa_IR', en: 'en_US', ur: 'ur_PK', ar: 'ar_SA' };
+const setMeta = (h, re, value) => h.replace(re, (m, a, b) => a + esc(value) + b);
+function homePage(lang) {
+  A.set(lang);
+  const T = (k) => A.t(k);
+  const url = `${BASE}/${lang}/`;
+  let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  h = h.replace(/<html lang="[^"]*" dir="[^"]*"/, `<html lang="${lang}" dir="${DIR[lang]}" data-page-lang="${lang}"`);
+  h = h.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<base href="../">');      /* the folder is one level deep: css, js, images and data stay at the site root */
+  h = h.replace(/<title>[^<]*<\/title>/, `<title>${esc(T('page_title'))}</title>`);
+  h = setMeta(h, /(<meta name="description" content=")[^"]*(")/, T('page_desc'));
+  h = setMeta(h, /(<meta property="og:title" content=")[^"]*(")/, T('page_title'));
+  h = setMeta(h, /(<meta property="og:description" content=")[^"]*(")/, T('page_desc'));
+  h = setMeta(h, /(<meta name="twitter:title" content=")[^"]*(")/, T('page_title'));
+  h = setMeta(h, /(<meta name="twitter:description" content=")[^"]*(")/, T('page_desc'));
+  h = setMeta(h, /(<meta property="og:url" content=")[^"]*(")/, url);
+  h = setMeta(h, /(<meta property="og:locale" content=")[^"]*(")/, OG_LOCALE[lang]);
+  const alternates = LANGS.map(l => `<link rel="alternate" hreflang="${l}" href="${BASE}/${l}/">`).join('\n') +
+    `\n<link rel="alternate" hreflang="x-default" href="${BASE}/">`;
+  h = h.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">\n${alternates}`);
+  /* text of the page, the same words the script puts in (data-i18n, data-i18n-attr, data-i18n-ph) */
+  h = h.replace(/(<([a-zA-Z0-9]+)\b[^>]*?\sdata-i18n="([^"]+)"[^>]*>)([^<]*)(<\/\2>)/g, (m, open, tag, key, inner, close) => open + esc(T(key)) + close);
+  const setAttr = (tag, name, value) => {
+    const re = new RegExp(`(\\s${name}=")[^"]*(")`);
+    return re.test(tag) ? tag.replace(re, (m, a, b) => a + esc(value) + b) : tag.replace(/>$/, ` ${name}="${esc(value)}">`);
+  };
+  h = h.replace(/<[a-zA-Z0-9]+\b[^>]*\sdata-i18n-attr="[^"]+"[^>]*>/g, (tag) => {
+    const spec = /data-i18n-attr="([^"]+)"/.exec(tag)[1];
+    spec.split(';').forEach(pair => { const p = pair.split(':'); if (p.length > 1) tag = setAttr(tag, p[0].trim(), T(p[1].trim())); });
+    return tag;
+  });
+  h = h.replace(/<[a-zA-Z0-9]+\b[^>]*\sdata-i18n-ph="([^"]+)"[^>]*>/g, (tag, key) => setAttr(tag, 'placeholder', T(key)));
+  /* links that depend on the language */
+  h = h.replace(/(id="cityListLink" href=")[^"]*(")/, `$1${lang}/prayer-times/index.html$2`);
+  h = h.replace(/(class="terms-link" href=")[^"]*(")/, `$1${lang}/terms/index.html$2`);
+  h = h.replace(/(class="terms-link privacy-link" href=")[^"]*(")/, `$1${lang}/privacy/index.html$2`);
+  return h;
+}
+
+/* /fa/index.html /en/index.html /ur/index.html /ar/index.html, written next to the other language pages */
+function writeHomePages() {
+  const urls = [];
+  for (const lang of LANGS) {
+    const dir = path.join(OUT, lang);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), homePage(lang), 'utf8');
+    urls.push(`${BASE}/${lang}/`);
+  }
+  return urls;
+}
+/* sitemap lines for the main page and its four language versions, each listing the others */
+function homeSitemapEntries(lastmod) {
+  const alts = LANGS.map(l => `    <xhtml:link rel="alternate" hreflang="${l}" href="${BASE}/${l}/"/>`).join('\n') +
+    `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE}/"/>`;
+  return [`${BASE}/`].concat(LANGS.map(l => `${BASE}/${l}/`)).map(u =>
+    `  <url>\n    <loc>${u}</loc>\n    <lastmod>${lastmod}</lastmod>\n${alts}\n  </url>`);
+}
+
+/* quick mode: only the home pages, added to the existing sitemap (nothing else is rebuilt) */
+function buildHomeOnly() {
+  const lastmod = new Date().toISOString().slice(0, 10);
+  writeHomePages();
+  let file = path.join(OUT, 'sitemap.xml');
+  let sm = fs.readFileSync(file, 'utf8');
+  if (!sm.includes('</urlset>')) { file = path.join(OUT, 'sitemap-1.xml'); sm = fs.readFileSync(file, 'utf8'); }   /* sitemap index: first part */
+  if (!sm.includes('xmlns:xhtml')) sm = sm.replace('<urlset ', '<urlset xmlns:xhtml="http://www.w3.org/1999/xhtml" ');
+  const fresh = homeSitemapEntries(lastmod).filter(e => !sm.includes(`<loc>${/<loc>([^<]*)<\/loc>/.exec(e)[1]}</loc>`));
+  if (fresh.length) sm = sm.replace('</urlset>', fresh.join('\n') + '\n</urlset>');
+  fs.writeFileSync(file, sm, 'utf8');
+  console.log('home pages written: 4, sitemap lines added:', fresh.length);
 }
 
 /* quick mode: only the terms pages, added to the existing sitemap (no city pages are rebuilt) */
@@ -376,12 +452,14 @@ function build() {
     fs.writeFileSync(path.join(pdir, 'index.html'), privacyPage(lang), 'utf8');
     listUrls.push(`${BASE}/${lang}/privacy/`);
   }
+  writeHomePages();
   const lastmod = new Date(now).toISOString().slice(0, 10);
   const SITEMAP_HEAD = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
   const entries = urls.map(({ c, lang }) =>
     `  <url>\n    <loc>${urlFor(lang, c)}</loc>\n    <lastmod>${lastmod}</lastmod>\n` +
     langsOf(c).map(l => `    <xhtml:link rel="alternate" hreflang="${l}" href="${urlFor(l, c)}"/>`).join('\n') + `\n  </url>`)
-    .concat(listUrls.map(u => `  <url>\n    <loc>${u}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`));
+    .concat(listUrls.map(u => `  <url>\n    <loc>${u}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`))
+    .concat(homeSitemapEntries(lastmod));
   /* a sitemap file holds at most 50000 addresses: split and write an index */
   const PART = 45000, parts = [];
   for (let i = 0; i < entries.length; i += PART) parts.push(entries.slice(i, i + PART));
@@ -396,4 +474,4 @@ function build() {
   console.log('done:', urls.length, 'city pages,', listUrls.length, 'list pages, sitemap parts:', parts.length);
 }
 
-if (process.env.TERMS_ONLY) buildTermsOnly(); else build();
+if (process.env.HOME_ONLY) buildHomeOnly(); else if (process.env.TERMS_ONLY) buildTermsOnly(); else build();
