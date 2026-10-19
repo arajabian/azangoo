@@ -24,7 +24,7 @@ module.exports = {
       ] },
       { h: 'داده‌ها و منابع دیگر', p: [
         'فهرست شهرها بر اساس GeoNames است که با مجوز CC BY 4.0 منتشر می‌شود. ذکر منبع GeoNames در این سایت باید حفظ شود.',
-        'نقشه بر اساس OpenStreetMap و کتابخانهٔ Leaflet است. برای اطلاعات منطقهٔ زمانی و موقعیت، از سرویس‌های Open-Meteo و timeapi.io استفاده می‌شود.',
+        'نقشه بر اساس OpenStreetMap و کتابخانهٔ Leaflet است. برای اطلاعات منطقهٔ زمانی و موقعیت، از سرویس‌های Open-Meteo و timeapi.io استفاده می‌شود. برای وضعیت هوا از Open-Meteo و MET Norway استفاده می‌شود.',
         'حقوق این منابع متعلق به صاحبان آن‌هاست و تابع شرایط خودشان است.'
       ] },
       { h: 'حریم خصوصی', p: ['اطلاعات مربوط به موقعیت مکانی و تنظیمات پیش‌فرض در صفحهٔ «حریم خصوصی» توضیح داده شده است.'] },
@@ -56,7 +56,7 @@ module.exports = {
       ] },
       { h: 'Data and third-party sources', p: [
         'The city list is based on GeoNames, published under CC BY 4.0. The GeoNames credit must remain on this site.',
-        'The map uses OpenStreetMap and Leaflet. Time-zone and location lookups use Open-Meteo and timeapi.io.',
+        'The map uses OpenStreetMap and Leaflet. Time-zone and location lookups use Open-Meteo and timeapi.io. Weather uses Open-Meteo and MET Norway.',
         'These sources belong to their owners and follow their own terms.'
       ] },
       { h: 'Privacy', p: ['Information about location and saved defaults is explained on the Privacy page.'] },
@@ -88,7 +88,7 @@ module.exports = {
       ] },
       { h: 'ڈیٹا اور دوسرے ذرائع', p: [
         'شہروں کی فہرست GeoNames پر مبنی ہے جو CC BY 4.0 کے تحت شائع ہوتی ہے۔ سائٹ پر GeoNames کا حوالہ برقرار رہنا چاہیے۔',
-        'نقشہ OpenStreetMap اور Leaflet پر مبنی ہے۔ ٹائم زون اور مقام کے لیے Open-Meteo اور timeapi.io استعمال ہوتے ہیں۔',
+        'نقشہ OpenStreetMap اور Leaflet پر مبنی ہے۔ ٹائم زون اور مقام کے لیے Open-Meteo اور timeapi.io استعمال ہوتے ہیں۔ موسم کے لیے Open-Meteo اور MET Norway استعمال ہوتے ہیں۔',
         'ان ذرائع کے حقوق ان کے مالکان کے ہیں اور وہ اپنی شرائط کے تابع ہیں۔'
       ] },
       { h: 'رازداری', p: ['مقام اور محفوظ شدہ پیش فرض کی معلومات رازداری کے صفحے پر بیان کی گئی ہیں۔'] },
@@ -120,7 +120,7 @@ module.exports = {
       ] },
       { h: 'البيانات والمصادر الأخرى', p: [
         'قائمة المدن مبنية على GeoNames المنشورة بموجب CC BY 4.0، ويجب الإبقاء على الإشارة إلى GeoNames في الموقع.',
-        'الخريطة مبنية على OpenStreetMap وLeaflet. ويُستخدم Open-Meteo وtimeapi.io للمنطقة الزمنية والموقع.',
+        'الخريطة مبنية على OpenStreetMap وLeaflet. ويُستخدم Open-Meteo وtimeapi.io للمنطقة الزمنية والموقع. ويُستخدم Open-Meteo وMET Norway للطقس.',
         'حقوق هذه المصادر لأصحابها وتخضع لشروطهم.'
       ] },
       { h: 'الخصوصية', p: ['تفاصيل الموقع والإعدادات المحفوظة موضحة في صفحة الخصوصية.'] },
