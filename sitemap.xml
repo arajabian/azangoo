@@ -101793,4 +101793,65 @@
     <loc>https://www.azangoo.com/ar/privacy/</loc>
     <lastmod>2026-10-16</lastmod>
   </url>
+  <url>
+    <loc>https://www.azangoo.com/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://www.azangoo.com/fa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azangoo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="ur" href="https://www.azangoo.com/ur/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azangoo.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.azangoo.com/"/>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/fa/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://www.azangoo.com/fa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azangoo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="ur" href="https://www.azangoo.com/ur/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azangoo.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.azangoo.com/"/>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/en/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://www.azangoo.com/fa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azangoo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="ur" href="https://www.azangoo.com/ur/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azangoo.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.azangoo.com/"/>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/ur/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://www.azangoo.com/fa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azangoo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="ur" href="https://www.azangoo.com/ur/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azangoo.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.azangoo.com/"/>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/ar/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://www.azangoo.com/fa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azangoo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="ur" href="https://www.azangoo.com/ur/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azangoo.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.azangoo.com/"/>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/fa/widget/</loc>
+    <lastmod>2026-10-19</lastmod>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/en/widget/</loc>
+    <lastmod>2026-10-19</lastmod>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/ur/widget/</loc>
+    <lastmod>2026-10-19</lastmod>
+  </url>
+  <url>
+    <loc>https://www.azangoo.com/ar/widget/</loc>
+    <lastmod>2026-10-19</lastmod>
+  </url>
 </urlset>

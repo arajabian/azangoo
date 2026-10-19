@@ -183,7 +183,7 @@ th[scope=row]{text-align:${DIR[lang] === 'rtl' ? 'right' : 'left'}}
 <body>
 <main data-lat="${c.lat}" data-lng="${c.lng}" data-zone="${esc(c.zone)}" data-lang="${lang}">
 <nav class="links"><a href="${ROOT_REL}${lang}/index.html">${esc(T.home)}</a><a href="../index.html">${esc(LIST[lang].back)}</a><a href="${esc(interactive)}">${esc(T.open)}</a></nav>
-<nav class="links terms-nav"><a href="${ROOT_REL}${lang}/terms/index.html">${esc(TERMS_LABEL[lang])}</a><a href="${ROOT_REL}${lang}/privacy/index.html">${esc(PRIVACY_LABEL[lang])}</a></nav>
+<nav class="links terms-nav"><a href="${ROOT_REL}${lang}/terms/index.html">${esc(TERMS_LABEL[lang])}</a><a href="${ROOT_REL}${lang}/privacy/index.html">${esc(PRIVACY_LABEL[lang])}</a><a href="${ROOT_REL}${lang}/widget/index.html">${esc(WIDGET_LABEL[lang])}</a></nav>
 <nav class="langs-other" aria-label="${esc(OTHER_LABEL[lang])}"><span>${esc(OTHER_LABEL[lang])}:</span> ${langsOf(c).map(l => l === lang ? `<span aria-current="page">${esc(c.name[l] + (l === 'en' ? ', ' : '، ') + c.country[l])}</span>` : `<a href="${linkFor(l, c)}" lang="${l}" hreflang="${l}">${esc(c.name[l] + (l === 'en' ? ', ' : '، ') + c.country[l])}</a>`).join(' · ')}</nav>
 <h1>${esc(T.h1(name, country))}</h1>
 <aside class="cta"><p>${esc(CTA[lang].text)}</p><a class="cta-btn" href="${esc(interactive)}">${esc(CTA[lang].btn)}</a></aside>
@@ -303,6 +303,82 @@ const TERMS_LABEL = { fa: 'شرایط استفاده', en: 'Terms', ur: 'شرا�
 const PRIVACY_LABEL = { fa: 'حریم خصوصی', en: 'Privacy', ur: 'رازداری', ar: 'الخصوصية' };
 function termsPage(lang) { return textPage(lang, TERMS[lang]); }
 function privacyPage(lang) { return textPage(lang, PRIVACY[lang]); }
+
+/* /lang/widget/index.html : the guide of the widget that other websites can add (text in tools/widget-text.js, builder in js/widget-builder.js) */
+const WIDGET = require(path.join(ROOT, 'tools/widget-text.js'));
+const WIDGET_LABEL = { fa: 'افزودن اوقات شرعی به سایت شما', en: 'Add prayer times to your website', ur: 'اپنی ویب سائٹ پر اوقاتِ نماز لگائیں', ar: 'أضف أوقات الصلاة إلى موقعك' };
+const WIDGET_JS = `${BASE}/js/azangoo-widget.js`;
+const WIDGET_CSS = `
+.wcode{direction:ltr;text-align:left;background:#071a22;border:1px solid rgba(210,169,75,.35);border-radius:10px;padding:10px 12px;overflow:auto;font:13px/1.6 Consolas,monospace;white-space:pre;color:#f4ecd8;margin:8px 0}
+.wb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.wb-grid label{display:flex;flex-direction:column;font-size:.85rem;gap:2px}
+.wb-grid input,.wb-grid select{font:inherit;padding:7px 9px;border:1px solid #d2a94b;border-radius:8px;background:#fff;color:#13303a;min-width:0}
+.wb-grid input[type=color]{padding:2px;height:38px}
+.wb-grid .wb-check{flex-direction:row;align-items:center;gap:6px}
+.wb-grid .wb-check input{width:auto}
+.wb-stage{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wb-pv{flex:1 1 300px;min-width:260px;padding:14px;border-radius:12px;background:rgba(255,255,255,.08)}
+.wb-code{flex:1 1 340px}
+.wb-code textarea{width:100%;height:200px;direction:ltr;text-align:left;font:12.5px/1.5 Consolas,monospace;border:1px solid #d2a94b;border-radius:8px;padding:8px;background:#071a22;color:#f4ecd8}
+.wb-btn{font:inherit;margin-top:8px;padding:8px 16px;border:0;border-radius:10px;background:#d2a94b;color:#0b2530;cursor:pointer;font-weight:700}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+table.opt{border-collapse:collapse;width:100%;table-layout:fixed;font-size:.9rem}
+table.opt td{overflow-wrap:anywhere}
+table.opt td:first-child{width:36%}
+table.opt td{border:1px solid rgba(210,169,75,.3);padding:6px 9px;vertical-align:top}
+table.opt td:first-child{direction:ltr;text-align:left;font-family:Consolas,monospace;color:#f0d58a}
+.hint{font-size:.85rem;opacity:.8}
+`;
+function widgetPage(lang) {
+  const W = WIDGET[lang], U = W.ui;
+  const code = (html) => `<pre class="wcode">${esc(html)}</pre>`;
+  const cityCode = `<div class="azangoo-widget" data-city="Toronto" data-country="CA" data-lang="${lang}" data-theme="auto"></div>\n<script src="${WIDGET_JS}" async></script>`;
+  const coordCode = `<div class="azangoo-widget" data-lat="43.65" data-lng="-79.38" data-timezone="America/Toronto" data-name="Toronto" data-lang="${lang}"></div>\n<script src="${WIDGET_JS}" async></script>`;
+  const opt = (v, t, sel) => `<option value="${v}"${sel ? ' selected' : ''}>${esc(t)}</option>`;
+  const THEMES = ['auto', 'light', 'night', 'dark', 'emerald', 'ocean', 'sand', 'rose'];
+  const WL = { fa: 'فارسی', en: 'English', ur: 'اردو', ar: 'العربية' };
+  const lab = (id, text, inner) => `<label>${esc(text)}${inner}</label>`;
+  const form = [
+    lab('city', U.city, '<input id="b-city" value="Toronto">'),
+    lab('cc', U.country, '<input id="b-cc" value="CA" maxlength="2" dir="ltr">'),
+    lab('lat', U.lat, '<input id="b-lat" dir="ltr" placeholder="43.65">'),
+    lab('lng', U.lng, '<input id="b-lng" dir="ltr" placeholder="-79.38">'),
+    lab('tz', U.tz, '<input id="b-tz" dir="ltr" placeholder="America/Toronto">'),
+    lab('lang', U.wlang, `<select id="b-lang">${LANGS.map(l => opt(l, WL[l], l === lang)).join('')}</select>`),
+    lab('theme', U.theme, `<select id="b-theme">${THEMES.map(t => opt(t, t)).join('')}</select>`),
+    lab('layout', U.layout, `<select id="b-layout">${['list', 'grid', 'row'].map(t => opt(t, U.layouts[t])).join('')}</select>`),
+    lab('clock', U.clock, `<select id="b-clock">${opt('24', '24')}${opt('12', '12')}</select>`),
+    `<label class="wb-check"><input id="b-custom" type="checkbox">${esc(U.custom)}</label>`,
+    lab('accent', U.accent, '<input id="b-accent" type="color" value="#1c7f79">'),
+    lab('bg', U.bg, '<input id="b-bg" type="color" value="#ffffff">'),
+    lab('radius', U.radius, '<input id="b-radius" type="number" min="0" max="40" value="14">')
+  ].join('\n');
+  const rows = W.options.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('\n');
+  const body = `<p>${esc(W.intro)}</p>
+<section class="card"><h2>${esc(W.quickH)}</h2><p>${esc(W.quickP)}</p>
+<p class="count">${esc(U.cityCode)}</p>${code(cityCode)}
+<p class="count">${esc(U.coordCode)}</p>${code(coordCode)}</section>
+<section class="card" id="wb" data-lang="${lang}" data-copied="${esc(U.copied)}"><h2>${esc(W.buildH)}</h2>
+<div class="wb-grid">
+${form}
+</div>
+<p class="hint">${esc(U.hint)}</p>
+<div class="wb-stage"><div class="wb-pv" id="wb-preview" aria-label="${esc(U.preview)}"></div>
+<div class="wb-code"><textarea id="wb-out" readonly aria-label="${esc(U.code)}"></textarea><button class="wb-btn" id="wb-copy" type="button">${esc(U.copy)}</button></div></div></section>
+<section class="card"><h2>${esc(W.themesH)}</h2><div class="gal" id="wb-gallery"></div></section>
+<section class="card"><h2>${esc(W.optionsH)}</h2><table class="opt">
+${rows}
+</table></section>
+<section class="card"><h2>${esc(W.notesH)}</h2>${W.notes.map(n => `<p>${esc(n)}</p>`).join('\n')}</section>
+<script src="../../js/azangoo-widget.js"></script>
+<script src="../../js/widget-builder.js"></script>
+`;
+  let h = listHead(lang, W.title + ' | Azangoo', W.desc, '../../').replace(`<h1>${esc(LIST[lang].h1)}</h1>`, `<h1>${esc(W.title)}</h1>`);
+  h = h.replace('</style>', WIDGET_CSS + '</style>');
+  /* listHead already writes the description under the title: the page has its own intro */
+  h = h.replace(`<p>${esc(W.desc)}</p>\n`, '');
+  return h + body + `</main>\n</body>\n</html>\n`;
+}
 /* [label](https://address) inside a text paragraph becomes a link that opens in a new tab */
 const withLinks = (escaped) => escaped.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
   (m, label, url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`);
@@ -353,6 +429,7 @@ function homePage(lang) {
   h = h.replace(/(id="cityListLink" href=")[^"]*(")/, `$1${lang}/prayer-times/index.html$2`);
   h = h.replace(/(class="terms-link" href=")[^"]*(")/, `$1${lang}/terms/index.html$2`);
   h = h.replace(/(class="terms-link privacy-link" href=")[^"]*(")/, `$1${lang}/privacy/index.html$2`);
+  h = h.replace(/(class="terms-link widget-link" href=")[^"]*(")/, `$1${lang}/widget/index.html$2`);
   return h;
 }
 
@@ -402,6 +479,10 @@ function buildTermsOnly() {
     fs.mkdirSync(pdir, { recursive: true });
     fs.writeFileSync(path.join(pdir, 'index.html'), privacyPage(lang), 'utf8');
     urls.push(`${BASE}/${lang}/privacy/`);
+    const wdir = path.join(OUT, lang, 'widget');
+    fs.mkdirSync(wdir, { recursive: true });
+    fs.writeFileSync(path.join(wdir, 'index.html'), widgetPage(lang), 'utf8');
+    urls.push(`${BASE}/${lang}/widget/`);
   }
   const file = path.join(OUT, 'sitemap.xml');
   let sm = fs.readFileSync(file, 'utf8');
@@ -410,7 +491,7 @@ function buildTermsOnly() {
     sm = sm.replace('</urlset>', `  <url>\n    <loc>${u}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>\n</urlset>`);
   }
   fs.writeFileSync(file, sm, 'utf8');
-  console.log('terms and privacy pages written:', urls.length);
+  console.log('terms, privacy and widget pages written:', urls.length);
 }
 
 function build() {
@@ -452,6 +533,10 @@ function build() {
     fs.mkdirSync(pdir, { recursive: true });
     fs.writeFileSync(path.join(pdir, 'index.html'), privacyPage(lang), 'utf8');
     listUrls.push(`${BASE}/${lang}/privacy/`);
+    const wdir = path.join(OUT, lang, 'widget');
+    fs.mkdirSync(wdir, { recursive: true });
+    fs.writeFileSync(path.join(wdir, 'index.html'), widgetPage(lang), 'utf8');
+    listUrls.push(`${BASE}/${lang}/widget/`);
   }
   writeHomePages();
   const lastmod = new Date(now).toISOString().slice(0, 10);
