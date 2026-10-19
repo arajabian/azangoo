@@ -112,6 +112,8 @@ a{color:inherit;text-decoration:none}
   background:linear-gradient(var(--gold2),var(--gold));color:var(--ink)
 }
 .hint{font-size:.82rem;opacity:.8;margin-top:10px}
+.hint-more-btn{text-decoration:underline;font-size:inherit}
+.hint[hidden]{display:none}
 
 /* side cards */
 .reciters{display:grid;gap:8px;font-size:.92rem}
@@ -149,6 +151,9 @@ footer{text-align:center;font-size:.8rem;opacity:.7;margin-top:26px}
   background:linear-gradient(var(--gold2),var(--gold));color:var(--ink)
 }
 .msg{font-size:.82rem;min-height:1.6em;margin:4px 2px 8px;color:var(--heading)}
+/* the message line under the search box takes no room while it is empty, so the map sits close to the search box */
+#msg:empty{display:none}
+.search{margin-bottom:8px}
 .card .mapframe{margin-top:0}
 
 /* qibla */
@@ -242,7 +247,10 @@ html[dir="ltr"] .search{flex-direction:row}
 .about-dlg h2{margin:0 0 12px;font-size:1.15rem;color:var(--heading);text-align:center}
 .about-body p{text-align:justify}
 .about-dlg .save-actions{position:sticky;bottom:-18px;background:var(--night2);padding:10px 0 4px;margin-top:6px}
-.about-body .about-dua{text-align:center;font-weight:700;color:var(--heading);font-size:1.15rem;margin:16px 0}
+.about-body .about-dua{text-align:center;font-weight:700;color:var(--heading);font-size:1.15rem;margin:16px 0 6px}
+.about-body .about-dua-tr{text-align:center;margin:0 0 4px}
+.about-body .about-dua-src{text-align:center;color:var(--muted);font-size:.85rem;margin:0 0 16px}
+.about-body .about-dua-tr:empty,.about-body .about-dua-src:empty{display:none}
 .contact-mail{text-align:center;direction:ltr;font-weight:700}
 .contact-mail a{color:var(--heading)}
 .contact-dlg .save-actions{justify-content:center}

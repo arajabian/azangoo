@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/azan.css?v=20261119">
+<link rel="stylesheet" href="css/azan.css?v=20261122">
 <link rel="stylesheet" href="css/moon.css?v=20261118">
 </head>
 <body>
@@ -118,7 +118,8 @@
         <label class="auto"><input type="checkbox" id="autoAdhan" checked><span data-i18n="auto_label">پخش خودکار اذان و دعا</span></label>
         <p class="dua-timer" id="duaTimer"></p>
         <p class="msg" id="adhanMsg" role="status"></p>
-        <p class="hint"><span data-i18n="auto_hint">برای پخش خودکار، این صفحه باید باز باشد و یک بار روی آن کلیک کرده باشید.</span></p>
+        <p class="hint"><span data-i18n="auto_hint">برای پخش خودکار، این صفحه باید باز باشد و یک بار روی آن کلیک کرده باشید.</span> <button type="button" class="link-btn hint-more-btn" id="autoMoreBtn" data-i18n="hint_more" aria-expanded="false" aria-controls="autoMore">بیشتر</button></p>
+        <p class="hint" id="autoMore" data-i18n="auto_more_text" hidden>برای اینکه اذان بدون نیاز به کلیک پخش شود، سایت را روی دستگاه نصب کنید (Add to Home Screen یا Install) یا در تنظیمات مرورگر، برای این سایت صدا را روی «اجازه» بگذارید.</p>
       </section>
     </div>
 
@@ -217,12 +218,14 @@
     <dialog class="contact-dlg about-dlg" id="aboutDlg" aria-labelledby="aboutTitle">
       <h2 id="aboutTitle" data-i18n="about_title">دربارهٔ اذان گو</h2>
       <div class="about-body">
-        <p data-i18n="about_p1">سایت اذان گو را در سال ۲۰۱۱ میلادی راه‌اندازی کردیم؛ آن روزها با نقشهٔ گوگل کار می‌کرد. اما گوگل دیگر خدمات نقشهٔ خود را در اختیار ما نگذاشت و ارائهٔ اوقات شرعی در اذان گو با مشکل روبه‌رو شد.</p>
+        <p data-i18n="about_p1">سایت اذان گو را در سال ۲۰۱۱ میلادی راه‌اندازی کردیم؛ آن روزها با نقشهٔ گوگل کار می‌کرد و تا مدت‌ها نیز خوب و بی‌هیچ مشکلی در خدمت شما بود. اما پس از مدتی گوگل دیگر خدمات نقشهٔ خود را در اختیار ما نگذاشت و ارائهٔ اوقات شرعی در اذان گو با مشکل روبه‌رو شد.</p>
         <p data-i18n="about_p2">امسال، در سال ۲۰۲۶، خداوند منّان بار دیگر بر ما منّت نهاد تا بتوانیم خدمتگزار شما نمازگزاران گرامی باشیم؛ این بار با طراحی تازه، امکانات امروزی، و صفحه‌ای که روی موبایل هم به‌راحتی دیده و استفاده می‌شود.</p>
-        <p data-i18n="about_p3">هدف ما از اذان گو ساده است: اینکه هر نمازگزار، در هر نقطه‌ای از جهان، با یک نگاه وقت نماز محل خودش را بداند، و اذان و دعا او را به یاد ایستادن در پیشگاه پروردگارش بیندازد. برای همین اوقات شرعی را برای مکانی که روی نقشه انتخاب می‌کنید محاسبه می‌کنیم و در کنار آن، جهت قبله، صدای اذان، دعاهای روزانه و ماه رمضان، رؤیت هلال ماه و تقویم را به چهار زبان فارسی، انگلیسی، اردو و عربی در اختیارتان می‌گذاریم.</p>
+        <p data-i18n="about_p3">هدف ما این است که صدای اذان را به خانه، محل کار و هر جای دیگری که هستید برسانیم؛ فرقی نمی‌کند در کدام نقطه از جهان زندگی می‌کنید. برای همین اوقات شرعی را برای مکانی که روی نقشه انتخاب می‌کنید محاسبه می‌کنیم و در کنار آن، جهت قبله، صدای اذان، دعاهای روزانه و ماه رمضان، رؤیت هلال ماه و تقویم را به چهار زبان فارسی، انگلیسی، اردو و عربی در اختیارتان می‌گذاریم.</p>
         <p data-i18n="about_p4">اذان گو به هیچ سازمان، نهاد، مؤسسه یا گروهی، دولتی یا غیردولتی، در هیچ نقطه‌ای از جهان وابسته نیست.</p>
         <p data-i18n="about_p5">امیدواریم توانسته باشیم خدمتی، هرچند کوچک، به نمازگزاران کرده باشیم. بی‌گمان بدون لطف و مرحمت خداوند متعال و توجه حضرت ولی‌عصر (عج)، انجام این کار برای ما میسر نبود. در پایان، از شما نمازگزاران عزیز التماس دعا داریم؛ ما را در هنگام اذان و نماز از دعای خیرتان محروم نفرمایید، و دعا برای تعجیل در فرج مولایمان امام زمان (عج) را هرگز فراموش نکنید.</p>
-        <p class="about-dua" lang="ar" dir="rtl">اللَّهُمَّ عَجِّلْ لِوَلِيِّكَ الْفَرَجَ</p>
+        <p class="about-dua" lang="ar" dir="rtl">فَضْلُ الْوَقْتِ الْأَوَّلِ عَلَى الْآخِرِ كَفَضْلِ الْآخِرَةِ عَلَى الدُّنْيَا</p>
+        <p class="about-dua-tr" data-i18n="about_hadith">«فضیلت اوّل وقت نماز بر آخر وقت، همچون فضیلت آخرت بر دنیاست.»</p>
+        <p class="about-dua-src" data-i18n="about_hadith_src">امام صادق (علیه‌السلام) — ثواب الأعمال، باب فضل الوقت الأول على الآخر</p>
         <p data-i18n="about_p6">نظرها و پیشنهادهای شما را از راه «تماس با ما» با آغوش باز می‌شنویم.</p>
       </div>
       <div class="save-actions">
@@ -244,14 +247,14 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lang.js?v=20261119"></script>
-<script src="js/official.js"></script>
+<script src="js/lang.js?v=20261121"></script>
+<script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js?v=20261110"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
-<script src="js/azan.js?v=20261118"></script>
+<script src="js/azan.js?v=20261121"></script>
 </body>
 </html>

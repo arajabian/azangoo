@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/azan.css?v=20261119">
+<link rel="stylesheet" href="css/azan.css?v=20261122">
 <link rel="stylesheet" href="css/moon.css?v=20261118">
 </head>
 <body>
@@ -118,7 +118,8 @@
         <label class="auto"><input type="checkbox" id="autoAdhan" checked><span data-i18n="auto_label">Automatic adhan and dua playback</span></label>
         <p class="dua-timer" id="duaTimer"></p>
         <p class="msg" id="adhanMsg" role="status"></p>
-        <p class="hint"><span data-i18n="auto_hint">For automatic playback, keep this page open and click it once.</span></p>
+        <p class="hint"><span data-i18n="auto_hint">For automatic playback, keep this page open and click it once.</span> <button type="button" class="link-btn hint-more-btn" id="autoMoreBtn" data-i18n="hint_more" aria-expanded="false" aria-controls="autoMore">More</button></p>
+        <p class="hint" id="autoMore" data-i18n="auto_more_text" hidden>For the adhan to play without needing a click, install the site on your device (Add to Home Screen or Install), or in your browser settings set sound to “Allow” for this site.</p>
       </section>
     </div>
 
@@ -217,12 +218,14 @@
     <dialog class="contact-dlg about-dlg" id="aboutDlg" aria-labelledby="aboutTitle">
       <h2 id="aboutTitle" data-i18n="about_title">About Azangoo</h2>
       <div class="about-body">
-        <p data-i18n="about_p1">We launched Azangoo in 2011, back when it ran on Google Maps. When Google stopped providing us with its map service, offering prayer times on Azangoo became difficult.</p>
+        <p data-i18n="about_p1">We launched Azangoo in 2011, back when it ran on Google Maps, and for a long time it worked well and without any trouble. After a while, however, Google stopped providing us with its map service, and offering prayer times on Azangoo became difficult.</p>
         <p data-i18n="about_p2">This year, in 2026, by God’s grace we were given the chance once again to serve you, dear worshippers, this time with a fresh design, modern features, and a page that works comfortably on your phone.</p>
-        <p data-i18n="about_p3">Our purpose is simple: that every worshipper, anywhere in the world, can see the prayer times for their own place at a glance, and that the adhan and supplications gently remind them of standing before their Lord. So we calculate the prayer times for the place you choose on the map, and alongside them we offer the qibla direction, the sound of the adhan, the daily and Ramadan supplications, the crescent moon sighting and a calendar, in Persian, English, Urdu and Arabic.</p>
+        <p data-i18n="about_p3">Our aim is to bring the sound of the adhan to your home, your workplace and wherever else you may be, no matter where in the world you live. That is why we calculate the prayer times for the place you choose on the map, and alongside them we offer the qibla direction, the sound of the adhan, the daily and Ramadan supplications, the crescent moon sighting and a calendar, in Persian, English, Urdu and Arabic.</p>
         <p data-i18n="about_p4">Azangoo is not affiliated with any organization, institution, party or group, governmental or non-governmental, anywhere in the world.</p>
         <p data-i18n="about_p5">We hope we have been able to render some service, however small, to those who pray. Without the grace and mercy of God Almighty and the care of the Master of the Age, Imam al-Mahdi (may God hasten his relief), this work would not have been possible for us. Finally, we humbly ask for your prayers: please do not deprive us of them at the time of adhan and prayer, and never forget to pray for the hastening of the relief of our master, the Imam of the Age.</p>
-        <p class="about-dua" lang="ar" dir="rtl">اللَّهُمَّ عَجِّلْ لِوَلِيِّكَ الْفَرَجَ</p>
+        <p class="about-dua" lang="ar" dir="rtl">فَضْلُ الْوَقْتِ الْأَوَّلِ عَلَى الْآخِرِ كَفَضْلِ الْآخِرَةِ عَلَى الدُّنْيَا</p>
+        <p class="about-dua-tr" data-i18n="about_hadith">“The merit of the first part of the prayer time over the last is like the merit of the Hereafter over this world.”</p>
+        <p class="about-dua-src" data-i18n="about_hadith_src">Imam al-Sadiq (peace be upon him) — Thawab al-A‘mal, chapter on the merit of the first time over the last</p>
         <p data-i18n="about_p6">Your comments and suggestions are always welcome through “Contact us”.</p>
       </div>
       <div class="save-actions">
@@ -244,14 +247,14 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lang.js?v=20261119"></script>
-<script src="js/official.js"></script>
+<script src="js/lang.js?v=20261121"></script>
+<script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js?v=20261110"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
-<script src="js/azan.js?v=20261118"></script>
+<script src="js/azan.js?v=20261121"></script>
 </body>
 </html>
