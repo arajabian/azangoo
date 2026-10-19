@@ -291,6 +291,7 @@
       paintTimes();
       markNext();
       updateMoonSky();
+      loadWeather(ll);                                      /* asynchronous: the sky is already drawn, the weather is added when it arrives */
       if(window.MoonInfo)MoonInfo.update(ll.lat,ll.lng,o.h);
       window.AzanPlace={latitude:ll.lat,longitude:ll.lng,zoneName:o.zone,fallbackOffsetHours:o.h};
       tick(true);
@@ -334,9 +335,79 @@
     var box=document.querySelector(".moon");
     if(!box)return;
     var sr=lastTimes?toMin(lastTimes.sunrise):null, ss=lastTimes?toMin(lastTimes.sunset):null;
-    if(sr===null||ss===null){box.setAttribute("data-sky","night");return}   /* no place or no sunrise / sunset: the starry sky */
+    if(sr===null||ss===null){box.setAttribute("data-sky","night");box.removeAttribute("data-wx");return}   /* no place or no sunrise / sunset: the starry sky */
     var n=new Date(Date.now()+lastOffset*3600000);
     box.setAttribute("data-sky",skyState(n.getUTCHours()*60+n.getUTCMinutes(),sr,ss));
+    /* the weather picture (partly / cloudy / fog / rain / snow / storm) is added on top of the sky state; clear weather,
+       an unknown weather or a weather of another place keeps the plain sky of the line above */
+    if(wxNow&&wxNow!=="clear")box.setAttribute("data-wx",wxNow); else box.removeAttribute("data-wx");
+  }
+
+  /* ---- weather for the sky picture ----
+     After the sky has been drawn, the weather of the selected place is asked from two free services that need no key:
+     1) Open-Meteo, 2) MET Norway (api.met.no). The second one is asked only if the first gave nothing usable.
+     If neither gives a value, nothing changes and the sky stays as it was. A service that fails is skipped for 5 minutes. */
+  var wxNow=null, wxKey="", wxAt=0, wxSeq=0, wxDownUntil={};
+  function wxFromWmo(c){                                    /* WMO weather code of Open-Meteo */
+    if(typeof c!=="number")return null;
+    if(c===0||c===1)return "clear";
+    if(c===2)return "partly";
+    if(c===3)return "cloudy";
+    if(c===45||c===48)return "fog";
+    if(c>=95&&c<=99)return "storm";
+    if((c>=71&&c<=77)||c===85||c===86)return "snow";
+    if((c>=51&&c<=67)||(c>=80&&c<=82))return "rain";
+    return null;
+  }
+  function wxFromMet(sym){                                  /* symbol_code of MET Norway, e.g. "lightrain_day" */
+    if(typeof sym!=="string")return null;
+    sym=sym.replace(/_(day|night|polartwilight)$/,"");
+    if(/thunder/.test(sym))return "storm";
+    if(/snow/.test(sym))return "snow";
+    if(/sleet|rain|drizzle|shower/.test(sym))return "rain";
+    if(sym==="fog")return "fog";
+    if(sym==="cloudy")return "cloudy";
+    if(sym==="partlycloudy")return "partly";
+    if(sym==="clearsky"||sym==="fair")return "clear";
+    return null;
+  }
+  var wxServices=[
+    {
+      name:"open-meteo",
+      url:function(ll){return "https://api.open-meteo.com/v1/forecast?latitude="+ll.lat.toFixed(4)+"&longitude="+ll.lng.toFixed(4)+"&current=weather_code&timezone=auto"},
+      parse:function(d){return wxFromWmo(d&&d.current&&d.current.weather_code)}
+    },
+    {
+      name:"met-no",
+      url:function(ll){return "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat="+ll.lat.toFixed(4)+"&lon="+ll.lng.toFixed(4)},
+      parse:function(d){
+        var t=d&&d.properties&&d.properties.timeseries&&d.properties.timeseries[0], x=t&&t.data, sym=null;
+        ["next_1_hours","next_6_hours","next_12_hours"].forEach(function(k){
+          if(sym===null&&x&&x[k]&&x[k].summary)sym=x[k].summary.symbol_code;
+        });
+        return wxFromMet(sym);
+      }
+    }
+  ];
+  function loadWeather(ll){
+    var key=ll.lat.toFixed(1)+","+ll.lng.toFixed(1);
+    if(key===wxKey&&Date.now()-wxAt<15*60*1000)return;       /* same place, asked less than 15 minutes ago */
+    if(key!==wxKey){wxNow=null;updateMoonSky()}              /* another place: the old weather is not shown for it */
+    wxKey=key;wxAt=Date.now();
+    var id=++wxSeq, i=0;
+    function next(){
+      if(id!==wxSeq)return;                                  /* a newer place replaced this one */
+      if(i>=wxServices.length){wxAt=0;return}                /* nothing usable: the sky stays as it is, and the next calculation asks again */
+      var s=wxServices[i++];
+      if(wxDownUntil[s.name]>Date.now())return next();
+      fetchJson(s.url(ll)).then(function(d){
+        var w=s.parse(d);
+        if(!w)throw new Error("no weather");
+        if(id!==wxSeq)return;
+        wxNow=w;updateMoonSky();
+      }).catch(function(){wxDownUntil[s.name]=Date.now()+300000;next()});
+    }
+    next();
   }
   setInterval(updateMoonSky,30000);
 
@@ -463,6 +534,7 @@
   RAM_LIST.forEach(function(S){S.pre=null;S.warm=false;S.busy=false});
   var ramPlayer=new Audio();
   ramPlayer.preload="auto";
+  var ramLoadSec=0;                                          /* measured loading time of a file, used to plan the next one */
   var ramCur=null, ramIdx=0, ramChain=false;                 /* the set that is playing, the file in it, and whether the next file follows */
   function ramPrepare(S){
     if(S.pre)return;
@@ -483,7 +555,7 @@
   /* play file number idx of set S from offset seconds; done(true|false) tells whether it started */
   function playRamAt(S,idx,off,done){
     ramCur=S; ramIdx=idx;
-    var f=S.files[idx], settled=false, timer=null;
+    var f=S.files[idx], settled=false, timer=null, t0=Date.now();
     function finish(ok){
       if(settled)return;
       settled=true;
@@ -496,9 +568,19 @@
     function go(){
       ramPlayer.removeEventListener("loadedmetadata",go);
       try{ramPlayer.currentTime=off||0}catch(e){}
+      ramPlayer.muted=false;
+      if(idx>0||off===0)ramLoadSec=Math.min(5,Math.max(0,(Date.now()-t0)/1000));   /* how long a change of file takes to start */
       var p=null;
       try{p=ramPlayer.play()}catch(e){p=null}
-      if(p&&p.then)p.then(function(){finish(true)}).catch(fail);
+      if(p&&p.then)p.then(function(){finish(true)}).catch(function(){
+        /* sound is refused until the person touches the page: like the adhan, start silently (always allowed) and
+           unmute on the first touch, so the dua is already running at the right place of the clock */
+        ramPlayer.muted=true;
+        var q=null;
+        try{q=ramPlayer.play()}catch(e){q=null}
+        if(q&&q.then)q.then(function(){ramMutedAuto=true;finish(true)}).catch(function(){ramPlayer.muted=false;fail()});
+        else{ramPlayer.muted=false;fail()}
+      });
       else finish(p!==null);
     }
     if(ramPlayer.getAttribute("data-file")!==f){ramPlayer.setAttribute("data-file",f);ramPlayer.src=f}
@@ -506,11 +588,38 @@
     timer=setTimeout(fail,8000);                              /* file missing or very slow: the caller tries again */
     if(ramPlayer.readyState>=1)go(); else ramPlayer.addEventListener("loadedmetadata",go);
   }
+  var ramMutedAuto=false;
+  function unmuteRamOnTouch(){
+    if(!ramMutedAuto)return;
+    ramMutedAuto=false;
+    ramPlayer.muted=false;
+  }
+  ["click","touchstart","keydown"].forEach(function(ev){ document.addEventListener(ev,unmuteRamOnTouch,{passive:true}); });
+  function localNowMs(){
+    var d=new Date(Date.now()+lastOffset*3600000);
+    return d.getUTCHours()*3600000+d.getUTCMinutes()*60000+d.getUTCSeconds()*1000+d.getUTCMilliseconds();
+  }
+  /* when a file ends the next one follows at once. Every change of file costs a little loading time, so the next file is
+     placed by the clock (the last file must end 1 second before the adhan): if it is late, it starts a little inside the file */
   ramPlayer.addEventListener("ended",function(){
     if(!ramChain||!ramCur)return;
-    var S=ramCur;
-    if(ramIdx+1<S.files.length)playRamAt(S,ramIdx+1,0,function(ok){if(!ok)ramChain=false});
-    else ramChain=false;
+    var S=ramCur, idx=ramIdx+1, off=0;
+    if(idx>=S.files.length){ramChain=false;return}
+    if(S.endMs!=null){
+      var durs=ramDurations(S), rest=0;
+      for(var j=idx;j<durs.length;j++)rest+=durs[j];
+      var late=(localNowMs()-(S.endMs-rest*1000))/1000+ramLoadSec;
+      if(late>0){
+        off=late;
+        while(idx<durs.length-1&&off>=durs[idx]){off-=durs[idx];idx++}
+        if(off>=durs[idx]-0.5){ramChain=false;return}        /* the adhan time has come: nothing is left to play */
+      }
+    }
+    playRamAt(S,idx,off,function(ok){
+      if(ok)return;
+      ramChain=false;
+      if(S.key)doaFired[S.key]=false;                          /* the checker starts the dua again from the place of the clock */
+    });
   });
 
   /* the monthly flags are read from the server (data/doa.json) and re-read every 30 minutes,
@@ -545,6 +654,7 @@
   function userWantsDua(){ return !!autoEl&&autoEl.checked; }
 
   /* browsers block sound until the person has touched the page once: unlock both players on the first touch */
+  var SILENT_WAV="data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
   var audioUnlocked=false;
   function unlockAudio(){
     if(audioUnlocked)return;
@@ -552,9 +662,18 @@
     [dailyPlayer,ramPlayer,player].forEach(function(a){
       if(!a.paused)return;                                   /* never interrupt a sound that is already playing */
       try{
+        var temp=false;
+        if(!a.getAttribute("src")&&!a.getAttribute("data-file")&&!a.src){ a.src=SILENT_WAV; temp=true; }   /* a player without a file can not be unlocked */
         a.muted=true;
         var p=a.play();
-        var back=function(){ a.pause(); a.currentTime=0; a.muted=false; };
+        var back=function(){
+          if(temp){
+            if(a.getAttribute("data-file"))return;           /* a real file was set meanwhile: leave it alone */
+            a.pause(); a.muted=false; a.removeAttribute("src"); try{a.load()}catch(e){}
+            return;
+          }
+          a.pause(); a.currentTime=0; a.muted=false;
+        };
         if(p&&p.then)p.then(back).catch(function(){ a.muted=false; }); else back();
       }catch(e){ a.muted=false; }
     });
@@ -605,7 +724,7 @@
     if(nowMs>=startMs&&nowMs<endMs-500){
       var pos=(nowMs-startMs)/1000, durs=ramDurations(S), i=0;
       while(i<durs.length-1&&pos>=durs[i]){pos-=durs[i];i++}
-      S.busy=true;
+      S.busy=true; S.key=key; S.endMs=endMs;
       playRamAt(S,i,pos,function(ok){
         S.busy=false;
         if(ok){doaFired[key]=true;ramChain=true}

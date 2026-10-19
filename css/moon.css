@@ -19,6 +19,33 @@
 .moon[data-sky="day"]{background-image:url("../images/moon-sky-day.webp");background-position:center top}
 .moon[data-sky="sunset"]{background-image:url("../images/moon-sky-sunset.webp");background-position:center bottom}
 
+/* weather pictures: the sky state (data-sky) plus the weather (data-wx, set by js/azan.js from Open-Meteo or MET Norway).
+   Clear weather has no data-wx and uses the plain sky pictures above. Same cropping as the plain pictures. */
+.moon[data-sky="sunrise"][data-wx="partly"]{background-image:url("../images/moon-sky-sunrise-partly.webp");background-position:center bottom}
+.moon[data-sky="sunrise"][data-wx="cloudy"]{background-image:url("../images/moon-sky-sunrise-cloudy.webp");background-position:center bottom}
+.moon[data-sky="sunrise"][data-wx="fog"]{background-image:url("../images/moon-sky-sunrise-fog.webp");background-position:center bottom}
+.moon[data-sky="sunrise"][data-wx="rain"]{background-image:url("../images/moon-sky-sunrise-rain.webp");background-position:center bottom}
+.moon[data-sky="sunrise"][data-wx="snow"]{background-image:url("../images/moon-sky-sunrise-snow.webp");background-position:center bottom}
+.moon[data-sky="sunrise"][data-wx="storm"]{background-image:url("../images/moon-sky-sunrise-storm.webp");background-position:center bottom}
+.moon[data-sky="day"][data-wx="partly"]{background-image:url("../images/moon-sky-day-partly.webp");background-position:center top}
+.moon[data-sky="day"][data-wx="cloudy"]{background-image:url("../images/moon-sky-day-cloudy.webp");background-position:center top}
+.moon[data-sky="day"][data-wx="fog"]{background-image:url("../images/moon-sky-day-fog.webp");background-position:center top}
+.moon[data-sky="day"][data-wx="rain"]{background-image:url("../images/moon-sky-day-rain.webp");background-position:center top}
+.moon[data-sky="day"][data-wx="snow"]{background-image:url("../images/moon-sky-day-snow.webp");background-position:center top}
+.moon[data-sky="day"][data-wx="storm"]{background-image:url("../images/moon-sky-day-storm.webp");background-position:center top}
+.moon[data-sky="sunset"][data-wx="partly"]{background-image:url("../images/moon-sky-sunset-partly.webp");background-position:center bottom}
+.moon[data-sky="sunset"][data-wx="cloudy"]{background-image:url("../images/moon-sky-sunset-cloudy.webp");background-position:center bottom}
+.moon[data-sky="sunset"][data-wx="fog"]{background-image:url("../images/moon-sky-sunset-fog.webp");background-position:center bottom}
+.moon[data-sky="sunset"][data-wx="rain"]{background-image:url("../images/moon-sky-sunset-rain.webp");background-position:center bottom}
+.moon[data-sky="sunset"][data-wx="snow"]{background-image:url("../images/moon-sky-sunset-snow.webp");background-position:center bottom}
+.moon[data-sky="sunset"][data-wx="storm"]{background-image:url("../images/moon-sky-sunset-storm.webp");background-position:center bottom}
+.moon[data-sky="night"][data-wx="partly"]{background-image:url("../images/moon-sky-night-partly.webp");background-position:center center}
+.moon[data-sky="night"][data-wx="cloudy"]{background-image:url("../images/moon-sky-night-cloudy.webp");background-position:center center}
+.moon[data-sky="night"][data-wx="fog"]{background-image:url("../images/moon-sky-night-fog.webp");background-position:center center}
+.moon[data-sky="night"][data-wx="rain"]{background-image:url("../images/moon-sky-night-rain.webp");background-position:center center}
+.moon[data-sky="night"][data-wx="snow"]{background-image:url("../images/moon-sky-night-snow.webp");background-position:center center}
+.moon[data-sky="night"][data-wx="storm"]{background-image:url("../images/moon-sky-night-storm.webp");background-position:center center}
+
 .moon-img{
   flex:none;width:104px;height:104px;display:block;
   border-radius:50%;object-fit:cover;
