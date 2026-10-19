@@ -50,6 +50,20 @@
     }
   });
 
+  /* the hint under the adhan player: one button ("more" / "less") shows or hides the extra advice about playing without a click */
+  (function(){
+    var btn=document.getElementById("autoMoreBtn"),more=document.getElementById("autoMore");
+    if(!btn||!more)return;
+    btn.addEventListener("click",function(){
+      var open=more.hidden;                                   /* hidden now = will be open */
+      more.hidden=!open;
+      var key=open?"hint_less":"hint_more";
+      btn.setAttribute("data-i18n",key);
+      btn.textContent=window.AzanLang.t(key);
+      btn.setAttribute("aria-expanded",open?"true":"false");
+    });
+  })();
+
   if(!window.L)return;
 
   /* map */
@@ -887,7 +901,8 @@
     });
   }
 
-  /* after-adhan dua: only after the maghrib adhan (the old after-fajr dua was removed; the Sahar dua now plays before fajr) */
+  /* after-adhan dua (Eftar_after_Azan.mp3): after the fajr adhan and after the maghrib adhan, in the months where the "ramadan" flag is on
+     (the Sahar dua still plays before fajr; dhuhr has no dua after it) */
   var duaPlayer=new Audio();
   var pendingAfter=null;
   /* Hijri month number of a local date (d has the local date in its UTC fields); official list first */
@@ -902,7 +917,7 @@
     var kind=pendingAfter;
     pendingAfter=null;
     if(!kind)return;
-    /* after the maghrib adhan: the Iftar dua, always exactly 1 second after the adhan ends, when the "ramadan" flag of the
+    /* after the fajr or maghrib adhan: the dua file, always exactly 1 second after the adhan ends, when the "ramadan" flag of the
        Hijri month in data/doa.json is 1 and the automatic adhan and dua switch is on. */
     setTimeout(function(){
       if(!autoEl.checked)return;
@@ -919,9 +934,9 @@
   /* The browser may block sound until the person has touched the page. In that case the adhan is started
      silently (always allowed) at the right position, and the first touch anywhere turns the sound on. */
   var mutedAuto=false, mutedName="";
-  /* the Iftar dua file is loaded while the maghrib adhan plays, so it can start on time after it */
+  /* the dua file is loaded while the fajr or maghrib adhan plays, so it can start on time after it */
   function prepareAfter(kind){
-    if(kind!=="maghrib"||!autoEl.checked)return;
+    if((kind!=="maghrib"&&kind!=="fajr")||!autoEl.checked)return;
     if(!ramadanOn(new Date(Date.now()+lastOffset*3600000)))return;
     var f="audio/doa/ramadan/Eftar_after_Azan.mp3";
     if(duaPlayer.getAttribute("data-file")!==f){
@@ -979,7 +994,7 @@
       /* from the start of the adhan until the end of the recording: a person who arrives in the middle hears it from that point */
       var len=(isFinite(dur)&&dur>0)?dur*1000-500:2500;
       if(nowMs>=startMs&&nowMs<startMs+len){
-        playAdhan(window.AzanLang.t(x[1]),key,x[0]==="maghrib"?"maghrib":null,(nowMs-startMs)/1000);
+        playAdhan(window.AzanLang.t(x[1]),key,(x[0]==="maghrib"||x[0]==="fajr")?x[0]:null,(nowMs-startMs)/1000);
       }
     });
   }
