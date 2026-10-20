@@ -16,8 +16,8 @@ module.exports = {
         'این اطلاعات فقط برای راحتی کار خود شما در حافظهٔ همین مرورگر می‌ماند، به سرور ما فرستاده نمی‌شود و با پاک کردن اطلاعات مرورگر از بین می‌رود.'
       ] },
       { h: 'سرویس‌های دیگر', p: [
-        'برای نمایش نقشه و پیدا کردن نام شهر (و در صورت نیاز کشور)، مرورگر شما مستقیم به OpenStreetMap وصل می‌شود و مختصات نقطهٔ انتخاب‌شده یا متن جستجو را برای آن می‌فرستد. برای تشخیص منطقهٔ زمانی، مختصات به Open-Meteo یا timeapi.io فرستاده می‌شود. برای نمایش آسمان متناسب با وضعیت هوا و پیش‌بینی ابر و دید افق در کارت ماه، مختصات به Open-Meteo و در صورت پاسخ ندادن آن به MET Norway (api.met.no) فرستاده می‌شود.',
-        'کتابخانهٔ نقشه (Leaflet) از unpkg.com و فونت از Google Fonts بارگذاری می‌شود. این سرویس‌ها سیاست حریم خصوصی خودشان را دارند و اذان گو آن‌ها را کنترل نمی‌کند.'
+        'برای نمایش نقشه و پیدا کردن نام شهر (و در صورت نیاز کشور)، مرورگر شما مستقیم به OpenStreetMap وصل می‌شود و مختصات نقطهٔ انتخاب‌شده یا متن جستجو را برای آن می‌فرستد. اگر این سرویس پاسخ ندهد، همین اطلاعات برای Photon (photon.komoot.io) و تصویر نقشه از CARTO گرفته می‌شود. برای تشخیص منطقهٔ زمانی، مختصات به Open-Meteo یا timeapi.io فرستاده می‌شود. برای نمایش آسمان متناسب با وضعیت هوا و پیش‌بینی ابر و دید افق در کارت ماه، مختصات به Open-Meteo و در صورت پاسخ ندادن آن به MET Norway (api.met.no) فرستاده می‌شود.',
+        'کتابخانهٔ نقشه (Leaflet) از unpkg.com (و در صورت در دسترس نبودن، از jsDelivr) و فونت از Google Fonts بارگذاری می‌شود. این سرویس‌ها سیاست حریم خصوصی خودشان را دارند و اذان گو آن‌ها را کنترل نمی‌کند.'
       ] },
       { h: 'تماس', p: [
         'برای پرسش دربارهٔ حریم خصوصی: info.azangoo@gmail.com'
@@ -38,8 +38,8 @@ module.exports = {
         'This information stays in this browser only, for your own convenience. It is not sent to our server and disappears when you clear the browser data.'
       ] },
       { h: 'Other services', p: [
-        'To show the map and find a city name (and, when needed, the country), your browser connects directly to OpenStreetMap and sends it the coordinates of the selected point or the text you search for. To find the time zone, the coordinates are sent to Open-Meteo or timeapi.io. To show the sky that matches the weather, and the cloud and horizon-visibility forecast in the moon card, the coordinates are sent to Open-Meteo or, if it does not answer, to MET Norway (api.met.no).',
-        'The map library (Leaflet) is loaded from unpkg.com and the fonts from Google Fonts. These services have their own privacy policies and are not controlled by Azangoo.'
+        'To show the map and find a city name (and, when needed, the country), your browser connects directly to OpenStreetMap and sends it the coordinates of the selected point or the text you search for. If that service does not answer, the same information goes to Photon (photon.komoot.io) and the map pictures are taken from CARTO. To find the time zone, the coordinates are sent to Open-Meteo or timeapi.io. To show the sky that matches the weather, and the cloud and horizon-visibility forecast in the moon card, the coordinates are sent to Open-Meteo or, if it does not answer, to MET Norway (api.met.no).',
+        'The map library (Leaflet) is loaded from unpkg.com (or from jsDelivr if unpkg is not available) and the fonts from Google Fonts. These services have their own privacy policies and are not controlled by Azangoo.'
       ] },
       { h: 'Contact', p: [
         'Questions about privacy: info.azangoo@gmail.com'
@@ -60,8 +60,8 @@ module.exports = {
         'یہ معلومات صرف آپ کی سہولت کے لیے اسی براؤزر میں رہتی ہیں، ہمارے سرور کو نہیں بھیجی جاتیں اور براؤزر کا ڈیٹا صاف کرنے سے ختم ہو جاتی ہیں۔'
       ] },
       { h: 'دوسری خدمات', p: [
-        'نقشہ دکھانے اور شہر کا نام (اور ضرورت پر ملک) معلوم کرنے کے لیے آپ کا براؤزر براہ راست OpenStreetMap سے جڑتا ہے اور منتخب نقطے کے نقاط یا آپ کا تلاش کیا ہوا متن اسے بھیجتا ہے۔ ٹائم زون معلوم کرنے کے لیے نقاط Open-Meteo یا timeapi.io کو بھیجے جاتے ہیں۔ موسم کے مطابق آسمان اور چاند کے کارڈ میں بادل اور افق کی نظر آنے کی حد کی پیش گوئی دکھانے کے لیے نقاط Open-Meteo کو اور اس کے جواب نہ دینے پر MET Norway (api.met.no) کو بھیجے جاتے ہیں۔',
-        'نقشے کی لائبریری (Leaflet) unpkg.com سے اور فونٹ Google Fonts سے لوڈ ہوتے ہیں۔ ان خدمات کی اپنی رازداری کی پالیسی ہے اور اذان گو انہیں کنٹرول نہیں کرتا۔'
+        'نقشہ دکھانے اور شہر کا نام (اور ضرورت پر ملک) معلوم کرنے کے لیے آپ کا براؤزر براہ راست OpenStreetMap سے جڑتا ہے اور منتخب نقطے کے نقاط یا آپ کا تلاش کیا ہوا متن اسے بھیجتا ہے۔ اگر یہ سروس جواب نہ دے تو یہی معلومات Photon (photon.komoot.io) کو بھیجی جاتی ہیں اور نقشے کی تصویریں CARTO سے لی جاتی ہیں۔ ٹائم زون معلوم کرنے کے لیے نقاط Open-Meteo یا timeapi.io کو بھیجے جاتے ہیں۔ موسم کے مطابق آسمان اور چاند کے کارڈ میں بادل اور افق کی نظر آنے کی حد کی پیش گوئی دکھانے کے لیے نقاط Open-Meteo کو اور اس کے جواب نہ دینے پر MET Norway (api.met.no) کو بھیجے جاتے ہیں۔',
+        'نقشے کی لائبریری (Leaflet) unpkg.com سے (اور دستیاب نہ ہونے پر jsDelivr سے) اور فونٹ Google Fonts سے لوڈ ہوتے ہیں۔ ان خدمات کی اپنی رازداری کی پالیسی ہے اور اذان گو انہیں کنٹرول نہیں کرتا۔'
       ] },
       { h: 'رابطہ', p: [
         'رازداری سے متعلق سوالات: info.azangoo@gmail.com'
@@ -82,8 +82,8 @@ module.exports = {
         'تبقى هذه المعلومات في هذا المتصفح فقط لراحتك، ولا تُرسل إلى خادمنا، وتزول بمسح بيانات المتصفح.'
       ] },
       { h: 'خدمات أخرى', p: [
-        'لعرض الخريطة ومعرفة اسم المدينة (والبلد عند الحاجة) يتصل متصفحك مباشرة بـ OpenStreetMap ويرسل إليه إحداثيات النقطة المختارة أو نص البحث. ولمعرفة المنطقة الزمنية تُرسل الإحداثيات إلى Open-Meteo أو timeapi.io. ولعرض السماء بحسب الطقس وتوقعات الغيوم ومدى الرؤية عند الأفق في بطاقة القمر تُرسل الإحداثيات إلى Open-Meteo، وإن لم يستجب فإلى MET Norway (api.met.no).',
-        'تُحمَّل مكتبة الخريطة (Leaflet) من unpkg.com والخطوط من Google Fonts. ولهذه الخدمات سياسات خصوصية خاصة بها ولا يتحكم بها أذان گو.'
+        'لعرض الخريطة ومعرفة اسم المدينة (والبلد عند الحاجة) يتصل متصفحك مباشرة بـ OpenStreetMap ويرسل إليه إحداثيات النقطة المختارة أو نص البحث. وإن لم تستجب هذه الخدمة تُرسل المعلومات نفسها إلى Photon (photon.komoot.io) وتُؤخذ صور الخريطة من CARTO. ولمعرفة المنطقة الزمنية تُرسل الإحداثيات إلى Open-Meteo أو timeapi.io. ولعرض السماء بحسب الطقس وتوقعات الغيوم ومدى الرؤية عند الأفق في بطاقة القمر تُرسل الإحداثيات إلى Open-Meteo، وإن لم يستجب فإلى MET Norway (api.met.no).',
+        'تُحمَّل مكتبة الخريطة (Leaflet) من unpkg.com (أو من jsDelivr إن لم يكن متاحًا) والخطوط من Google Fonts. ولهذه الخدمات سياسات خصوصية خاصة بها ولا يتحكم بها أذان گو.'
       ] },
       { h: 'التواصل', p: [
         'للأسئلة حول الخصوصية: info.azangoo@gmail.com'

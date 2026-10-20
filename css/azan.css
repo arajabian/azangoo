@@ -221,7 +221,8 @@ footer{text-align:center;font-size:.8rem;opacity:.7;margin-top:26px}
 /* the save button under the Qibla sentence: as wide as the calculate button */
 .save-btn.save-wide{display:block;width:100%;margin-top:12px}
 #saveMsg:empty{display:none}
-.save-sub{text-align:center;margin-top:6px}
+.main-col{display:grid;gap:14px;min-width:0}
+.save-sub{margin:0 0 4px}
 .clear-btn{display:block;margin:6px auto 0;font-size:.82rem;text-decoration:underline}
 .clear-btn[hidden]{display:none}
 .save-confirm{background:var(--tile);border:1px solid var(--gold);border-radius:var(--r);padding:12px 14px;max-width:360px;text-align:center}
@@ -374,12 +375,13 @@ img,select,input,button{max-width:100%}
 .times li:nth-child(7)>span::before{--ic:var(--i-moonstar)}
 /* 2) card titles and qibla */
 #t-h::before{--ic:var(--i-clock)}
+#sv-h::before{--ic:var(--i-save)}
 #mo-h::before{--ic:var(--i-phase)}
 #a-h::before{--ic:var(--i-speaker)}
 #cal-h::before{--ic:var(--i-calendar)}
 .qibla::before{--ic:var(--i-compass)}
 /* 3) footer buttons */
-#saveDefaults::before{--ic:var(--i-save)}
+#saveDefaults::before{display:none}               /* the card title already has the save icon */
 .donate-btn::before{--ic:var(--i-heart)}
 .city-list-btn::before{--ic:var(--i-globe)}
 /* 4) the four date cards: a small icon in the top corner (start side), clock / Shamsi / Hijri / Gregorian */
