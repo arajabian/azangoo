@@ -115,6 +115,16 @@ a{color:inherit;text-decoration:none}
 .hint-more-btn{text-decoration:underline;font-size:inherit}
 .hint[hidden]{display:none}
 
+/* thin moving gold bar at the bottom of the screen: "tap the page once" so the automatic adhan can play.
+   Shown while the automatic adhan is on and the page has not been touched yet; any tap, click or key removes it. */
+.sound-bar{position:fixed;inset-inline:0;bottom:0;z-index:900;height:30px;box-sizing:content-box;padding-bottom:env(safe-area-inset-bottom,0px);overflow:hidden;display:flex;align-items:center;background:linear-gradient(#f0d58a,#d2a94b);color:#0a1a22;font:700 .85rem Vazirmatn,sans-serif;border-top:1px solid #8a6a1f;box-shadow:0 -2px 10px rgba(0,0,0,.35);cursor:pointer}
+.sound-bar[hidden]{display:none}
+.sound-bar-text{flex:none;display:inline-block;white-space:nowrap;padding-inline-start:100%;animation:soundMarquee 18s linear infinite}
+@keyframes soundMarquee{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+html[dir="rtl"] .sound-bar-text{animation-name:soundMarqueeRtl}
+@keyframes soundMarqueeRtl{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.sound-bar{justify-content:center}.sound-bar-text{animation:none;padding:0;white-space:normal;text-align:center}}
+
 /* side cards */
 .reciters{display:grid;gap:8px;font-size:.92rem}
 .reciters label{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--panel);cursor:pointer}
@@ -151,9 +161,6 @@ footer{text-align:center;font-size:.8rem;opacity:.7;margin-top:26px}
   background:linear-gradient(var(--gold2),var(--gold));color:var(--ink)
 }
 .msg{font-size:.82rem;min-height:1.6em;margin:4px 2px 8px;color:var(--heading)}
-/* the message line under the search box takes no room while it is empty, so the map sits close to the search box */
-#msg:empty{display:none}
-.search{margin-bottom:8px}
 .card .mapframe{margin-top:0}
 
 /* qibla */
@@ -211,6 +218,12 @@ footer{text-align:center;font-size:.8rem;opacity:.7;margin-top:26px}
 .donate{margin:0}
 .donate-btn{grid-column:auto;width:auto}
 .save-btn{width:auto;grid-column:auto}
+/* the save button under the Qibla sentence: as wide as the calculate button */
+.save-btn.save-wide{display:block;width:100%;margin-top:12px}
+#saveMsg:empty{display:none}
+.save-sub{text-align:center;margin-top:6px}
+.clear-btn{display:block;margin:6px auto 0;font-size:.82rem;text-decoration:underline}
+.clear-btn[hidden]{display:none}
 .save-confirm{background:var(--tile);border:1px solid var(--gold);border-radius:var(--r);padding:12px 14px;max-width:360px;text-align:center}
 .save-confirm[hidden]{display:none}
 .save-confirm p{margin:0 0 10px;font-weight:700;color:var(--heading)}

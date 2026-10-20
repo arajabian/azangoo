@@ -53,10 +53,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/azan.css?v=20261122">
-<link rel="stylesheet" href="css/moon.css?v=20261118">
+<link rel="stylesheet" href="css/azan.css?v=20261128">
+<link rel="stylesheet" href="css/moon.css?v=20261127">
 </head>
 <body>
+<div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">لتشغيل الأذان تلقائيًا، انقر على الصفحة مرة واحدة</span></div>
 <div class="wrap">
 
   <header class="top">
@@ -139,6 +140,10 @@
         <button class="btn calc-btn" type="submit"><span data-i18n="calc_btn">احسب الأوقات</span></button>
       </form>
       <p class="qibla" id="qibla" role="status"></p>
+      <button type="button" id="saveDefaults" class="btn save-btn save-wide"><span data-i18n="save_btn">حفظ المكان والإعدادات للمرة القادمة</span></button>
+      <p class="hint save-sub" data-i18n="save_sub">يُحفظ في هذا المتصفح المكان على الخريطة وصوت الأذان والتشغيل التلقائي واللغة والمظهر الداكن/الفاتح.</p>
+      <p class="msg" id="saveMsg" role="status"></p>
+      <button type="button" class="link-btn clear-btn" id="clearDefaults" data-i18n="clear_btn" hidden>حذف الإعدادات المحفوظة</button>
       <p class="hint"><span data-i18n="map_hint">انقر نقرًا مزدوجًا على الخريطة أو اسحب المؤشر لتغيير المكان.</span></p>
     </section>
 
@@ -160,6 +165,12 @@
         <div id="moonMsgs">
           <p class="moon-text" id="mText"></p>
           <p class="moon-text moon-start" id="mStart"></p>
+        </div>
+        <div class="moon-text moon-sky" id="moonSky" hidden>
+          <span class="sky-line" id="skySunset"></span>
+          <span class="sky-line" id="skyVis"></span>
+          <span class="sky-line" id="skyNight"></span>
+          <span class="sky-note" id="skyNote"></span>
         </div>
         <button type="button" class="btn cal-ok annual-btn moon-more-btn" id="moonMoreBtn" aria-expanded="false" aria-controls="moonMore" data-i18n="moon_more" hidden>معلومات أكثر</button>
         <div class="moon-more" id="moonMore" hidden>
@@ -191,7 +202,6 @@
   </main>
   <footer class="site-foot">
     <div class="foot-actions">
-      <button type="button" id="saveDefaults" class="btn save-btn"><span data-i18n="save_btn">حفظ الإعدادات الافتراضية</span></button>
       <form class="donate" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
             <input type="hidden" name="cmd" value="_s-xclick">
             <input type="hidden" name="hosted_button_id" value="3QYFTJCUQAEKL">
@@ -200,16 +210,22 @@
       <a class="city-list-btn" id="cityListLink" href="ar/prayer-times/index.html" data-i18n="city_list_btn">تصفح المدن</a>
     </div>
     <dialog class="contact-dlg save-dlg" id="saveDlg">
-      <p data-i18n="save_q">سيتم حفظ إعداداتك الحالية (المكان على الخريطة، صوت الأذان، التشغيل التلقائي للأذان والدعاء، اللغة، والمظهر الداكن/الفاتح) كإعدادات افتراضية في هذا المتصفح وتحميلها تلقائيًا في المرة القادمة. ستحل محل إعداداتك الافتراضية المحفوظة سابقًا. هل تريد الحفظ؟</p>
+      <p data-i18n="save_q">سيتم حفظ إعداداتك الحالية (المكان على الخريطة، صوت الأذان، التشغيل التلقائي للأذان والدعاء، اللغة، والمظهر الداكن/الفاتح) في هذا المتصفح وتحميلها تلقائيًا في المرة القادمة. ستحل محل إعداداتك المحفوظة سابقًا. هل تريد الحفظ؟</p>
       <div class="save-actions">
         <button type="button" class="btn save-yes" id="saveYes"><span data-i18n="yes">نعم</span></button>
         <button type="button" class="btn save-no" id="saveNo"><span data-i18n="no">لا</span></button>
       </div>
     </dialog>
-    <p class="msg" id="saveMsg" role="status"></p>
+    <dialog class="contact-dlg save-dlg" id="clearDlg">
+      <p data-i18n="clear_q">سيتم حذف مكانك وإعداداتك المحفوظة من هذا المتصفح. هل تريد الحذف؟</p>
+      <div class="save-actions">
+        <button type="button" class="btn save-yes" id="clearYes"><span data-i18n="yes">نعم</span></button>
+        <button type="button" class="btn save-no" id="clearNo"><span data-i18n="no">لا</span></button>
+      </div>
+    </dialog>
     <dialog class="contact-dlg" id="locDlg">
       <div class="lang-pick" id="locLang" role="group" aria-label="Language"></div>
-      <p data-i18n="loc_text">لعرض أوقات الصلاة الصحيحة لمكانك، هل نسمح بقراءة موقعك الحالي؟ يُستخدم الموقع في متصفحك فقط ولا يُحفظ في أي مكان.</p>
+      <p data-i18n="loc_text">لعرض أوقات الصلاة الصحيحة لمكانك، هل نسمح بقراءة موقعك الحالي؟ يُستخدم الموقع في متصفحك فقط ويُحفظ فيه كمكانك الافتراضي، ولا يُرسل إلى خادمنا.</p>
       <div class="save-actions">
         <button type="button" class="btn save-yes" id="locYes" data-i18n="loc_yes">أسمح</button>
         <button type="button" class="btn save-no" id="locNo" data-i18n="loc_no">ليس الآن</button>
@@ -247,14 +263,14 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lang.js?v=20261121"></script>
+<script src="js/lang.js?v=20261128"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
-<script src="js/moon-info.js?v=20261110"></script>
+<script src="js/moon-info.js?v=20261127"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
-<script src="js/azan.js?v=20261121"></script>
+<script src="js/azan.js?v=20261128"></script>
 </body>
 </html>
