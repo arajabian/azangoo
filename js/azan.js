@@ -539,7 +539,7 @@
       var cn=Math.round(sum/n), kn=cn<25?"good":(cn<=60?"mid":"bad");
       sN.textContent=A.t("sky_night",{c:A.percent(String(cn)),v:A.t("sky_n_"+kn)});
     }
-    box.hidden=!(sS.textContent||sV.textContent||sN.textContent);
+    box.hidden=!sS.textContent;        /* only the cloud at sunset (29th/30th) is in this box; the visibility (skyVis) and the cloud tonight (skyNight) are in the main part of the card */
   }
 
   /* countdown to the next adhan (fajr, dhuhr, maghrib, tomorrow's fajr) */

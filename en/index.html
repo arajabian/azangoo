@@ -54,7 +54,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
 <link rel="stylesheet" href="css/azan.css?v=20261130">
-<link rel="stylesheet" href="css/moon.css?v=20261131">
+<link rel="stylesheet" href="css/moon.css?v=20261134">
 </head>
 <body>
 <div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">For the adhan and dua to play automatically, click the page once</span></div>
@@ -169,6 +169,8 @@
           <dd class="sub" id="mSetDir"></dd>
           <dt><span data-i18n="moon_sunset">Illumination at sunset</span></dt><dd id="mSunset">—</dd>
         </dl>
+        <p class="moon-text moon-vis" id="skyVis"></p>
+        <p class="moon-text moon-night" id="skyNight"></p>
         <button type="button" class="btn cal-ok annual-btn moon-more-btn" id="moonMoreBtn" aria-expanded="false" aria-controls="moonMore" data-i18n="moon_more" hidden>More info</button>
         <div class="moon-more" id="moonMore" hidden>
           <div id="moonMsgs">
@@ -177,8 +179,6 @@
           </div>
           <div class="moon-text moon-sky" id="moonSky" hidden>
             <span class="sky-line" id="skySunset"></span>
-            <span class="sky-line" id="skyVis"></span>
-            <span class="sky-line" id="skyNight"></span>
             <span class="sky-note" id="skyNote"></span>
           </div>
           <p class="moon-text moon-why" id="mWhy"></p>
@@ -279,6 +279,6 @@
 <script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
-<script src="js/azan.js?v=20261129"></script>
+<script src="js/azan.js?v=20261135"></script>
 </body>
 </html>
