@@ -144,6 +144,7 @@
   }
 
   function setPos(ll,zoom){
+    resetPlayback();                                        /* a new place: whatever adhan or dua is playing stops and starts over for the new place */
     placed=true;
     findRegion(ll);
     marker.setOpacity(1);
@@ -306,6 +307,7 @@
       markNext();
       updateMoonSky();
       loadWeather(ll);                                      /* asynchronous: the sky is already drawn, the weather is added when it arrives */
+      updateSkyOutlook();                                   /* the forecast of this place may already be here (asked less than 15 minutes ago) */
       if(window.MoonInfo)MoonInfo.update(ll.lat,ll.lng,o.h);
       window.AzanPlace={latitude:ll.lat,longitude:ll.lng,zoneName:o.zone,fallbackOffsetHours:o.h};
       tick(true);
@@ -361,7 +363,7 @@
      After the sky has been drawn, the weather of the selected place is asked from two free services that need no key:
      1) Open-Meteo, 2) MET Norway (api.met.no). The second one is asked only if the first gave nothing usable.
      If neither gives a value, nothing changes and the sky stays as it was. A service that fails is skipped for 5 minutes. */
-  var wxNow=null, wxKey="", wxAt=0, wxSeq=0, wxDownUntil={};
+  var wxNow=null, wxKey="", wxAt=0, wxSeq=0, wxDownUntil={}, wxHours=[];   /* wxHours: hourly cloud cover (%) and visibility (m) of the place */
   function wxFromWmo(c){                                    /* WMO weather code of Open-Meteo */
     if(typeof c!=="number")return null;
     if(c===0||c===1)return "clear";
@@ -388,8 +390,18 @@
   var wxServices=[
     {
       name:"open-meteo",
-      url:function(ll){return "https://api.open-meteo.com/v1/forecast?latitude="+ll.lat.toFixed(4)+"&longitude="+ll.lng.toFixed(4)+"&current=weather_code&timezone=auto"},
-      parse:function(d){return wxFromWmo(d&&d.current&&d.current.weather_code)}
+      url:function(ll){return "https://api.open-meteo.com/v1/forecast?latitude="+ll.lat.toFixed(4)+"&longitude="+ll.lng.toFixed(4)+"&current=weather_code&hourly=cloud_cover,visibility&forecast_days=2&timezone=auto"},
+      parse:function(d){return wxFromWmo(d&&d.current&&d.current.weather_code)},
+      hours:function(d){                                    /* local times of the place -> real time (ms) */
+        var h=d&&d.hourly, off=(d&&+d.utc_offset_seconds)||0, out=[];
+        if(!h||!h.time)return out;
+        var cc=h.cloud_cover||[], vv=h.visibility||[];
+        for(var i=0;i<h.time.length;i++){
+          var t=Date.parse(h.time[i]+"Z")-off*1000;
+          if(isFinite(t))out.push({t:t,cloud:typeof cc[i]==="number"?cc[i]:null,vis:typeof vv[i]==="number"?vv[i]:null});
+        }
+        return out;
+      }
     },
     {
       name:"met-no",
@@ -400,13 +412,21 @@
           if(sym===null&&x&&x[k]&&x[k].summary)sym=x[k].summary.symbol_code;
         });
         return wxFromMet(sym);
+      },
+      hours:function(d){                                    /* MET Norway has no visibility, only the cloud cover */
+        var ts=d&&d.properties&&d.properties.timeseries, out=[];
+        (ts||[]).forEach(function(x){
+          var t=Date.parse(x.time), c=x.data&&x.data.instant&&x.data.instant.details&&x.data.instant.details.cloud_area_fraction;
+          if(isFinite(t)&&typeof c==="number")out.push({t:t,cloud:c,vis:null});
+        });
+        return out;
       }
     }
   ];
   function loadWeather(ll){
     var key=ll.lat.toFixed(1)+","+ll.lng.toFixed(1);
     if(key===wxKey&&Date.now()-wxAt<15*60*1000)return;       /* same place, asked less than 15 minutes ago */
-    if(key!==wxKey){wxNow=null;updateMoonSky()}              /* another place: the old weather is not shown for it */
+    if(key!==wxKey){wxNow=null;wxHours=[];updateMoonSky();updateSkyOutlook()}              /* another place: the old weather is not shown for it */
     wxKey=key;wxAt=Date.now();
     var id=++wxSeq, i=0;
     function next(){
@@ -418,12 +438,55 @@
         var w=s.parse(d);
         if(!w)throw new Error("no weather");
         if(id!==wxSeq)return;
-        wxNow=w;updateMoonSky();
+        wxNow=w;try{wxHours=s.hours?s.hours(d):[]}catch(e){wxHours=[]}updateMoonSky();updateSkyOutlook();
       }).catch(function(){wxDownUntil[s.name]=Date.now()+300000;next()});
     }
     next();
   }
-  setInterval(updateMoonSky,30000);
+  setInterval(function(){updateMoonSky();updateSkyOutlook()},30000);
+  window.addEventListener("azan:langchange",function(){updateSkyOutlook()});
+
+  /* ---- sky outlook in the moon card ----
+     from the hourly forecast of the place: the cloud cover at sunset (only on the evenings that matter for the new crescent,
+     the 29th and 30th of the Hijri month), the visibility at the horizon at sunset, and the average cloud cover tonight until midnight.
+     It is only a weather forecast: the crescent ruling is not changed by it. */
+  function hourAt(t){                                        /* the forecast hour nearest to time t (ms), within 45 minutes */
+    var best=null,bd=45*60000+1;
+    wxHours.forEach(function(h){var dd=Math.abs(h.t-t); if(dd<bd){bd=dd;best=h}});
+    return best;
+  }
+  function updateSkyOutlook(){
+    var box=document.getElementById("moonSky");
+    if(!box)return;
+    var A=window.AzanLang, sS=document.getElementById("skySunset"), sV=document.getElementById("skyVis"), sN=document.getElementById("skyNight"), sNote=document.getElementById("skyNote");
+    sS.textContent="";sV.textContent="";sN.textContent="";sNote.textContent="";
+    var sm=lastTimes?toMin(lastTimes.sunset):null;
+    if(sm===null||!wxHours.length){box.hidden=true;return}
+    var d=new Date(Date.now()+lastOffset*3600000);
+    var midnight=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-lastOffset*3600000;   /* local midnight, real time */
+    var sunsetT=midnight+sm*60000, endT=midnight+86400000, now=Date.now();
+    var h=hourAt(sunsetT);
+    var mi=window.MoonInfo&&window.MoonInfo.current?window.MoonInfo.current():null;
+    /* 1) cloud at sunset: only on the evenings of the 29th and 30th, when the new crescent is looked for */
+    if(h&&h.cloud!==null&&mi&&mi.hijriDay>=29){
+      var c=Math.round(h.cloud), k=c<25?"good":(c<=60?"mid":"bad");
+      sS.textContent=A.t("sky_sunset",{c:A.percent(String(c)),v:A.t("sky_s_"+k)});
+      sNote.textContent=A.t("sky_note");
+    }
+    /* 2) visibility at the horizon at sunset (Open-Meteo only) */
+    if(h&&h.vis!==null){
+      var km=Math.round(h.vis/1000), q=km>=15?"good":(km>=6?"mid":"bad");
+      sV.textContent=A.t("sky_vis",{km:A.num(km),v:A.t("sky_v_"+q)});
+    }
+    /* 3) cloud tonight: the average of the forecast hours from about half an hour after sunset until midnight */
+    var from=Math.max(sunsetT+1800000,now-1800000), sum=0, n=0;
+    wxHours.forEach(function(x){ if(x.cloud!==null&&x.t>=from&&x.t<endT){sum+=x.cloud;n++} });
+    if(n){
+      var cn=Math.round(sum/n), kn=cn<25?"good":(cn<=60?"mid":"bad");
+      sN.textContent=A.t("sky_night",{c:A.percent(String(cn)),v:A.t("sky_n_"+kn)});
+    }
+    box.hidden=!(sS.textContent||sV.textContent||sN.textContent);
+  }
 
   /* countdown to the next adhan (fajr, dhuhr, maghrib, tomorrow's fajr) */
   var cdEl=document.getElementById("countdown");
@@ -526,6 +589,28 @@
   var DUA_FILES=["audio/doa/doa-sun.mp3","audio/doa/doa-mon.mp3","audio/doa/doa-tue.mp3","audio/doa/doa-wed.mp3",
                  "audio/doa/doa-thu.mp3","audio/doa/doa-fri.mp3","audio/doa/doa-sat.mp3"];   /* index = getDay() */
   var doaList=null, doaFired={};
+  var playEpoch=0;                                           /* raised when the place changes; late callbacks of the old playback check it */
+  /* new place (search, map, GPS, typed coordinates): stop the adhan and every dua that is playing, forget what was already
+     played today, and wait for the new times, so everything is judged again for the new place */
+  function resetPlayback(){
+    playEpoch++;
+    try{
+      [typeof player!=="undefined"?player:null,dailyPlayer,ramPlayer,typeof duaPlayer!=="undefined"?duaPlayer:null].forEach(function(a){
+        if(!a)return;
+        a.pause();
+        try{a.currentTime=0}catch(e){}
+        a.muted=false;
+      });
+    if(typeof mutedAuto!=="undefined")mutedAuto=false;
+    ramMutedAuto=false; ramChain=false; ramCur=null;
+    RAM_LIST.forEach(function(S){S.busy=false});
+    doaFired={};
+    if(typeof played!=="undefined")played="";
+    if(typeof pendingAfter!=="undefined")pendingAfter=null;
+    if(typeof adhanMsg!=="undefined"&&adhanMsg)adhanMsg.textContent="";
+    }catch(e){}
+    lastTimes=null;                                          /* the checks wait until the times of the new place are ready */
+  }
   var dailyPlayer=new Audio();
   dailyPlayer.preload="auto";
   var nextDuaPlayer=new Audio();
@@ -569,7 +654,7 @@
   /* play file number idx of set S from offset seconds; done(true|false) tells whether it started */
   function playRamAt(S,idx,off,done){
     ramCur=S; ramIdx=idx;
-    var f=S.files[idx], settled=false, timer=null, t0=Date.now();
+    var f=S.files[idx], settled=false, timer=null, t0=Date.now(), ep=playEpoch;
     function finish(ok){
       if(settled)return;
       settled=true;
@@ -581,12 +666,14 @@
     function fail(){finish(false)}
     function go(){
       ramPlayer.removeEventListener("loadedmetadata",go);
+      if(ep!==playEpoch){finish(false);return}                /* the place changed while the file was loading */
       try{ramPlayer.currentTime=off||0}catch(e){}
       ramPlayer.muted=false;
       if(idx>0||off===0)ramLoadSec=Math.min(5,Math.max(0,(Date.now()-t0)/1000));   /* how long a change of file takes to start */
       var p=null;
       try{p=ramPlayer.play()}catch(e){p=null}
       if(p&&p.then)p.then(function(){finish(true)}).catch(function(){
+        if(ep!==playEpoch){finish(false);return}              /* stopped because the place changed: not a refusal */
         /* sound is refused until the person touches the page: like the adhan, start silently (always allowed) and
            unmute on the first touch, so the dua is already running at the right place of the clock */
         ramPlayer.muted=true;
@@ -720,8 +807,8 @@
          hears it from that point; if the browser blocks the sound it is retried until the dua is over */
       if(nowMs>=startMs&&nowMs<endMs-500){
         try{ dailyPlayer.currentTime=Math.max(0,(nowMs-startMs)/1000); }catch(e){}
-        var p=dailyPlayer.play();
-        if(p&&p.then)p.then(function(){ doaFired[key]=true; }).catch(function(){});
+        var ep=playEpoch, p=dailyPlayer.play();
+        if(p&&p.then)p.then(function(){ if(ep===playEpoch)doaFired[key]=true; }).catch(function(){});
         else doaFired[key]=true;
       }
     });
@@ -865,6 +952,17 @@
     if(voiceExists)Array.prototype.forEach.call(voices,function(r){r.checked=(r.value===defaults.voice)});
   }
   if(defaults&&typeof defaults.auto==="boolean")autoEl.checked=defaults.auto;
+
+  /* the thin moving bar "tap the page once": shown while the automatic adhan is on and the page has not been touched yet
+     (browsers keep the sound locked until then); the first tap, click or key press removes it, and so does turning the switch off */
+  (function(){
+    var bar=document.getElementById("soundBar");
+    if(!bar)return;
+    function hideBar(){ bar.hidden=true; }
+    if(autoEl.checked)bar.hidden=false;
+    ["click","touchstart","keydown"].forEach(function(ev){ document.addEventListener(ev,hideBar,{once:true,passive:true}); });
+    autoEl.addEventListener("change",function(){ if(!autoEl.checked)hideBar(); });
+  })();
   Array.prototype.forEach.call(voices,function(r){
     r.addEventListener("change",function(){player.src=r.value});
     if(r.checked)player.src=r.value;
@@ -874,6 +972,11 @@
   var saveBtn=document.getElementById("saveDefaults"),
       saveMsg=document.getElementById("saveMsg");
   var confirmDlg=document.getElementById("saveDlg");
+  /* the "delete saved settings" link: shown only while something is saved in this browser */
+  var clearBtn=document.getElementById("clearDefaults"), clearDlg=document.getElementById("clearDlg");
+  function hasSaved(){ try{ return !!localStorage.getItem(DEF_KEY); }catch(e){ return false; } }
+  function refreshClear(){ if(clearBtn)clearBtn.hidden=!hasSaved(); }
+  refreshClear();
   function doSave(){
     var voice=null;
     Array.prototype.forEach.call(voices,function(r){if(r.checked)voice=r.value});
@@ -882,6 +985,7 @@
     try{
       localStorage.setItem(DEF_KEY,JSON.stringify(data));
       saveMsg.textContent=window.AzanLang.t("saved");
+      refreshClear();
     }catch(e){saveMsg.textContent=window.AzanLang.t("save_fail");}
   }
   /* saving asks first, in a small pop-up */
@@ -899,6 +1003,21 @@
       closeSaveDlg();
       saveMsg.textContent=window.AzanLang.t("no_change");
     });
+  }
+
+  if(clearBtn&&clearDlg){
+    function closeClearDlg(){ if(clearDlg.close)clearDlg.close(); else clearDlg.removeAttribute("open"); }
+    clearBtn.addEventListener("click",function(){
+      saveMsg.textContent="";
+      if(clearDlg.showModal)clearDlg.showModal(); else clearDlg.setAttribute("open","");
+    });
+    document.getElementById("clearYes").addEventListener("click",function(){
+      closeClearDlg();
+      try{ localStorage.removeItem(DEF_KEY); }catch(e){}
+      saveMsg.textContent=window.AzanLang.t("clear_done");
+      refreshClear();
+    });
+    document.getElementById("clearNo").addEventListener("click",closeClearDlg);
   }
 
   /* after-adhan dua (Eftar_after_Azan.mp3): after the fajr adhan and after the maghrib adhan, in the months where the "ramadan" flag is on
@@ -919,7 +1038,9 @@
     if(!kind)return;
     /* after the fajr or maghrib adhan: the dua file, always exactly 1 second after the adhan ends, when the "ramadan" flag of the
        Hijri month in data/doa.json is 1 and the automatic adhan and dua switch is on. */
+    var ep=playEpoch;
     setTimeout(function(){
+      if(ep!==playEpoch)return;                               /* the place changed meanwhile */
       if(!autoEl.checked)return;
       if(!ramadanOn(new Date(Date.now()+lastOffset*3600000)))return;
       var f="audio/doa/ramadan/Eftar_after_Azan.mp3";
@@ -948,14 +1069,15 @@
     if(!player.paused)return;                                  /* already playing */
     try{ player.currentTime=offset||0; }catch(e){}
     player.muted=false;
-    var p=player.play();
-    function ok(){ played=key; pendingAfter=kind; prepareAfter(kind); adhanMsg.textContent=window.AzanLang.t("playing",{name:name}); updateCountdown(); }
+    var ep=playEpoch, p=player.play();
+    function ok(){ if(ep!==playEpoch)return; played=key; pendingAfter=kind; prepareAfter(kind); adhanMsg.textContent=window.AzanLang.t("playing",{name:name}); updateCountdown(); }
     function silent(){
       played=key; pendingAfter=kind; prepareAfter(kind); mutedAuto=true; mutedName=name;
       adhanMsg.textContent=window.AzanLang.t("adhan_muted");
       updateCountdown();
     }
     function blocked(){
+      if(ep!==playEpoch)return;                                /* stopped because the place changed: not a refusal */
       player.muted=true;
       var q;
       try{ q=player.play(); }catch(e){ q=null; }
@@ -1008,12 +1130,36 @@
   var locDlg=document.getElementById("locDlg"),
       locYes=document.getElementById("locYes"),
       locNo=document.getElementById("locNo");
+  /* first visit, without asking again: whatever the answer to the location question is (yes or no), the language of the page
+     goes into the defaults; when the location is allowed, the place goes in too. The entry is marked autoPlace, so the place
+     can be completed with the city name that is found a moment later, and so the "save defaults" button (which writes a full
+     entry) always replaces it. A real saved entry (without the mark) is never touched. */
+  var firstVisit=false;
+  function canAutoSave(){
+    try{ var cur=JSON.parse(localStorage.getItem(DEF_KEY)); return !cur||!!cur.autoPlace; }catch(e){ return true; }
+  }
+  function saveAuto(patch){
+    try{
+      if(!canAutoSave())return;
+      var cur=JSON.parse(localStorage.getItem(DEF_KEY))||{};
+      for(var k in patch)cur[k]=patch[k];
+      cur.autoPlace=true;
+      localStorage.setItem(DEF_KEY,JSON.stringify(cur));
+      refreshClear();
+    }catch(e){}
+  }
+  function saveAutoLang(){ if(firstVisit)saveAuto({lang:window.AzanLang.current()}); }
+  function saveAutoPlace(ll,name){ saveAuto({place:{lat:ll.lat,lng:ll.lng,city:name||""}}); }
   function requestGps(){
     if(!navigator.geolocation){say(window.AzanLang.t("geo_denied"));return}
     say(window.AzanLang.t("locating"));
     navigator.geolocation.getCurrentPosition(function(pos){
       var ll=L.latLng(pos.coords.latitude,pos.coords.longitude);
-      setPos(ll,14);reverse(ll,true);say("");
+      var auto=firstVisit&&canAutoSave();
+      setPos(ll,14);
+      if(auto){ firstVisit=false; saveAutoPlace(ll,""); }
+      reverse(ll,true,auto?function(name){ var p=marker.getLatLng(); if(Math.abs(p.lat-ll.lat)<1e-9&&Math.abs(p.lng-ll.lng)<1e-9)saveAutoPlace(ll,name); }:null);
+      say("");
     },function(err){
       say(window.AzanLang.t(err&&err.code===1?"gps_denied":"geo_denied"));
     },{timeout:10000,maximumAge:300000});
@@ -1026,12 +1172,15 @@
   if(gpsBtn)gpsBtn.addEventListener("click",function(){ requestGps(); });
   if(locYes)locYes.addEventListener("click",function(){
     if(locDlg.close)locDlg.close();else locDlg.removeAttribute("open");
+    saveAutoLang();
     requestGps();
   });
   if(locNo)locNo.addEventListener("click",function(){
     if(locDlg.close)locDlg.close();else locDlg.removeAttribute("open");
+    saveAutoLang();
     say(window.AzanLang.t("pick_place"));
   });
+  if(locDlg)locDlg.addEventListener("cancel",saveAutoLang);          /* closed with Esc: counts as an answer too */
   if(!placed&&timeEls){for(var k1 in timeEls)timeEls[k1].textContent="—";}
 
   /* start: saved place if there is one; otherwise ask permission and use the current location */
@@ -1048,6 +1197,12 @@
     try{ if(window.history&&history.replaceState) history.replaceState(null,"",window.location.pathname); }catch(e){}
   }else{
     showPlace();
-    askLocation();
+    firstVisit=true;
+    /* location already allowed for this site: use it straight away, without the explanation window */
+    if(navigator.permissions&&navigator.permissions.query){
+      navigator.permissions.query({name:"geolocation"}).then(function(st){
+        if(st.state==="granted"){ saveAutoLang(); requestGps(); } else askLocation();
+      },function(){ askLocation(); });
+    }else askLocation();
   }
 })();

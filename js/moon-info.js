@@ -468,13 +468,14 @@
   }
 
   /* ---- page ---- */
-  var state = null;
+  var state = null, lastOut = null;
   function put(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; }
   function render() {
     if (!state || typeof document === "undefined") return;
     var o;
     try { o = compute(state.lat, state.lng, state.off, Date.now()); }
     catch (err) { return; }
+    lastOut = o;
     put("mNow", root.AzanLang.percent(o.illumNow.toFixed(2)));
     put("mRise", o.rise ? hm(o.rise.t, state.off) : "—");
     put("mRiseDir", o.rise ? dirText(o.rise.az) : "");
@@ -576,7 +577,7 @@
     return monthsBetween(dayStart(from, off), dayStart(to, off), lat, lng, off);
   }
 
-  var api = { update: update, compute: compute, render: render, yearMonths: yearMonths };
+  var api = { update: update, compute: compute, render: render, yearMonths: yearMonths, current: function () { return lastOut; } };
   if (root) root.MoonInfo = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : (typeof globalThis !== "undefined" ? globalThis : this));

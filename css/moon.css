@@ -70,3 +70,10 @@
 .moon-more[hidden],.moon-more-btn[hidden]{display:none}
 .moon-more-btn{margin-top:12px}
 .moon-note{margin:8px 0 0;font-size:.75rem;opacity:.75;line-height:1.7}
+
+/* sky outlook in the moon card: cloud at sunset (last days of the month), horizon visibility, cloud tonight */
+.moon-sky[hidden]{display:none}
+.moon-sky .sky-line{display:block}
+.moon-sky .sky-line+.sky-line{margin-top:6px}
+.moon-sky .sky-line:empty,.moon-sky .sky-note:empty{display:none}
+.moon-sky .sky-note{display:block;margin-top:8px;font-size:.75rem;opacity:.75;line-height:1.7}
