@@ -498,12 +498,12 @@
       img.alt = root.AzanLang.t("moon_alt", { p: fa(o.illumNow.toFixed(1)) });
     }
   }
-  /* the two main messages (mText, mStart) are always in the card; the why / best-time messages are behind the "more info" button,
-     which shows only when there is something behind it */
+  /* the card shows only the numbers; every explanation (the main messages, the start of the month, why, the best time, the weather
+     outlook and the note about the criterion) is behind the "more info" button, which shows only when there is something behind it */
   function arrangeMessages() {
     var more = document.getElementById("moonMore"), btn = document.getElementById("moonMoreBtn");
     if (!more || !btn) return;
-    var extra = ["mWhy", "mBest"].some(function (id) { var e = document.getElementById(id); return e && e.textContent; });
+    var extra = ["mText", "mStart", "mWhy", "mBest", "mNote"].some(function (id) { var e = document.getElementById(id); return e && e.textContent; });
     btn.hidden = !extra;
     if (!extra) { more.hidden = true; setMoreLabel(false); }
   }

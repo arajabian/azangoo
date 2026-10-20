@@ -70,16 +70,73 @@
   var placed=false;                                    /* true once a place is chosen (saved, GPS, search, map or typed) */
   var fallback=[20,0];
   var map=L.map("map").setView(fallback,2);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
+  /* map tiles: OpenStreetMap first; when its tiles keep failing (server down, limit reached) the same map is drawn from the
+     CARTO basemap, which is also made from OpenStreetMap data */
+  var tilesMain=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
     maxZoom:19,attribution:"&copy; OpenStreetMap contributors"
   }).addTo(map);
+  var tileOk=0, tileFail=0, tileBackup=false;
+  tilesMain.on("tileload",function(){tileOk++});
+  tilesMain.on("tileerror",function(){
+    tileFail++;
+    if(tileBackup||tileFail<3||tileFail<=tileOk)return;      /* a few lost tiles are normal; switch only when most fail */
+    tileBackup=true;
+    map.removeLayer(tilesMain);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
+      subdomains:"abcd",maxZoom:19,attribution:"&copy; OpenStreetMap contributors &copy; CARTO"
+    }).addTo(map);
+  });
   var marker=L.marker(fallback,{draggable:true,opacity:0}).addTo(map);
 
   var latEl=document.getElementById("lat"),
       lngEl=document.getElementById("lng"),
       cityEl=document.getElementById("city"),
       msgEl=document.getElementById("msg");
-  var NOMINATIM="https://nominatim.openstreetmap.org/";
+  var NOMINATIM="https://nominatim.openstreetmap.org/", PHOTON="https://photon.komoot.io/";
+
+  /* ---- finding a place by name or by point ----
+     Nominatim (OpenStreetMap) first; when it fails (limit reached, server down, no answer in 7 seconds) or has nothing, Photon
+     (photon.komoot.io, also OpenStreetMap data) is asked. Photon's answer is turned into the shape of a Nominatim answer, so the
+     rest of the page does not care which one answered. A service that fails is skipped for 5 minutes. */
+  var geoDownUntil={};
+  function photonShape(f){
+    var p=(f&&f.properties)||{}, c=(f&&f.geometry&&f.geometry.coordinates)||[];
+    return {lat:c[1],lon:c[0],name:p.name||"",namedetails:{},
+      address:{city:(p.type==="city"?p.name:p.city)||undefined,county:p.county,state:p.state,country_code:String(p.countrycode||"").toLowerCase()}};
+  }
+  function geoTry(list,empty){
+    var i=0;
+    function next(err){
+      while(i<list.length){
+        var s=list[i++];
+        if(geoDownUntil[s.id]>Date.now())continue;
+        return (function(s){
+          return fetchJson(s.url).then(function(d){
+            var r=s.conv(d);
+            return s.miss(r)?next(err):r;                    /* an empty answer: ask the next service, the first is not marked as down */
+          },function(e){ geoDownUntil[s.id]=Date.now()+300000; return next(e); });
+        })(s);
+      }
+      return err?Promise.reject(err):Promise.resolve(empty);
+    }
+    return next();
+  }
+  function geoSearch(q,lang){
+    return geoTry([
+      {id:"nominatim",url:NOMINATIM+"search?format=jsonv2&limit=1&addressdetails=1&namedetails=1&accept-language="+encodeURIComponent(lang)+"&q="+encodeURIComponent(q),
+       conv:function(d){return d||[]},miss:function(r){return !r.length}},
+      {id:"photon",url:PHOTON+"api/?limit=1&q="+encodeURIComponent(q)+(lang==="en"?"&lang=en":""),
+       conv:function(d){return ((d&&d.features)||[]).slice(0,1).map(photonShape)},miss:function(r){return !r.length}}
+    ],[]);
+  }
+  function geoReverse(ll,lang,zoom){                          /* zoom 10 = the city; 3 = only the country is needed */
+    return geoTry([
+      {id:"nominatim",url:NOMINATIM+"reverse?format=jsonv2&zoom="+zoom+(zoom>5?"&namedetails=1":"&addressdetails=1")+"&accept-language="+encodeURIComponent(lang)+"&lat="+ll.lat+"&lon="+ll.lng,
+       conv:function(d){return d&&!d.error?d:null},miss:function(r){return !r}},
+      {id:"photon",url:PHOTON+"reverse?limit=1&lat="+ll.lat+"&lon="+ll.lng+(zoom>5?"&layer=city&layer=locality":"")+(lang==="en"?"&lang=en":""),
+       conv:function(d){var f=d&&d.features&&d.features[0];return f?photonShape(f):null},miss:function(r){return !r}}
+    ],null);
+  }
 
   /* qibla: a line from the marker along the direction of the Kaaba */
   var KAABA=L.latLng(21.4225,39.8262),RAD=Math.PI/180;
@@ -132,8 +189,7 @@
       var cc=regionCache[regionKey(ll)];
       if(cc){O.setRegion(cc);return}
       O.setRegion(null);                                    /* unknown until the lookup answers */
-      fetch(NOMINATIM+"reverse?format=jsonv2&zoom=3&addressdetails=1&accept-language=en&lat="+ll.lat.toFixed(4)+"&lon="+ll.lng.toFixed(4))
-        .then(function(r){return r.json()})
+      geoReverse(ll,"en",3)
         .then(function(d){
           if(id!==regionSeq)return;                         /* a newer place replaced this one */
           var c=d&&d.address&&d.address.country_code;
@@ -170,8 +226,7 @@
   function reverse(ll,toSearchBox,done){
     var id=++revSeq;
     if(toSearchBox)qEl.value="";
-    fetch(NOMINATIM+"reverse?format=jsonv2&zoom=10&namedetails=1&accept-language="+encodeURIComponent(window.AzanLang.current())+"&lat="+ll.lat+"&lon="+ll.lng)
-      .then(function(r){return r.json()})
+    geoReverse(ll,window.AzanLang.current(),10)
       .then(function(d){
         if(id!==revSeq)return;                              /* a newer place replaced this one */
         var name=placeName(d,"");
@@ -204,10 +259,9 @@
     var q=document.getElementById("q").value.trim();
     if(!q)return;
     say(window.AzanLang.t("searching"));
-    fetch(NOMINATIM+"search?format=jsonv2&limit=1&addressdetails=1&namedetails=1&accept-language="+encodeURIComponent(window.AzanLang.current())+"&q="+encodeURIComponent(q))
-      .then(function(r){return r.json()})
+    geoSearch(q,window.AzanLang.current())
       .then(function(list){
-        if(!list.length){say(window.AzanLang.t("not_found"));return}
+        if(!list||!list.length){say(window.AzanLang.t("not_found"));return}
         var p=list[0],ll=L.latLng(parseFloat(p.lat),parseFloat(p.lon)),a=p.address||{};
         rememberRegion(ll,a.country_code);
         setPos(ll,14);

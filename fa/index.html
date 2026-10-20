@@ -52,9 +52,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/azan.css?v=20261128">
-<link rel="stylesheet" href="css/moon.css?v=20261127">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
+<link rel="stylesheet" href="css/azan.css?v=20261130">
+<link rel="stylesheet" href="css/moon.css?v=20261131">
 </head>
 <body>
 <div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">برای پخش خودکار اذان، یک بار روی صفحه بزنید</span></div>
@@ -125,7 +125,8 @@
     </div>
 
     <!-- center: map -->
-    <section class="card col-main" data-i18n-attr="aria-label:map_label" aria-label="نقشه">
+    <div class="col-main main-col">
+    <section class="card" data-i18n-attr="aria-label:map_label" aria-label="نقشه">
       <form class="search" id="searchForm" role="search">
         <input id="q" type="search" data-i18n-ph="search_ph" data-i18n-attr="aria-label:search_ph" autocomplete="off" dir="ltr" aria-label="جستجوی شهر یا آدرس…" placeholder="جستجوی شهر یا آدرس…">
         <button type="submit" class="search-btn" data-i18n-attr="title:search_btn;aria-label:search_btn" title="جستجو" aria-label="جستجو"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button>
@@ -140,12 +141,17 @@
         <button class="btn calc-btn" type="submit"><span data-i18n="calc_btn">محاسبه اوقات</span></button>
       </form>
       <p class="qibla" id="qibla" role="status"></p>
-      <button type="button" id="saveDefaults" class="btn save-btn save-wide"><span data-i18n="save_btn">ذخیره مکان و تنظیمات برای دفعهٔ بعد</span></button>
-      <p class="hint save-sub" data-i18n="save_sub">مکان روی نقشه، صدای اذان، پخش خودکار، زبان و تم تیره/روشن در همین مرورگر ذخیره می‌شود.</p>
-      <p class="msg" id="saveMsg" role="status"></p>
-      <button type="button" class="link-btn clear-btn" id="clearDefaults" data-i18n="clear_btn" hidden>حذف تنظیمات ذخیره‌شده</button>
       <p class="hint"><span data-i18n="map_hint">روی نقشه دابل‌کلیک کنید یا نشانگر را بکشید تا مکان شما عوض شود.</span></p>
     </section>
+
+      <section class="card" aria-labelledby="sv-h">
+        <h2 id="sv-h"><span data-i18n="save_title">ذخیره مکان و تنظیمات</span></h2>
+      <p class="hint save-sub" data-i18n="save_sub">مکان روی نقشه، صدای اذان، پخش خودکار، زبان و تم تیره/روشن در همین مرورگر ذخیره می‌شود.</p>
+      <button type="button" id="saveDefaults" class="btn save-btn save-wide"><span data-i18n="save_btn">ذخیره برای دفعهٔ بعد</span></button>
+      <p class="msg" id="saveMsg" role="status"></p>
+      <button type="button" class="link-btn clear-btn" id="clearDefaults" data-i18n="clear_btn" hidden>حذف تنظیمات ذخیره‌شده</button>
+      </section>
+    </div>
 
     <!-- left column: tools -->
     <aside class="side">
@@ -162,22 +168,22 @@
           <dd class="sub" id="mSetDir"></dd>
           <dt><span data-i18n="moon_sunset">درصد روشنایی هنگام غروب</span></dt><dd id="mSunset">—</dd>
         </dl>
-        <div id="moonMsgs">
-          <p class="moon-text" id="mText"></p>
-          <p class="moon-text moon-start" id="mStart"></p>
-        </div>
-        <div class="moon-text moon-sky" id="moonSky" hidden>
-          <span class="sky-line" id="skySunset"></span>
-          <span class="sky-line" id="skyVis"></span>
-          <span class="sky-line" id="skyNight"></span>
-          <span class="sky-note" id="skyNote"></span>
-        </div>
         <button type="button" class="btn cal-ok annual-btn moon-more-btn" id="moonMoreBtn" aria-expanded="false" aria-controls="moonMore" data-i18n="moon_more" hidden>اطلاعات بیشتر</button>
         <div class="moon-more" id="moonMore" hidden>
+          <div id="moonMsgs">
+            <p class="moon-text" id="mText"></p>
+            <p class="moon-text moon-start" id="mStart"></p>
+          </div>
+          <div class="moon-text moon-sky" id="moonSky" hidden>
+            <span class="sky-line" id="skySunset"></span>
+            <span class="sky-line" id="skyVis"></span>
+            <span class="sky-line" id="skyNight"></span>
+            <span class="sky-note" id="skyNote"></span>
+          </div>
           <p class="moon-text moon-why" id="mWhy"></p>
           <p class="moon-text moon-best" id="mBest"></p>
+          <p class="moon-note" id="mNote" data-i18n="moon_odeh">رؤیت هلال با معیار عودة (Odeh V-criterion) برآورد می‌شود؛ تخمینی است و اعلام رسمی نیست.</p>
         </div>
-        <p class="moon-note" id="mNote" data-i18n="moon_odeh">رؤیت هلال با معیار عودة (Odeh V-criterion) برآورد می‌شود؛ تخمینی است و اعلام رسمی نیست.</p>
       </section>
 
       <section class="card calendar" aria-labelledby="cal-h">
@@ -263,14 +269,15 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lang.js?v=20261128"></script>
+<script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
+<script src="js/lang.js?v=20261130"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
-<script src="js/moon-info.js?v=20261127"></script>
+<script src="js/moon-info.js?v=20261131"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
-<script src="js/azan.js?v=20261128"></script>
+<script src="js/azan.js?v=20261129"></script>
 </body>
 </html>
