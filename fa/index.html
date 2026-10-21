@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
-<link rel="stylesheet" href="css/azan.css?v=20261138">
+<link rel="stylesheet" href="css/azan.css?v=20261139">
 <link rel="stylesheet" href="css/moon.css?v=20261138">
 </head>
 <body>
@@ -80,6 +80,13 @@
     <div class="date"><b id="d-j-day">۱۹</b><span id="d-j-my">مهر ۱۴۰۵</span></div>
     <div class="date"><b id="d-h-day">۲۹</b><span id="d-h-my">ربیع الثانی ۱۴۴۸</span></div>
     <div class="date"><b id="d-g-day">۱۱</b><span id="d-g-my">اکتبر ۲۰۲۶</span></div>
+  </section>
+
+  <section class="hadith" id="hadithBar" data-i18n-attr="aria-label:hadith_title" hidden aria-label="حدیث روز">
+    <button type="button" class="hadith-btn" id="hadithOpen" aria-haspopup="dialog">
+      <span class="hadith-tag" data-i18n="hadith_title">حدیث روز</span>
+      <span class="hadith-view"><span class="hadith-track" id="hadithTrack"></span></span>
+    </button>
   </section>
 
   <main class="grid">
@@ -272,9 +279,20 @@
   </footer>
 </div>
 
+<div class="hadith-modal" id="hadithModal" role="dialog" aria-modal="true" aria-labelledby="hadithModalT" hidden>
+  <div class="hadith-card">
+    <button type="button" class="hadith-x" id="hadithClose" data-i18n-attr="aria-label:hadith_close" aria-label="بستن">×</button>
+    <h3 id="hadithModalT" data-i18n="hadith_title">حدیث روز</h3>
+    <p class="hadith-narr" id="hadithN"></p>
+    <p class="hadith-ar" id="hadithA" lang="ar" dir="rtl"></p>
+    <p class="hadith-t" id="hadithT"></p>
+    <p class="hadith-src" id="hadithS"></p>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
-<script src="js/lang.js?v=20261138"></script>
+<script src="js/lang.js?v=20261139"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js?v=20261131"></script>
@@ -283,5 +301,6 @@
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
 <script src="js/azan.js?v=20261138"></script>
+<script src="js/hadith.js?v=20261139"></script>
 </body>
 </html>
