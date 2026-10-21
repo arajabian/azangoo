@@ -78,3 +78,7 @@
 .moon-sky .sky-line:empty,.moon-sky .sky-note:empty{display:none}
 .moon-sky .sky-note{display:block;margin-top:8px;font-size:.75rem;opacity:.75;line-height:1.7}
 .moon-info [hidden]{display:none}
+/* the small "?" button next to a label, and the explanation it opens */
+.help-btn{display:inline-flex;align-items:center;justify-content:center;width:1.45em;height:1.45em;margin-inline-start:6px;padding:0;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold2);font:inherit;font-size:.8rem;font-weight:700;line-height:1;cursor:pointer;vertical-align:middle}
+.help-btn:hover,.help-btn[aria-expanded="true"]{background:var(--gold);color:var(--ink)}
+.moon-info dd.help-text{grid-column:1/-1;margin:0 0 4px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid rgba(210,169,75,.25);font-size:.8rem;font-weight:400;line-height:1.9;direction:inherit;text-align:start}

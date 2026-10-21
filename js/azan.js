@@ -64,6 +64,16 @@
     });
   })();
 
+  /* the small "?" buttons: each one shows or hides the explanation named in its aria-controls */
+  Array.prototype.forEach.call(document.querySelectorAll(".help-btn"),function(btn){
+    btn.addEventListener("click",function(){
+      var tip=document.getElementById(btn.getAttribute("aria-controls"));
+      if(!tip)return;
+      tip.hidden=!tip.hidden;
+      btn.setAttribute("aria-expanded",tip.hidden?"false":"true");
+    });
+  });
+
   if(!window.L)return;
 
   /* map */
@@ -521,6 +531,8 @@
       parts.forEach(function(e){ if(e)e.hidden=!on; });
       if(parts[1])parts[1].textContent=on?val:"";
       if(parts[2])parts[2].textContent=on?sub:"";
+      var tip=document.getElementById(id+"Tip");                   /* a row without data also closes its explanation */
+      if(tip&&!on){tip.hidden=true;var hb=document.getElementById(id+"Help");if(hb)hb.setAttribute("aria-expanded","false");}
     }
     sS.textContent="";sNote.textContent="";
     var sm=lastTimes?toMin(lastTimes.sunset):null;
