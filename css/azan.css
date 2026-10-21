@@ -143,6 +143,15 @@ footer{text-align:center;font-size:.8rem;opacity:.7;margin-top:26px}
   .grid{grid-template-columns:260px 1fr 280px;align-items:start}
   .times{grid-template-columns:1fr}
   .col-main{order:0}
+  /* the three columns are equally tall: the tallest column sets the height and one card of each other column grows to fill it
+     (the adhan card, the map card with its map, the calendar card). Below 980px nothing of this applies. */
+  .grid{align-items:stretch}
+  .grid>.right-col,.grid>.main-col,.grid>.side{display:flex;flex-direction:column;gap:14px;align-content:normal}
+  .grid>.right-col>.card:last-child,.grid>.side>.card:last-child{flex:1 1 auto}
+  .grid>.main-col>.card:first-child{flex:1 1 auto;display:flex;flex-direction:column}
+  .grid>.main-col>.card:first-child .mapframe{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+  .grid>.main-col>.card:first-child .mapframe .inner{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+  .grid #map{height:auto;flex:1 1 auto;min-height:420px;max-height:760px}
 }
 @media(max-width:979px){
   .col-main{order:-1}
