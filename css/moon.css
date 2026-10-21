@@ -77,3 +77,4 @@
 .moon-sky .sky-line+.sky-line{margin-top:6px}
 .moon-sky .sky-line:empty,.moon-sky .sky-note:empty{display:none}
 .moon-sky .sky-note{display:block;margin-top:8px;font-size:.75rem;opacity:.75;line-height:1.7}
+.moon-info [hidden]{display:none}

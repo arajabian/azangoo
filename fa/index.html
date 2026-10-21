@@ -53,8 +53,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
-<link rel="stylesheet" href="css/azan.css?v=20261130">
-<link rel="stylesheet" href="css/moon.css?v=20261134">
+<link rel="stylesheet" href="css/azan.css?v=20261137">
+<link rel="stylesheet" href="css/moon.css?v=20261136">
 </head>
 <body>
 <div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">برای پخش خودکار اذان و دعا، یک‌بار روی صفحه کلیک کنید</span></div>
@@ -114,7 +114,7 @@
           <label><input type="radio" name="r" value="audio/Azan-Abather_Alhalwachi.mp3"><span data-i18n="r_abather">اباذر الحلواجی</span></label>
           <label><input type="radio" name="r" value="audio/Azan-Hossein-Sobhdel.mp3"><span data-i18n="r_sobhdel">حسین صبحدل</span></label>
           <label><input type="radio" name="r" value="audio/AZAN-Najafi.mp3"><span data-i18n="r_najafi">فرید نجفی</span></label>
-          <label><input type="radio" name="r" value="audio/AZAN-Mohammad-Aghai.mp3"><span data-i18n="r_aghati">محمد آقاتی</span></label>
+          <label><input type="radio" name="r" value="audio/AZAN-Mohammad-Aghati.mp3"><span data-i18n="r_aghati">محمد آقاتی</span></label>
         </div>
         <audio class="audio" id="adhanPlayer" controls preload="none" src="audio/AZAN-Moazenzadeh.mp3"></audio>
         <label class="auto"><input type="checkbox" id="autoAdhan" checked><span data-i18n="auto_label">پخش خودکار اذان و دعا</span></label>
@@ -168,9 +168,11 @@
           <dt><span data-i18n="moon_set">غروب ماه</span></dt><dd id="mSet">—</dd>
           <dd class="sub" id="mSetDir"></dd>
           <dt><span data-i18n="moon_sunset">درصد روشنایی هنگام غروب</span></dt><dd id="mSunset">—</dd>
+          <dt id="skyVisL" hidden><span data-i18n="sky_vis_l">دید افق هنگام غروب</span></dt><dd id="skyVis" hidden></dd>
+          <dd class="sub" id="skyVisSub" hidden></dd>
+          <dt id="skyNightL" hidden><span data-i18n="sky_night_l">ابر امشب (تا نیمه‌شب)</span></dt><dd id="skyNight" hidden></dd>
+          <dd class="sub" id="skyNightSub" hidden></dd>
         </dl>
-        <p class="moon-text moon-vis" id="skyVis"></p>
-        <p class="moon-text moon-night" id="skyNight"></p>
         <button type="button" class="btn cal-ok annual-btn moon-more-btn" id="moonMoreBtn" aria-expanded="false" aria-controls="moonMore" data-i18n="moon_more" hidden>اطلاعات بیشتر</button>
         <div class="moon-more" id="moonMore" hidden>
           <div id="moonMsgs">
@@ -271,7 +273,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
-<script src="js/lang.js?v=20261133"></script>
+<script src="js/lang.js?v=20261136"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js?v=20261131"></script>
@@ -279,6 +281,6 @@
 <script src="js/contact.js?v=20261028"></script>
 <script src="js/theme.js"></script>
 <script src="js/calendar.js?v=20261031"></script>
-<script src="js/azan.js?v=20261135"></script>
+<script src="js/azan.js?v=20261137"></script>
 </body>
 </html>

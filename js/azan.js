@@ -72,6 +72,8 @@
   var map=L.map("map").setView(fallback,2);
   /* map tiles: OpenStreetMap first; when its tiles keep failing (server down, limit reached) the same map is drawn from the
      CARTO basemap, which is also made from OpenStreetMap data */
+  /* on desktop the map changes its height with the columns; Leaflet must be told, or part of the map stays grey */
+  if(window.ResizeObserver)new ResizeObserver(function(){ map.invalidateSize(); }).observe(document.getElementById("map"));
   var tilesMain=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
     maxZoom:19,attribution:"&copy; OpenStreetMap contributors"
   }).addTo(map);
@@ -512,16 +514,23 @@
   function updateSkyOutlook(){
     var box=document.getElementById("moonSky");
     if(!box)return;
-    var A=window.AzanLang, sS=document.getElementById("skySunset"), sV=document.getElementById("skyVis"), sN=document.getElementById("skyNight"), sNote=document.getElementById("skyNote");
-    sS.textContent="";sV.textContent="";sN.textContent="";sNote.textContent="";
+    var A=window.AzanLang, sS=document.getElementById("skySunset"), sNote=document.getElementById("skyNote");
+    /* the visibility and the cloud tonight are rows of the number list of the card (label, value, one line under it); a row without data is hidden */
+    function row(id,val,sub){
+      var on=val!==null, parts=[document.getElementById(id+"L"),document.getElementById(id),document.getElementById(id+"Sub")];
+      parts.forEach(function(e){ if(e)e.hidden=!on; });
+      if(parts[1])parts[1].textContent=on?val:"";
+      if(parts[2])parts[2].textContent=on?sub:"";
+    }
+    sS.textContent="";sNote.textContent="";
     var sm=lastTimes?toMin(lastTimes.sunset):null;
-    if(sm===null||!wxHours.length){box.hidden=true;return}
+    if(sm===null||!wxHours.length){box.hidden=true;row("skyVis",null);row("skyNight",null);return}
     var d=new Date(Date.now()+lastOffset*3600000);
     var midnight=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-lastOffset*3600000;   /* local midnight, real time */
     var sunsetT=midnight+sm*60000, endT=midnight+86400000, now=Date.now();
     var h=hourAt(sunsetT);
     var mi=window.MoonInfo&&window.MoonInfo.current?window.MoonInfo.current():null;
-    /* 1) cloud at sunset: only on the evenings of the 29th and 30th, when the new crescent is looked for */
+    /* 1) cloud at sunset: only on the evenings of the 29th and 30th, when the new crescent is looked for (in the "more info" part) */
     if(h&&h.cloud!==null&&mi&&mi.hijriDay>=29){
       var c=Math.round(h.cloud), k=c<25?"good":(c<=60?"mid":"bad");
       sS.textContent=A.t("sky_sunset",{c:A.percent(String(c)),v:A.t("sky_s_"+k)});
@@ -530,16 +539,16 @@
     /* 2) visibility at the horizon at sunset (Open-Meteo only) */
     if(h&&h.vis!==null){
       var km=Math.round(h.vis/1000), q=km>=15?"good":(km>=6?"mid":"bad");
-      sV.textContent=A.t("sky_vis",{km:A.num(km),v:A.t("sky_v_"+q)});
-    }
+      row("skyVis",A.num(km)+" "+A.t("sky_km"),A.t("sky_v_"+q));
+    }else row("skyVis",null);
     /* 3) cloud tonight: the average of the forecast hours from about half an hour after sunset until midnight */
     var from=Math.max(sunsetT+1800000,now-1800000), sum=0, n=0;
     wxHours.forEach(function(x){ if(x.cloud!==null&&x.t>=from&&x.t<endT){sum+=x.cloud;n++} });
     if(n){
       var cn=Math.round(sum/n), kn=cn<25?"good":(cn<=60?"mid":"bad");
-      sN.textContent=A.t("sky_night",{c:A.percent(String(cn)),v:A.t("sky_n_"+kn)});
-    }
-    box.hidden=!sS.textContent;        /* only the cloud at sunset (29th/30th) is in this box; the visibility (skyVis) and the cloud tonight (skyNight) are in the main part of the card */
+      row("skyNight",A.percent(String(cn)),A.t("sky_n_"+kn));
+    }else row("skyNight",null);
+    box.hidden=!sS.textContent;        /* only the cloud at sunset (29th/30th) is in this box */
   }
 
   /* countdown to the next adhan (fajr, dhuhr, maghrib, tomorrow's fajr) */
