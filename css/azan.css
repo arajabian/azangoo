@@ -442,3 +442,12 @@ html[dir="rtl"] .hadith-track{animation-name:hadith-move-rtl}
 .hadith-x{position:absolute;top:8px;inset-inline-end:10px;width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--text);font-size:1.5rem;line-height:1;cursor:pointer}
 .hadith-x:hover{background:rgba(47,167,160,.25)}
 html.hadith-open{overflow:hidden}
+
+/* date tiles, a little smaller: the prayer times and the map should be what the eye sees first */
+.date{padding:8px 6px}
+.date b{font-size:clamp(1.1rem,5vw,1.5rem)}
+.date span{font-size:clamp(.72rem,3vw,.8rem)}
+.date b.clock{font-size:clamp(.95rem,4.4vw,1.3rem)}
+@media(min-width:640px){
+  .dates .date{max-width:min(calc(25% - 7.5px),230px)}
+}
