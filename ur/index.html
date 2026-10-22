@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
-<link rel="stylesheet" href="css/azan.css?v=20261141">
+<link rel="stylesheet" href="css/azan.css?v=20261142">
 <link rel="stylesheet" href="css/moon.css?v=20261138">
 </head>
 <body>
@@ -112,6 +112,13 @@
         <label class="auto ram-remind"><input type="checkbox" id="ramRemind"><span data-i18n="ram_remind">سحری اور افطار سے ۱۰ منٹ پہلے یاد دلائیں</span></label>
         <p class="msg" id="ramMsg" role="status"></p>
       </div>
+      <div class="auto-box">
+        <label class="auto"><input type="checkbox" id="autoAdhan" checked><span data-i18n="auto_label">خودکار اذان اور دعا چلائیں</span></label>
+        <p class="dua-timer" id="duaTimer"></p>
+        <p class="msg" id="adhanMsg" role="status"></p>
+        <p class="hint"><span data-i18n="auto_hint">خودکار پلے کے لیے یہ صفحہ کھلا رہنا چاہیے اور ایک بار اس پر کلک ہونا چاہیے۔</span> <button type="button" class="link-btn hint-more-btn" id="autoMoreBtn" data-i18n="hint_more" aria-expanded="false" aria-controls="autoMore">مزید</button></p>
+        <p class="hint" id="autoMore" data-i18n="auto_more_text" hidden>اذان بغیر کلک کیے خود بخود چلنے کے لیے سائٹ کو اپنے آلے پر انسٹال کریں (Add to Home Screen یا Install) یا براؤزر کی سیٹنگز میں اس سائٹ کے لیے آواز کو «اجازت دیں» پر رکھیں۔</p>
+      </div>
     </section>
 
       <section class="card" aria-labelledby="a-h">
@@ -124,11 +131,6 @@
           <label><input type="radio" name="r" value="audio/AZAN-Mohammad-Aghati.mp3"><span data-i18n="r_aghati">محمد آقاتی</span></label>
         </div>
         <audio class="audio" id="adhanPlayer" controls preload="none" src="audio/AZAN-Moazenzadeh.mp3"></audio>
-        <label class="auto"><input type="checkbox" id="autoAdhan" checked><span data-i18n="auto_label">خودکار اذان اور دعا چلائیں</span></label>
-        <p class="dua-timer" id="duaTimer"></p>
-        <p class="msg" id="adhanMsg" role="status"></p>
-        <p class="hint"><span data-i18n="auto_hint">خودکار پلے کے لیے یہ صفحہ کھلا رہنا چاہیے اور ایک بار اس پر کلک ہونا چاہیے۔</span> <button type="button" class="link-btn hint-more-btn" id="autoMoreBtn" data-i18n="hint_more" aria-expanded="false" aria-controls="autoMore">مزید</button></p>
-        <p class="hint" id="autoMore" data-i18n="auto_more_text" hidden>اذان بغیر کلک کیے خود بخود چلنے کے لیے سائٹ کو اپنے آلے پر انسٹال کریں (Add to Home Screen یا Install) یا براؤزر کی سیٹنگز میں اس سائٹ کے لیے آواز کو «اجازت دیں» پر رکھیں۔</p>
       </section>
     </div>
 

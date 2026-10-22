@@ -451,3 +451,7 @@ html.hadith-open{overflow:hidden}
 @media(min-width:640px){
   .dates .date{max-width:min(calc(25% - 7.5px),230px)}
 }
+
+/* the auto-play switch, its timer and hint now sit at the bottom of the prayer times card */
+.auto-box{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+.auto-box .auto{margin-top:0}
