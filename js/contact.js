@@ -45,3 +45,27 @@
     });
   }
 })();
+
+/* Site settings that the owner may change without touching the code: data/config.json
+   { "paypalButtonId": "..." } is the PayPal donation button. The value written in the page stays as the fallback:
+   if the file cannot be read, the button works with it. The file is read in the background; the value is put in
+   the form at the moment of the click, so the page is never delayed. */
+(function () {
+  'use strict';
+  var cfg = null;
+  try {
+    if (window.fetch) {
+      fetch('data/config.json', { cache: 'no-cache' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { cfg = d; })
+        .catch(function () { cfg = null; });
+    }
+  } catch (e) {}
+  var form = document.querySelector('form.donate');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    var id = cfg && typeof cfg.paypalButtonId === 'string' ? cfg.paypalButtonId.trim() : '';
+    var input = form.querySelector('input[name="hosted_button_id"]');
+    if (id && input) input.value = id;
+  });
+})();
