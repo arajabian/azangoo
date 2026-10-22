@@ -1260,15 +1260,18 @@
 
   /* start: saved place if there is one; otherwise ask permission and use the current location */
   var qs=new URLSearchParams(window.location.search||"");
-  var qLat=parseFloat(qs.get("lat")), qLng=parseFloat(qs.get("lng"));
-  if(defaults&&defaults.place&&isFinite(defaults.place.lat)&&isFinite(defaults.place.lng)){   /* saved defaults first */
+  var qLat=parseFloat(qs.get("lat")), qLng=parseFloat(qs.get("lng")||qs.get("long")||qs.get("lon"));
+  var qOk=isFinite(qLat)&&isFinite(qLng)&&Math.abs(qLat)<=90&&Math.abs(qLng)<=180;
+  var forced=qOk&&qs.get("go")==="1";       /* a link made by the /go/ page: this place beats the saved one */
+  if(!forced&&defaults&&defaults.place&&isFinite(defaults.place.lat)&&isFinite(defaults.place.lng)){   /* saved defaults first */
     cityEl.value=defaults.place.city||"";
     setPos(L.latLng(defaults.place.lat,defaults.place.lng),15);
     reverse(L.latLng(defaults.place.lat,defaults.place.lng));   /* name in the language of the page */
-  }else if(isFinite(qLat)&&isFinite(qLng)&&Math.abs(qLat)<=90&&Math.abs(qLng)<=180){   /* link from a city page, when there are no defaults */
+  }else if(qOk){   /* link from a city page (when there are no defaults) or from /go/ */
     cityEl.value=qs.get("city")||"";
     rememberRegion(L.latLng(qLat,qLng),qs.get("cc"));   /* the city page already knows the country */
     setPos(L.latLng(qLat,qLng),15);
+    if(!cityEl.value)reverse(L.latLng(qLat,qLng));      /* no name in the link: look it up, in the language of the page */
     try{ if(window.history&&history.replaceState) history.replaceState(null,"",window.location.pathname); }catch(e){}
   }else{
     showPlace();

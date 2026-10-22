@@ -353,6 +353,9 @@ function widgetPage(lang) {
     lab('bg', U.bg, '<input id="b-bg" type="color" value="#ffffff">'),
     lab('radius', U.radius, '<input id="b-radius" type="number" min="0" max="40" value="14">')
   ].join('\n');
+  const linkCity = `${BASE}/go/?city=Toronto&country=Canada&lang=${lang}`;
+  const linkCoord = `${BASE}/go/?lat=43.65&lng=-79.38&lang=${lang}`;
+  const linkA = `<a href="${linkCity}" target="_blank" rel="noopener">${W.linkAnchor}</a>`;
   const rows = W.options.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('\n');
   const body = `<p>${esc(W.intro)}</p>
 <section class="card"><h2>${esc(W.quickH)}</h2><p>${esc(W.quickP)}</p>
@@ -370,6 +373,11 @@ ${form}
 ${rows}
 </table></section>
 <section class="card"><h2>${esc(W.notesH)}</h2>${W.notes.map(n => `<p>${esc(n)}</p>`).join('\n')}</section>
+<section class="card" id="link"><h2>${esc(W.linkH)}</h2><p>${esc(W.linkP)}</p>
+<p class="count">${esc(W.linkCityL)}</p>${code(linkCity)}
+<p class="count">${esc(W.linkCoordL)}</p>${code(linkCoord)}
+<p class="count">${esc(W.linkAnchorL)}</p>${code(linkA)}
+<p>${withLinks(esc(W.linkNote)).replace('href="https://www.azangoo.com/go/" target="_blank" rel="noopener noreferrer"', 'href="../../go/"')}</p></section>
 <script src="../../js/azangoo-widget.js"></script>
 <script src="../../js/widget-builder.js"></script>
 `;
