@@ -445,9 +445,10 @@ html.hadith-open{overflow:hidden}
 
 /* date tiles, a little smaller: the prayer times and the map should be what the eye sees first */
 .date{padding:8px 6px}
-.date b{font-size:clamp(1.1rem,5vw,1.5rem)}
-.date span{font-size:clamp(.72rem,3vw,.8rem)}
-.date b.clock{font-size:clamp(.95rem,4.4vw,1.3rem)}
+.date b{font-size:clamp(1rem,4.2vw,1.5rem)}
+.date #d-week{font-size:clamp(.95rem,3.8vw,1.35rem)}      /* the weekday is the longest word, so a notch smaller */
+.date span{font-size:clamp(.7rem,2.8vw,.8rem)}
+.date b.clock{font-size:clamp(.9rem,3.8vw,1.3rem)}
 @media(min-width:640px){
   .dates .date{max-width:min(calc(25% - 7.5px),230px)}
 }
