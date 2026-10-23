@@ -422,7 +422,20 @@
     box.setAttribute("data-sky",skyState(n.getUTCHours()*60+n.getUTCMinutes(),sr,ss));
     /* the weather picture (partly / cloudy / fog / rain / snow / storm) is added on top of the sky state; clear weather,
        an unknown weather or a weather of another place keeps the plain sky of the line above */
-    if(wxNow&&wxNow!=="clear")box.setAttribute("data-wx",wxNow); else box.removeAttribute("data-wx");
+    var wx=wxPicture();
+    if(wx&&wx!=="clear")box.setAttribute("data-wx",wx); else box.removeAttribute("data-wx");
+  }
+  /* the weather of the picture comes from the same hourly forecast as the "cloud tonight" line (the hour that is now):
+     rain, snow, storm and fog come from the weather code of that hour; clear / partly / cloudy come from its cloud cover,
+     with the same limits as the words of the card (under 25% clear, up to 60% partly cloudy, above that cloudy).
+     Without an hourly forecast the weather code of this moment is used. */
+  function wxPicture(){
+    var h=wxHours.length?hourAt(Date.now()):null;
+    if(!h)return wxNow;
+    var k=h.wx;
+    if(k&&k!=="clear"&&k!=="partly"&&k!=="cloudy")return k;
+    if(h.cloud!==null)return h.cloud<25?"clear":(h.cloud<=60?"partly":"cloudy");
+    return k||wxNow;
   }
 
   /* ---- weather for the sky picture ----
@@ -456,15 +469,15 @@
   var wxServices=[
     {
       name:"open-meteo",
-      url:function(ll){return "https://api.open-meteo.com/v1/forecast?latitude="+ll.lat.toFixed(4)+"&longitude="+ll.lng.toFixed(4)+"&current=weather_code&hourly=cloud_cover,visibility&forecast_days=2&timezone=auto"},
+      url:function(ll){return "https://api.open-meteo.com/v1/forecast?latitude="+ll.lat.toFixed(4)+"&longitude="+ll.lng.toFixed(4)+"&current=weather_code&hourly=cloud_cover,visibility,weather_code&forecast_days=2&timezone=auto"},
       parse:function(d){return wxFromWmo(d&&d.current&&d.current.weather_code)},
       hours:function(d){                                    /* local times of the place -> real time (ms) */
         var h=d&&d.hourly, off=(d&&+d.utc_offset_seconds)||0, out=[];
         if(!h||!h.time)return out;
-        var cc=h.cloud_cover||[], vv=h.visibility||[];
+        var cc=h.cloud_cover||[], vv=h.visibility||[], wc=h.weather_code||[];
         for(var i=0;i<h.time.length;i++){
           var t=Date.parse(h.time[i]+"Z")-off*1000;
-          if(isFinite(t))out.push({t:t,cloud:typeof cc[i]==="number"?cc[i]:null,vis:typeof vv[i]==="number"?vv[i]:null});
+          if(isFinite(t))out.push({t:t,cloud:typeof cc[i]==="number"?cc[i]:null,vis:typeof vv[i]==="number"?vv[i]:null,wx:wxFromWmo(wc[i])});
         }
         return out;
       }
@@ -483,7 +496,8 @@
         var ts=d&&d.properties&&d.properties.timeseries, out=[];
         (ts||[]).forEach(function(x){
           var t=Date.parse(x.time), c=x.data&&x.data.instant&&x.data.instant.details&&x.data.instant.details.cloud_area_fraction;
-          if(isFinite(t)&&typeof c==="number")out.push({t:t,cloud:c,vis:null});
+          var sy=x.data&&x.data.next_1_hours&&x.data.next_1_hours.summary&&x.data.next_1_hours.summary.symbol_code;
+          if(isFinite(t)&&typeof c==="number")out.push({t:t,cloud:c,vis:null,wx:wxFromMet(sy)});
         });
         return out;
       }
@@ -540,6 +554,12 @@
     var d=new Date(Date.now()+lastOffset*3600000);
     var midnight=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-lastOffset*3600000;   /* local midnight, real time */
     var sunsetT=midnight+sm*60000, endT=midnight+86400000, now=Date.now();
+    /* after local midnight and before sunrise it is still "tonight": the window runs from now until sunrise,
+       not over the evening of the coming day */
+    var srm=toMin(lastTimes.sunrise), late=srm!==null&&(d.getUTCHours()*60+d.getUTCMinutes())<srm;
+    if(late)endT=midnight+srm*60000;
+    var nl=document.querySelector("#skyNightL span");
+    if(nl){var nk=late?"sky_night_l_late":"sky_night_l";nl.setAttribute("data-i18n",nk);nl.textContent=A.t(nk)}
     var h=hourAt(sunsetT);
     var mi=window.MoonInfo&&window.MoonInfo.current?window.MoonInfo.current():null;
     /* 1) cloud at sunset: only on the evenings of the 29th and 30th, when the new crescent is looked for (in the "more info" part) */
@@ -554,8 +574,9 @@
       row("skyVis",A.num(km)+" "+A.t("sky_km"),A.t("sky_v_"+q));
     }else row("skyVis",null);
     /* 3) cloud tonight: the average of the forecast hours from about half an hour after sunset until midnight */
-    var from=Math.max(sunsetT+1800000,now-1800000), sum=0, n=0;
+    var from=late?now-1800000:Math.max(sunsetT+1800000,now-1800000), sum=0, n=0;
     wxHours.forEach(function(x){ if(x.cloud!==null&&x.t>=from&&x.t<endT){sum+=x.cloud;n++} });
+    if(!n){var hn=hourAt(now);if(hn&&hn.cloud!==null){sum=hn.cloud;n=1}}      /* the last minutes of the window: the hour that is now */
     if(n){
       var cn=Math.round(sum/n), kn=cn<25?"good":(cn<=60?"mid":"bad");
       row("skyNight",A.percent(String(cn)),A.t("sky_n_"+kn));
