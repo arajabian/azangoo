@@ -299,6 +299,14 @@ function countryPage(lang, k) {
 /* ---------- terms and conditions ---------- */
 const TERMS = require(path.join(ROOT, 'tools/terms-text.js'));
 const PRIVACY = require(path.join(ROOT, 'tools/privacy-text.js'));
+/* the contact e-mail written in the terms and privacy texts comes from data/config.json (contactEmail) */
+(function () {
+  let mail = 'info.azangoo@gmail.com';
+  try { const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/config.json'), 'utf8')); if (c && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c.contactEmail || '').trim())) mail = c.contactEmail.trim(); } catch (e) {}
+  const swap = (v) => typeof v === 'string' ? v.split('info.azangoo@gmail.com').join(mail)
+    : Array.isArray(v) ? v.map(swap) : (v && typeof v === 'object') ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, swap(x)])) : v;
+  for (const L of LANGS) { TERMS[L] = swap(TERMS[L]); PRIVACY[L] = swap(PRIVACY[L]); }
+})();
 const TERMS_LABEL = { fa: 'شرایط استفاده', en: 'Terms', ur: 'شرائط استعمال', ar: 'شروط الاستخدام' };
 const PRIVACY_LABEL = { fa: 'حریم خصوصی', en: 'Privacy', ur: 'رازداری', ar: 'الخصوصية' };
 function termsPage(lang) { return textPage(lang, TERMS[lang]); }

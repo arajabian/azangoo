@@ -4,7 +4,15 @@
 /* Contact button: opens a small dialog with the email, a mailto link and a copy button. */
 (function () {
   'use strict';
-  var EMAIL = 'info.azangoo@gmail.com';
+  var EMAIL = 'info.azangoo@gmail.com';          /* fallback; data/config.json (contactEmail) replaces it when it can be read */
+  function email() {
+    var c = window.AzanConfig && window.AzanConfig.contactEmail;
+    return (typeof c === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.trim())) ? c.trim() : EMAIL;
+  }
+  function showEmail() {
+    var a = document.querySelector('#contactDlg .contact-mail a'), e = email();
+    if (a) { a.setAttribute('href', 'mailto:' + e); a.textContent = e; }
+  }
   var dlg = document.getElementById('contactDlg'),
       openBtn = document.getElementById('contactBtn'),
       closeBtn = document.getElementById('closeContact'),
@@ -14,6 +22,7 @@
 
   openBtn.addEventListener('click', function () {
     copyMsg.textContent = '';
+    showEmail();
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
   });
   closeBtn.addEventListener('click', function () {
@@ -22,10 +31,10 @@
   copyBtn.addEventListener('click', function () {
     var done = function () { copyMsg.textContent = window.AzanLang.t('copied'); };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(EMAIL).then(done, function () {});
+      navigator.clipboard.writeText(email()).then(done, function () {});
     } else {
       var ta = document.createElement('textarea');
-      ta.value = EMAIL; document.body.appendChild(ta); ta.select();
+      ta.value = email(); document.body.appendChild(ta); ta.select();
       try { document.execCommand('copy'); done(); } catch (e) {}
       ta.remove();
     }
@@ -47,7 +56,7 @@
 })();
 
 /* Site settings that the owner may change without touching the code: data/config.json
-   { "paypalButtonId": "..." } is the PayPal donation button. The value written in the page stays as the fallback:
+   { "paypalButtonId": "...", "contactEmail": "..." }: the PayPal donation button and the contact e-mail. The value written in the page stays as the fallback:
    if the file cannot be read, the button works with it. The file is read in the background; the value is put in
    the form at the moment of the click, so the page is never delayed. */
 (function () {
@@ -57,7 +66,7 @@
     if (window.fetch) {
       fetch('data/config.json', { cache: 'no-cache' })
         .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) { cfg = d; })
+        .then(function (d) { cfg = d; window.AzanConfig = d; })
         .catch(function () { cfg = null; });
     }
   } catch (e) {}
