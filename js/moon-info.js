@@ -505,14 +505,17 @@
     if (!more || !btn) return;
     var extra = ["mText", "mStart", "mWhy", "mBest", "mNote"].some(function (id) { var e = document.getElementById(id); return e && e.textContent; });
     btn.hidden = !extra;
-    if (!extra) { more.hidden = true; setMoreLabel(false); }
+    if (!extra) more.hidden = true;
+    setMoreLabel(!more.hidden);
   }
   function setMoreLabel(open) {
     var btn = document.getElementById("moonMoreBtn");
     if (!btn) return;
-    var key = open ? "moon_less" : "moon_more";
-    btn.setAttribute("data-i18n", key);
-    btn.textContent = root.AzanLang.t(key);
+    /* the button always names the next month ("Ramadan sighting"), open or closed; the open / closed state is in aria-expanded.
+       Without a known next month the old "more info" text is used. */
+    var nx = lastOut && lastOut.next;
+    btn.removeAttribute("data-i18n");
+    btn.textContent = nx ? root.AzanLang.t("moon_sight", { next: nx }) : root.AzanLang.t(open ? "moon_less" : "moon_more");
     btn.setAttribute("aria-expanded", open ? "true" : "false");
   }
   if (typeof document !== "undefined") {

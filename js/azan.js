@@ -417,13 +417,23 @@
     var box=document.querySelector(".moon");
     if(!box)return;
     var sr=lastTimes?toMin(lastTimes.sunrise):null, ss=lastTimes?toMin(lastTimes.sunset):null;
-    if(sr===null||ss===null){box.setAttribute("data-sky","night");box.removeAttribute("data-wx");return}   /* no place or no sunrise / sunset: the starry sky */
+    if(sr===null||ss===null){box.setAttribute("data-sky","night");box.removeAttribute("data-wx");setSkyNow(null);return}   /* no place or no sunrise / sunset: the starry sky */
     var n=new Date(Date.now()+lastOffset*3600000);
     box.setAttribute("data-sky",skyState(n.getUTCHours()*60+n.getUTCMinutes(),sr,ss));
     /* the weather picture (partly / cloudy / fog / rain / snow / storm) is added on top of the sky state; clear weather,
        an unknown weather or a weather of another place keeps the plain sky of the line above */
     var wx=wxPicture();
     if(wx&&wx!=="clear")box.setAttribute("data-wx",wx); else box.removeAttribute("data-wx");
+    setSkyNow(wx);
+  }
+  /* the sentence "clouds and weather right now": the same value (wxPicture) that chooses the picture behind the moon,
+     so the picture and the words always agree. Hidden while the weather of the place is unknown. */
+  function setSkyNow(wx){
+    var L=document.getElementById("skyNowL"), V=document.getElementById("skyNow");
+    if(!L||!V)return;
+    var on=!!wx&&!!lastTimes;
+    L.hidden=!on; V.hidden=!on;
+    V.textContent=on?window.AzanLang.t("wx_"+wx):"";
   }
   /* the weather of the picture comes from the same hourly forecast as the "cloud tonight" line (the hour that is now):
      rain, snow, storm and fog come from the weather code of that hour; clear / partly / cloudy come from its cloud cover,
@@ -524,7 +534,9 @@
     next();
   }
   setInterval(function(){updateMoonSky();updateSkyOutlook()},30000);
-  window.addEventListener("azan:langchange",function(){updateSkyOutlook()});
+  window.addEventListener("azan:langchange",function(){updateMoonSky();updateSkyOutlook()});
+  /* the page stays open: the weather (picture and sentence) is asked again every 30 minutes */
+  setInterval(function(){ if(placed){wxAt=0;loadWeather(marker.getLatLng())} },30*60*1000);
 
   /* ---- sky outlook in the moon card ----
      from the hourly forecast of the place: the cloud cover at sunset (only on the evenings that matter for the new crescent,
