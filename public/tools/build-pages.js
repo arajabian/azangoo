@@ -431,6 +431,7 @@ function homePage(lang) {
   h = setMeta(h, /(<meta property="og:locale" content=")[^"]*(")/, OG_LOCALE[lang]);
   const alternates = LANGS.map(l => `<link rel="alternate" hreflang="${l}" href="${BASE}/${l}/">`).join('\n') +
     `\n<link rel="alternate" hreflang="x-default" href="${BASE}/">`;
+  h = h.replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?/g, '');   /* the root page already lists them: write the set once */
   h = h.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">\n${alternates}`);
   /* text of the page, the same words the script puts in (data-i18n, data-i18n-attr, data-i18n-ph) */
   h = h.replace(/(<([a-zA-Z0-9]+)\b[^>]*?\sdata-i18n="([^"]+)"[^>]*>)([^<]*)(<\/\2>)/g, (m, open, tag, key, inner, close) => open + esc(T(key)) + close);
