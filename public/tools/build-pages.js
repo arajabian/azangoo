@@ -178,6 +178,7 @@ th[scope=row]{text-align:${DIR[lang] === 'rtl' ? 'right' : 'left'}}
 .cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;background:rgba(18,56,74,.82);border:1px solid #d2a94b;border-radius:14px;padding:12px 14px;margin:10px 0}
 .cta p{margin:0;flex:1 1 260px}
 .cta-btn{display:inline-block;background:#d2a94b;color:#0a1a22;font-weight:700;text-decoration:none;padding:10px 18px;border-radius:12px}
+@media(max-width:600px){body{line-height:1.7}main{padding:12px}h1{font-size:1.25rem}h2{font-size:1rem}.card{padding:9px 10px;margin:9px 0}th,td{padding:4px 6px;font-size:.88rem}.month{font-size:.8rem}.cta{padding:10px;gap:8px}.cta-btn{padding:8px 14px;font-size:.9rem}.links a{margin-inline-end:10px;font-size:.9rem}}
 </style>
 </head>
 <body>
@@ -247,6 +248,7 @@ ul{list-style:none;padding:0;margin:0}
 li{padding:6px 0;border-bottom:1px solid rgba(210,169,75,.25)}
 .count{opacity:.7;font-size:.85rem}
 .home{display:inline-block;margin-bottom:6px}
+@media(max-width:600px){body{line-height:1.7}main{padding:12px}h1{font-size:1.25rem}h2{font-size:1rem}.card{padding:9px 10px;margin:9px 0}li{padding:4px 0}.list-tools{gap:8px;margin:8px 0}.list-tools input,.list-tools select{padding:7px 10px}}
 </style>
 </head>
 <body>
@@ -336,6 +338,7 @@ table.opt td:first-child{width:36%}
 table.opt td{border:1px solid rgba(210,169,75,.3);padding:6px 9px;vertical-align:top}
 table.opt td:first-child{direction:ltr;text-align:left;font-family:Consolas,monospace;color:#f0d58a}
 .hint{font-size:.85rem;opacity:.8}
+@media(max-width:600px){.wcode{font-size:11.5px;padding:8px 10px}.wb-stage{gap:10px;margin-top:10px}.wb-pv{padding:10px}.wb-code textarea{height:160px;font-size:11.5px}.gal{grid-template-columns:1fr;gap:10px}table.opt{font-size:.8rem}table.opt td{padding:5px 6px}}
 `;
 function widgetPage(lang) {
   const W = WIDGET[lang], U = W.ui;
