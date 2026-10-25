@@ -82,3 +82,15 @@
 .help-btn{display:inline-flex;align-items:center;justify-content:center;width:1.45em;height:1.45em;margin-inline-start:6px;padding:0;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold2);font:inherit;font-size:.8rem;font-weight:700;line-height:1;cursor:pointer;vertical-align:middle}
 .help-btn:hover,.help-btn[aria-expanded="true"]{background:var(--gold);color:var(--ink)}
 .moon-info dd.help-text{grid-column:1/-1;margin:0 0 4px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid rgba(210,169,75,.25);font-size:.8rem;font-weight:400;line-height:1.9;direction:inherit;text-align:start}
+
+/* phones: a smaller moon box and smaller texts (tablet and desktop are not affected) */
+@media(max-width:639px){
+  .moon{padding:10px}
+  .moon-img{width:84px;height:84px}
+  .moon-info{margin-top:8px;gap:4px 8px;font-size:.8rem}
+  .moon-info dd.sub{font-size:.72rem;margin:-3px 0 3px}
+  .moon-text{margin-top:8px;padding:7px 10px;font-size:.78rem;line-height:1.8}
+  .moon-note{font-size:.7rem}
+  .moon-more-btn{margin-top:8px}
+  .moon-info dd.help-text{font-size:.74rem;padding:6px 8px}
+}

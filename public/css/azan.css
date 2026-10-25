@@ -457,3 +457,108 @@ html.hadith-open{overflow:hidden}
 /* the auto-play switch, its timer and hint now sit at the bottom of the prayer times card */
 .auto-box{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
 .auto-box .auto{margin-top:0}
+
+/* ---- phones: smaller type and tighter boxes, so the prayer times, the map and the cards fit the screen.
+   Inputs and selects keep a 16px font on purpose (a smaller one makes iPhones zoom the page when a field is tapped).
+   Tablet and desktop are not affected. ---- */
+@media(max-width:639px){
+  body{line-height:1.65}
+  .wrap{padding:0 10px 28px}
+  .top{gap:6px}
+  .logo-img{height:clamp(84px,25vw,104px)}
+  .grid,.right-col,.main-col,.side{gap:10px}
+  .card{padding:10px;border-radius:12px}
+  .card h2{font-size:.95rem;margin-bottom:8px;gap:6px}
+  .card h2::before{width:1.1em;height:1.1em;margin-inline-end:.4em}
+
+  /* date tiles: 2 x 2, shorter */
+  .dates{gap:6px;margin:4px 0}
+  .dates .date{flex-basis:calc(50% - 3px);max-width:calc(50% - 3px)}
+  .date{padding:5px 4px;border-radius:12px}
+  .date::before{inset:3px;border-radius:9px}
+  .date::after{top:6px;inset-inline-start:8px;width:.85rem;height:.85rem}
+  .date b{font-size:clamp(.9rem,4vw,1.15rem);line-height:1.25}
+  .date #d-week{font-size:clamp(.85rem,3.6vw,1.05rem)}
+  .date b.clock{font-size:clamp(.85rem,3.6vw,1.1rem)}
+  .date span{font-size:clamp(.66rem,2.7vw,.76rem);line-height:1.4}
+  .date #d-zone{font-size:clamp(.6rem,2.4vw,.68rem)}
+
+  /* hadith ticker */
+  .hadith{margin:4px 0}
+  .hadith-btn{height:32px}
+  .hadith-tag{padding:0 9px;font-size:.76rem}
+  .hadith-track{font-size:.8rem}
+  .hadith-view{line-height:32px}
+
+  /* prayer times: smaller rows; the last (odd) row, tomorrow's fajr, takes the full width */
+  .place{font-size:.76rem;margin-bottom:6px}
+  .times{gap:6px}
+  .times li{padding:4px 8px;border-radius:9px;font-size:.84rem;gap:4px}
+  .times li>span{min-width:0}
+  .times li>span::before{width:1.05em;height:1.05em;margin-inline-end:.35em;vertical-align:-.2em}
+  .times time{font-size:.9rem}
+  .times li:last-child:nth-child(odd){grid-column:1/-1}
+  .countdown{font-size:.85rem;margin-top:8px;min-height:1.4em}
+  .ramadan{margin-top:4px;padding-top:4px}
+  .auto-box{margin-top:10px;padding-top:8px}
+  .auto{font-size:.83rem;margin-top:8px;gap:6px}
+  .dua-timer{font-size:.78rem;margin-top:4px}
+  .hint{font-size:.74rem;margin-top:8px}
+  .msg{font-size:.76rem;margin:3px 2px 6px}
+
+  /* adhan voice */
+  .reciters{gap:5px;font-size:.84rem}
+  .reciters label{padding:5px 9px;border-radius:9px}
+  .audio{height:34px;margin-top:8px}
+
+  /* map and its fields */
+  .search{gap:6px}
+  .search input{padding:8px 10px}
+  .search .search-btn,.search .gps-btn{width:40px;height:40px}
+  .mapframe{padding:5px}
+  #map{height:62vw;min-height:230px}
+  .coords{gap:6px;margin-top:8px}
+  .coords label{font-size:.76rem}
+  .coords input{padding:6px 8px}
+  .btn{font-size:.92rem;padding:9px}
+  .qibla{margin-top:8px;padding:6px 10px;font-size:.82rem}
+  .save-btn.save-wide{margin-top:8px}
+  .save-sub{font-size:.74rem}
+  .clear-btn{font-size:.76rem}
+
+  /* calendar card */
+  .calendar .tab{font-size:.86rem;padding:7px 4px}
+  .cal-panel{padding:10px 8px;gap:8px}
+  .cal-label{font-size:.88rem}
+  .cal-panel select{width:86%;padding:6px 8px}
+  .cal-ok{padding:7px 26px}
+  table.annual{font-size:.72rem}
+  table.annual th,table.annual td{padding:5px 3px}
+
+  /* footer and dialogs */
+  .site-foot{margin-top:18px;gap:6px}
+  .foot-actions{gap:8px}
+  .foot-actions .btn,.foot-actions .donate-btn,.foot-actions .save-btn,.foot-actions .city-list-btn{min-width:120px;height:38px;padding:0 14px;font-size:.88rem}
+  .copyright{font-size:.72rem}
+  .terms-line{font-size:.76rem;line-height:1.9}
+  .contact-dlg{padding:14px;max-width:94vw}
+  .contact-dlg p{font-size:.88rem;margin-bottom:10px}
+  .about-dlg h2{font-size:1.02rem}
+  .about-body p{font-size:.86rem}
+  .about-dlg .save-actions{bottom:-14px}
+  .hadith-card{padding:18px 14px 14px}
+  .hadith-ar{font-size:1.1rem;line-height:2}
+  .hadith-t{font-size:.9rem;line-height:1.9}
+}
+/* very narrow phones (320-380px) */
+@media(max-width:380px){
+  .wrap{padding:0 8px 24px}
+  .card{padding:8px}
+  .times li{padding:4px 6px;font-size:.78rem}
+  .times time{font-size:.84rem}
+  .times li>span::before{display:none}
+  .date b{font-size:.88rem}
+  .date::after{display:none}
+  .reciters{font-size:.8rem}
+  .foot-actions .btn,.foot-actions .donate-btn,.foot-actions .save-btn,.foot-actions .city-list-btn{min-width:104px;padding:0 10px;font-size:.84rem}
+}
