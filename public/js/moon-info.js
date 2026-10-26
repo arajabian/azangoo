@@ -490,6 +490,7 @@
     put("mStart", o.startText || "");
     put("mWhy", o.whyText || "");
     put("mBest", o.bestText || "");
+    put("mIntro", o.next ? root.AzanLang.t("moon_sight_intro", { next: o.next }) : "");
     arrangeMessages();
     var img = document.getElementById("moonImg");
     if (img) {
@@ -498,33 +499,38 @@
       img.alt = root.AzanLang.t("moon_alt", { p: fa(o.illumNow.toFixed(1)) });
     }
   }
-  /* the card shows only the numbers; every explanation (the main messages, the start of the month, why, the best time, the weather
-     outlook and the note about the criterion) is behind the "more info" button, which shows only when there is something behind it */
+  /* the card has two tabs: "the Moon right now" (the numbers) and "<next month> sighting" (every explanation: the main messages, the start
+     of the month, why, the best time, the weather outlook and the note about the criterion). The second tab shows only when there is
+     something behind it. */
   function arrangeMessages() {
-    var more = document.getElementById("moonMore"), btn = document.getElementById("moonMoreBtn");
-    if (!more || !btn) return;
+    var tabs = document.getElementById("moonTabs");
+    if (!tabs) return;
     var extra = ["mText", "mStart", "mWhy", "mBest", "mNote"].some(function (id) { var e = document.getElementById(id); return e && e.textContent; });
-    btn.hidden = !extra;
-    if (!extra) more.hidden = true;
-    setMoreLabel(!more.hidden);
+    tabs.hidden = !extra;
+    if (!extra) showTab("now");
+    setTabLabels();
   }
-  function setMoreLabel(open) {
-    var btn = document.getElementById("moonMoreBtn");
-    if (!btn) return;
-    /* the button always names the next month ("Ramadan sighting"), open or closed; the open / closed state is in aria-expanded.
-       Without a known next month the old "more info" text is used. */
+  function setTabLabels() {
+    var b = document.getElementById("mtab-next");
+    if (!b) return;
+    /* the second tab always names the next month ("Ramadan sighting"); without a known next month the old "more info" text is used */
     var nx = lastOut && lastOut.next;
-    btn.removeAttribute("data-i18n");
-    btn.textContent = nx ? root.AzanLang.t("moon_sight", { next: nx }) : root.AzanLang.t(open ? "moon_less" : "moon_more");
-    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    b.textContent = nx ? root.AzanLang.t("moon_sight", { next: nx }) : root.AzanLang.t("moon_more");
+  }
+  function showTab(which) {
+    var now = document.getElementById("moonPanelNow"), more = document.getElementById("moonMore");
+    var tn = document.getElementById("mtab-now"), tx = document.getElementById("mtab-next");
+    if (!now || !more || !tn || !tx) return;
+    var isNow = which === "now";
+    now.hidden = !isNow; more.hidden = isNow;
+    tn.classList.toggle("active", isNow); tx.classList.toggle("active", !isNow);
+    tn.setAttribute("aria-selected", isNow ? "true" : "false");
+    tx.setAttribute("aria-selected", isNow ? "false" : "true");
   }
   if (typeof document !== "undefined") {
-    var moreBtn = document.getElementById("moonMoreBtn");
-    if (moreBtn) moreBtn.addEventListener("click", function () {
-      var more = document.getElementById("moonMore");
-      more.hidden = !more.hidden;
-      setMoreLabel(!more.hidden);
-    });
+    var tabNow = document.getElementById("mtab-now"), tabNext = document.getElementById("mtab-next");
+    if (tabNow) tabNow.addEventListener("click", function () { showTab("now"); });
+    if (tabNext) tabNext.addEventListener("click", function () { showTab("next"); });
   }
   function update(lat, lng, off) { state = { lat: lat, lng: lng, off: off }; render(); }
   if (typeof window !== "undefined" && window.addEventListener) window.addEventListener("azan:langchange", render);

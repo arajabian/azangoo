@@ -49,7 +49,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
 <link rel="stylesheet" href="css/azan.css?v=20261153">
-<link rel="stylesheet" href="css/moon.css?v=20261139">
+<link rel="stylesheet" href="css/moon.css?v=20261160">
 </head>
 <body>
 <div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">For the adhan and dua to play automatically, click the page once</span></div>
@@ -162,6 +162,11 @@
     <aside class="side">
       <section class="card" aria-labelledby="mo-h">
         <h2 id="mo-h"><span data-i18n="moon_title">Moon sighting</span></h2>
+        <div class="tabs moon-tabs" id="moonTabs" role="tablist" hidden>
+          <button type="button" role="tab" id="mtab-now" aria-selected="true" aria-controls="moonPanelNow" class="tab active"><span data-i18n="moon_tab_now">Moon right now</span></button>
+          <button type="button" role="tab" id="mtab-next" aria-selected="false" aria-controls="moonMore" class="tab"></button>
+        </div>
+        <div id="moonPanelNow" role="tabpanel" aria-labelledby="mtab-now">
         <div class="moon">
           <img class="moon-img" id="moonImg" src="images/moon/MoonL32.gif" width="84" height="84" alt="تصویر ماه">
         </div>
@@ -175,12 +180,13 @@
           <dt id="skyNowL" hidden><span data-i18n="sky_now_l">Clouds and weather right now</span></dt><dd id="skyNow" hidden></dd>
           <dt id="skyVisL" hidden><span data-i18n="sky_vis_l">Horizon visibility at sunset</span> <button type="button" class="help-btn" id="skyVisHelp" aria-expanded="false" aria-controls="skyVisTip" data-i18n-attr="aria-label:sky_vis_help_label;title:sky_vis_help_label" aria-label="About horizon visibility" title="About horizon visibility">?</button></dt><dd id="skyVis" hidden></dd>
           <dd class="sub" id="skyVisSub" hidden></dd>
-          <dd class="help-text" id="skyVisTip" data-i18n="sky_vis_help" hidden>Horizon visibility is how many kilometres you can see clearly through the air at that moment. The number comes from the weather forecast for this place at sunset. The new crescent is thin and sits low near the horizon, so fog, dust or smoke can hide it. 15 km or more: good; 6 to 14 km: medium; under 6 km: poor. This is only a weather forecast; it does not change the crescent ruling.</dd>
+          <dd class="help-text" id="skyVisTip" data-i18n="sky_vis_help" hidden>Horizon visibility is how far you can see clearly through the air at that moment, in kilometres. The bigger the number, the clearer the air; the smaller, the more fog, dust or smoke. It is the weather forecast for this place at sunset and has nothing to do with how much of the Moon is lit. It matters most when you look for the new crescent, which is thin and sits low near the horizon, at sunset on the last day of the Hijri month; on other evenings it is only a note about how clear the air is. 15 km or more: good; 6 to 14 km: medium; under 6 km: poor. This is only a weather forecast; it does not change the crescent ruling.</dd>
           <dt id="skyNightL" hidden><span data-i18n="sky_night_l">Cloud tonight (until midnight)</span></dt><dd id="skyNight" hidden></dd>
           <dd class="sub" id="skyNightSub" hidden></dd>
         </dl>
-        <button type="button" class="btn cal-ok annual-btn moon-more-btn" id="moonMoreBtn" aria-expanded="false" aria-controls="moonMore" hidden></button>
-        <div class="moon-more" id="moonMore" hidden>
+        </div>
+        <div class="moon-more" id="moonMore" role="tabpanel" aria-labelledby="mtab-next" hidden>
+          <p class="moon-note moon-intro" id="mIntro"></p>
           <div id="moonMsgs">
             <p class="moon-text" id="mText"></p>
             <p class="moon-text moon-start" id="mStart"></p>
@@ -290,10 +296,10 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
-<script src="js/lang.js?v=20261149"></script>
+<script src="js/lang.js?v=20261160"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
-<script src="js/moon-info.js?v=20261149"></script>
+<script src="js/moon-info.js?v=20261160"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261145"></script>
 <script src="js/theme.js"></script>
