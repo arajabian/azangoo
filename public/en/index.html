@@ -48,8 +48,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
-<link rel="stylesheet" href="css/azan.css?v=20261153">
-<link rel="stylesheet" href="css/moon.css?v=20261160">
+<link rel="stylesheet" href="css/azan.css?v=20261154">
+<link rel="stylesheet" href="css/moon.css?v=20261161">
 </head>
 <body>
 <div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">For the adhan and dua to play automatically, click the page once</span></div>
@@ -186,18 +186,21 @@
         </dl>
         </div>
         <div class="moon-more" id="moonMore" role="tabpanel" aria-labelledby="mtab-next" hidden>
-          <p class="moon-note moon-intro" id="mIntro"></p>
-          <div id="moonMsgs">
-            <p class="moon-text" id="mText"></p>
-            <p class="moon-text moon-start" id="mStart"></p>
+          <div class="moon-clip" id="moonClip">
+            <p class="moon-note moon-intro" id="mIntro"></p>
+            <div id="moonMsgs">
+              <p class="moon-text" id="mText"></p>
+              <p class="moon-text moon-start" id="mStart"></p>
+            </div>
+            <div class="moon-text moon-sky" id="moonSky" hidden>
+              <span class="sky-line" id="skySunset"></span>
+              <span class="sky-note" id="skyNote"></span>
+            </div>
+            <p class="moon-text moon-why" id="mWhy"></p>
+            <p class="moon-text moon-best" id="mBest"></p>
+            <p class="moon-note" id="mNote" data-i18n="moon_odeh">Crescent visibility is estimated with the Odeh V-criterion; it is an estimate, not an official announcement.</p>
           </div>
-          <div class="moon-text moon-sky" id="moonSky" hidden>
-            <span class="sky-line" id="skySunset"></span>
-            <span class="sky-note" id="skyNote"></span>
-          </div>
-          <p class="moon-text moon-why" id="mWhy"></p>
-          <p class="moon-text moon-best" id="mBest"></p>
-          <p class="moon-note" id="mNote" data-i18n="moon_odeh">Crescent visibility is estimated with the Odeh V-criterion; it is an estimate, not an official announcement.</p>
+          <button type="button" class="moon-toggle" id="moonToggle" aria-expanded="false" aria-controls="moonClip" hidden></button>
         </div>
       </section>
 
@@ -299,7 +302,7 @@
 <script src="js/lang.js?v=20261160"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
-<script src="js/moon-info.js?v=20261160"></script>
+<script src="js/moon-info.js?v=20261161"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261145"></script>
 <script src="js/theme.js"></script>

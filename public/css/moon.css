@@ -102,3 +102,12 @@
 .moon-intro{margin:0 0 10px}
 .moon-intro:empty{display:none}
 @media (max-width:560px){.moon-tabs .tab{font-size:.84rem;padding:8px 4px}}
+
+/* "<next month> sighting" tab: the box is as tall as the "Moon right now" box (height set by js/moon-info.js);
+   a longer text is cut with a fade and the person opens / closes it with the button */
+.moon-clip{position:relative;overflow:hidden}
+.moon-clip.is-clipped{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 40px),transparent)}
+.moon-toggle{display:block;margin:8px auto 0;padding:6px 20px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold2);font:700 .85rem/1.35 Vazirmatn,sans-serif;cursor:pointer}
+.moon-toggle[hidden]{display:none}
+.moon-toggle:hover,.moon-toggle[aria-expanded="true"]:hover{background:var(--gold);color:var(--ink)}
+.moon-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:2px}

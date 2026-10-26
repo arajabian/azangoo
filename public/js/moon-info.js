@@ -509,6 +509,7 @@
     tabs.hidden = !extra;
     if (!extra) showTab("now");
     setTabLabels();
+    fitClip();
   }
   function setTabLabels() {
     var b = document.getElementById("mtab-next");
@@ -522,10 +523,35 @@
     var tn = document.getElementById("mtab-now"), tx = document.getElementById("mtab-next");
     if (!now || !more || !tn || !tx) return;
     var isNow = which === "now";
+    if (!isNow && !now.hidden && now.offsetHeight) nowH = now.offsetHeight; /* remember how tall the first tab is */
+    if (!isNow && more.hidden) clipOpen = false; /* the second tab always opens closed */
     now.hidden = !isNow; more.hidden = isNow;
     tn.classList.toggle("active", isNow); tx.classList.toggle("active", !isNow);
     tn.setAttribute("aria-selected", isNow ? "true" : "false");
     tx.setAttribute("aria-selected", isNow ? "false" : "true");
+    fitClip();
+  }
+  /* the second tab is as tall as the first one; more text than fits is cut and can be opened / closed by the person */
+  var nowH = 0, clipOpen = false;
+  function fitClip() {
+    var more = document.getElementById("moonMore"), clip = document.getElementById("moonClip"), btn = document.getElementById("moonToggle");
+    if (!more || !clip || !btn || more.hidden) return;
+    var limit = Math.max(220, (nowH || 360) - 44);
+    clip.style.maxHeight = "none";
+    var full = clip.scrollHeight;
+    if (full <= limit + 12) { /* it fits: no cut, no button */
+      clip.classList.remove("is-clipped"); btn.hidden = true; return;
+    }
+    btn.hidden = false;
+    clip.classList.toggle("is-clipped", !clipOpen);
+    clip.style.maxHeight = clipOpen ? "none" : limit + "px";
+    btn.setAttribute("aria-expanded", clipOpen ? "true" : "false");
+    btn.textContent = root.AzanLang.t(clipOpen ? "moon_less" : "moon_more");
+  }
+  if (typeof document !== "undefined") {
+    var tgl = document.getElementById("moonToggle");
+    if (tgl) tgl.addEventListener("click", function () { clipOpen = !clipOpen; fitClip(); });
+    if (typeof window !== "undefined" && window.addEventListener) window.addEventListener("resize", fitClip);
   }
   if (typeof document !== "undefined") {
     var tabNow = document.getElementById("mtab-now"), tabNext = document.getElementById("mtab-next");
