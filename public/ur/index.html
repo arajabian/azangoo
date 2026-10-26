@@ -49,7 +49,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
 <link rel="stylesheet" href="css/azan.css?v=20261153">
-<link rel="stylesheet" href="css/moon.css?v=20261139">
+<link rel="stylesheet" href="css/moon.css?v=20261160">
 </head>
 <body>
 <div class="sound-bar" id="soundBar" role="status" hidden><span class="sound-bar-text" data-i18n="sound_bar">اذان اور دعا خودکار طور پر چلنے کے لیے صفحے پر ایک بار کلک کریں</span></div>
@@ -162,6 +162,11 @@
     <aside class="side">
       <section class="card" aria-labelledby="mo-h">
         <h2 id="mo-h"><span data-i18n="moon_title">چاند کا مشاہدہ</span></h2>
+        <div class="tabs moon-tabs" id="moonTabs" role="tablist" hidden>
+          <button type="button" role="tab" id="mtab-now" aria-selected="true" aria-controls="moonPanelNow" class="tab active"><span data-i18n="moon_tab_now">ابھی کا چاند</span></button>
+          <button type="button" role="tab" id="mtab-next" aria-selected="false" aria-controls="moonMore" class="tab"></button>
+        </div>
+        <div id="moonPanelNow" role="tabpanel" aria-labelledby="mtab-now">
         <div class="moon">
           <img class="moon-img" id="moonImg" src="images/moon/MoonL32.gif" width="84" height="84" alt="تصویر ماه">
         </div>
@@ -175,12 +180,13 @@
           <dt id="skyNowL" hidden><span data-i18n="sky_now_l">اس وقت بادل اور موسم</span></dt><dd id="skyNow" hidden></dd>
           <dt id="skyVisL" hidden><span data-i18n="sky_vis_l">غروب کے وقت افق پر نظر آنے کی حد</span> <button type="button" class="help-btn" id="skyVisHelp" aria-expanded="false" aria-controls="skyVisTip" data-i18n-attr="aria-label:sky_vis_help_label;title:sky_vis_help_label" aria-label="افق کی نظر آنے کی حد کی وضاحت" title="افق کی نظر آنے کی حد کی وضاحت">?</button></dt><dd id="skyVis" hidden></dd>
           <dd class="sub" id="skyVisSub" hidden></dd>
-          <dd class="help-text" id="skyVisTip" data-i18n="sky_vis_help" hidden>افق کی نظر آنے کی حد سے مراد ہے کہ اس وقت ہوا میں کتنے کلومیٹر تک صاف نظر آتا ہے۔ یہ عدد اس جگہ کے غروبِ آفتاب کے وقت کی موسمی پیش گوئی سے لیا گیا ہے۔ نیا ہلال باریک ہوتا ہے اور افق کے قریب نظر آتا ہے، اس لیے دھند، گرد یا دھواں اسے چھپا سکتا ہے۔ ۱۵ کلومیٹر یا زیادہ: اچھی؛ ۶ سے ۱۴ کلومیٹر: درمیانی؛ ۶ کلومیٹر سے کم: کمزور۔ یہ صرف موسم کی پیش گوئی ہے اور ہلال کے فیصلے کو نہیں بدلتی۔</dd>
+          <dd class="help-text" id="skyVisTip" data-i18n="sky_vis_help" hidden>افق کی نظر آنے کی حد سے مراد ہے کہ اس وقت ہوا میں کتنے کلومیٹر دور تک صاف نظر آتا ہے؛ عدد جتنا بڑا ہو ہوا اتنی صاف ہے اور دھند، گرد یا دھواں کم ہے۔ یہ عدد اس جگہ کے غروبِ آفتاب کے وقت کی موسمی پیش گوئی ہے اور چاند کی روشنی کی فیصد سے اس کا کوئی تعلق نہیں۔ اس کی سب سے زیادہ اہمیت ہجری مہینے کے آخری دن غروب کے وقت نئے ہلال کو دیکھنے میں ہے، جو باریک ہوتا ہے اور افق کے قریب نظر آتا ہے؛ مہینے کی دوسری راتوں میں یہ صرف ہوا کی صفائی کی اطلاع ہے۔ ۱۵ کلومیٹر یا زیادہ: اچھی؛ ۶ سے ۱۴ کلومیٹر: درمیانی؛ ۶ کلومیٹر سے کم: کمزور۔ یہ صرف موسم کی پیش گوئی ہے اور ہلال کے فیصلے کو نہیں بدلتی۔</dd>
           <dt id="skyNightL" hidden><span data-i18n="sky_night_l">آج رات (آدھی رات تک) بادل</span></dt><dd id="skyNight" hidden></dd>
           <dd class="sub" id="skyNightSub" hidden></dd>
         </dl>
-        <button type="button" class="btn cal-ok annual-btn moon-more-btn" id="moonMoreBtn" aria-expanded="false" aria-controls="moonMore" hidden></button>
-        <div class="moon-more" id="moonMore" hidden>
+        </div>
+        <div class="moon-more" id="moonMore" role="tabpanel" aria-labelledby="mtab-next" hidden>
+          <p class="moon-note moon-intro" id="mIntro"></p>
           <div id="moonMsgs">
             <p class="moon-text" id="mText"></p>
             <p class="moon-text moon-start" id="mStart"></p>
@@ -290,10 +296,10 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
-<script src="js/lang.js?v=20261149"></script>
+<script src="js/lang.js?v=20261160"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
-<script src="js/moon-info.js?v=20261149"></script>
+<script src="js/moon-info.js?v=20261160"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261145"></script>
 <script src="js/theme.js"></script>

@@ -67,8 +67,7 @@
 .moon-best{margin-top:10px}
 .moon-best:empty{display:none}
 .moon-text:empty{display:none}
-.moon-more[hidden],.moon-more-btn[hidden]{display:none}
-.moon-more-btn{margin-top:12px}
+.moon-more[hidden],#moonPanelNow[hidden]{display:none}
 .moon-note{margin:8px 0 0;font-size:.75rem;opacity:.75;line-height:1.7}
 
 /* sky outlook in the moon card: cloud at sunset (last days of the month), horizon visibility, cloud tonight */
@@ -91,6 +90,15 @@
   .moon-info dd.sub{font-size:.72rem;margin:-3px 0 3px}
   .moon-text{margin-top:8px;padding:7px 10px;font-size:.78rem;line-height:1.8}
   .moon-note{font-size:.7rem}
-  .moon-more-btn{margin-top:8px}
   .moon-info dd.help-text{font-size:.74rem;padding:6px 8px}
 }
+
+/* moon card tabs: "the Moon right now" / "<next month> sighting" */
+.moon-tabs{display:flex;gap:4px;margin:0 0 14px;padding:4px;background:var(--panel-soft);border:1px solid var(--line);border-radius:12px}
+.moon-tabs[hidden]{display:none}
+.moon-tabs .tab{flex:1;font:700 .92rem/1.35 Vazirmatn;padding:9px 6px;border:0;border-radius:9px;background:transparent;color:var(--ivory);cursor:pointer}
+.moon-tabs .tab.active{background:var(--tile);color:var(--heading);box-shadow:inset 0 -3px 0 var(--gold)}
+.moon-tabs .tab:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.moon-intro{margin:0 0 10px}
+.moon-intro:empty{display:none}
+@media (max-width:560px){.moon-tabs .tab{font-size:.84rem;padding:8px 4px}}
