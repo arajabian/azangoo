@@ -64,15 +64,64 @@
     });
   })();
 
-  /* the small "?" buttons: each one shows or hides the explanation named in its aria-controls */
-  Array.prototype.forEach.call(document.querySelectorAll(".help-btn"),function(btn){
-    btn.addEventListener("click",function(){
+  /* the small "?" buttons: each one opens its explanation (named in aria-controls) as a small popup next to the button,
+     with a close button in its corner */
+  (function(){
+    var openBtn=null,openPop=null;
+    function place(btn,pop){
+      var r=btn.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=window.innerHeight,m=10;
+      pop.style.maxWidth=Math.min(320,vw-2*m)+"px";
+      var w=pop.offsetWidth,h=pop.offsetHeight;
+      var left=r.left+r.width/2-w/2;                          /* centred on the button, kept inside the screen */
+      left=Math.max(m,Math.min(left,vw-w-m));
+      var top=r.bottom+8;
+      if(top+h>vh-m&&r.top-h-8>m)top=r.top-h-8;               /* no room below: open above the button */
+      top=Math.max(m,Math.min(top,vh-h-m));
+      pop.style.left=left+"px";pop.style.top=top+"px";
+    }
+    function close(){
+      if(!openPop)return;
+      openPop.hidden=true;
+      openBtn.setAttribute("aria-expanded","false");
+      openBtn=openPop=null;
+    }
+    function open(btn,pop){
+      close();
+      pop.hidden=false;
+      btn.setAttribute("aria-expanded","true");
+      openBtn=btn;openPop=pop;
+      place(btn,pop);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".help-btn"),function(btn){
       var tip=document.getElementById(btn.getAttribute("aria-controls"));
       if(!tip)return;
-      tip.hidden=!tip.hidden;
-      btn.setAttribute("aria-expanded",tip.hidden?"false":"true");
+      /* the popup: a box with a close button and the explanation; it lives in <body>, because its position is relative to the screen */
+      var pop=document.createElement("div");
+      pop.className="help-pop";pop.hidden=true;pop.setAttribute("role","tooltip");
+      var x=document.createElement("button");
+      x.type="button";x.className="help-close";x.textContent="\u00D7";
+      var lbl=window.AzanLang.t("close_btn");
+      x.setAttribute("aria-label",lbl);x.title=lbl;
+      x.addEventListener("click",function(e){e.stopPropagation();var b=openBtn;close();if(b)b.focus();});
+      tip.hidden=false;                                        /* the box itself is shown or hidden now, not the text inside it */
+      pop.appendChild(x);pop.appendChild(tip);
+      document.body.appendChild(pop);
+      btn._pop=pop;
+      btn.addEventListener("click",function(e){
+        e.stopPropagation();
+        if(openPop===pop)close();else open(btn,pop);
+      });
     });
-  });
+    document.addEventListener("click",function(e){            /* a tap anywhere else closes it */
+      if(openPop&&!openPop.contains(e.target))close();
+    });
+    document.addEventListener("keydown",function(e){
+      if(e.key==="Escape"&&openPop){var b=openBtn;close();b.focus();}
+    });
+    document.addEventListener("help-close",close);            /* sent when the row of the open explanation loses its data */
+    window.addEventListener("resize",function(){ if(openPop)place(openBtn,openPop); });
+    window.addEventListener("scroll",function(){ if(openPop)place(openBtn,openPop); },true);
+  })();
 
   if(!window.L)return;
 
@@ -558,7 +607,7 @@
       if(parts[1])parts[1].textContent=on?val:"";
       if(parts[2])parts[2].textContent=on?sub:"";
       var tip=document.getElementById(id+"Tip");                   /* a row without data also closes its explanation */
-      if(tip&&!on){tip.hidden=true;var hb=document.getElementById(id+"Help");if(hb)hb.setAttribute("aria-expanded","false");}
+      if(tip&&!on){document.dispatchEvent(new Event("help-close"));}   /* a row without data also closes its explanation */
     }
     sS.textContent="";sNote.textContent="";
     var sm=lastTimes?toMin(lastTimes.sunset):null;

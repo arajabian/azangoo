@@ -80,7 +80,12 @@
 /* the small "?" button next to a label, and the explanation it opens */
 .help-btn{display:inline-flex;align-items:center;justify-content:center;width:1.45em;height:1.45em;margin-inline-start:6px;padding:0;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold2);font:inherit;font-size:.8rem;font-weight:700;line-height:1;cursor:pointer;vertical-align:middle}
 .help-btn:hover,.help-btn[aria-expanded="true"]{background:var(--gold);color:var(--ink)}
-.moon-info dd.help-text{grid-column:1/-1;margin:0 0 4px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid rgba(210,169,75,.25);font-size:.8rem;font-weight:400;line-height:1.9;direction:inherit;text-align:start}
+.help-pop{position:fixed;z-index:1100;box-sizing:border-box;width:max-content;padding:10px 12px;padding-inline-end:34px;border-radius:10px;background:var(--panel-strong);color:var(--ivory);border:1px solid var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.help-pop[hidden]{display:none}
+.help-pop .help-text{display:block;margin:0;font-size:.8rem;font-weight:400;line-height:1.9;direction:inherit;text-align:start}
+.help-pop .help-text[hidden]{display:block}
+.help-close{position:absolute;top:6px;inset-inline-end:6px;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold2);font:700 1.1rem/1 sans-serif;cursor:pointer}
+.help-close:hover{background:var(--gold);color:var(--ink)}
 
 /* phones: a smaller moon box and smaller texts (tablet and desktop are not affected) */
 @media(max-width:639px){
@@ -90,7 +95,8 @@
   .moon-info dd.sub{font-size:.72rem;margin:-3px 0 3px}
   .moon-text{margin-top:8px;padding:7px 10px;font-size:.78rem;line-height:1.8}
   .moon-note{font-size:.7rem}
-  .moon-info dd.help-text{font-size:.74rem;padding:6px 8px}
+  .help-pop{padding:8px 10px;padding-inline-end:32px}
+  .help-pop .help-text{font-size:.74rem}
 }
 
 /* moon card tabs: "the Moon right now" / "<next month> sighting" */
