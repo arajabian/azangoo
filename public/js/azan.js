@@ -466,23 +466,13 @@
     var box=document.querySelector(".moon");
     if(!box)return;
     var sr=lastTimes?toMin(lastTimes.sunrise):null, ss=lastTimes?toMin(lastTimes.sunset):null;
-    if(sr===null||ss===null){box.setAttribute("data-sky","night");box.removeAttribute("data-wx");setSkyNow(null);return}   /* no place or no sunrise / sunset: the starry sky */
+    if(sr===null||ss===null){box.setAttribute("data-sky","night");box.removeAttribute("data-wx");return}   /* no place or no sunrise / sunset: the starry sky */
     var n=new Date(Date.now()+lastOffset*3600000);
     box.setAttribute("data-sky",skyState(n.getUTCHours()*60+n.getUTCMinutes(),sr,ss));
     /* the weather picture (partly / cloudy / fog / rain / snow / storm) is added on top of the sky state; clear weather,
        an unknown weather or a weather of another place keeps the plain sky of the line above */
     var wx=wxPicture();
     if(wx&&wx!=="clear")box.setAttribute("data-wx",wx); else box.removeAttribute("data-wx");
-    setSkyNow(wx);
-  }
-  /* the sentence "clouds and weather right now": the same value (wxPicture) that chooses the picture behind the moon,
-     so the picture and the words always agree. Hidden while the weather of the place is unknown. */
-  function setSkyNow(wx){
-    var L=document.getElementById("skyNowL"), V=document.getElementById("skyNow");
-    if(!L||!V)return;
-    var on=!!wx&&!!lastTimes;
-    L.hidden=!on; V.hidden=!on;
-    V.textContent=on?window.AzanLang.t("wx_"+wx):"";
   }
   /* the weather of the picture comes from the same hourly forecast as the "cloud tonight" line (the hour that is now):
      rain, snow, storm and fog come from the weather code of that hour; clear / partly / cloudy come from its cloud cover,
@@ -600,27 +590,12 @@
     var box=document.getElementById("moonSky");
     if(!box)return;
     var A=window.AzanLang, sS=document.getElementById("skySunset"), sNote=document.getElementById("skyNote");
-    /* the visibility and the cloud tonight are rows of the number list of the card (label, value, one line under it); a row without data is hidden */
-    function row(id,val,sub){
-      var on=val!==null, parts=[document.getElementById(id+"L"),document.getElementById(id),document.getElementById(id+"Sub")];
-      parts.forEach(function(e){ if(e)e.hidden=!on; });
-      if(parts[1])parts[1].textContent=on?val:"";
-      if(parts[2])parts[2].textContent=on?sub:"";
-      var tip=document.getElementById(id+"Tip");                   /* a row without data also closes its explanation */
-      if(tip&&!on){document.dispatchEvent(new Event("help-close"));}   /* a row without data also closes its explanation */
-    }
     sS.textContent="";sNote.textContent="";
     var sm=lastTimes?toMin(lastTimes.sunset):null;
-    if(sm===null||!wxHours.length){box.hidden=true;row("skyVis",null);row("skyNight",null);return}
+    if(sm===null||!wxHours.length){box.hidden=true;return}
     var d=new Date(Date.now()+lastOffset*3600000);
     var midnight=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-lastOffset*3600000;   /* local midnight, real time */
     var sunsetT=midnight+sm*60000, endT=midnight+86400000, now=Date.now();
-    /* after local midnight and before sunrise it is still "tonight": the window runs from now until sunrise,
-       not over the evening of the coming day */
-    var srm=toMin(lastTimes.sunrise), late=srm!==null&&(d.getUTCHours()*60+d.getUTCMinutes())<srm;
-    if(late)endT=midnight+srm*60000;
-    var nl=document.querySelector("#skyNightL span");
-    if(nl){var nk=late?"sky_night_l_late":"sky_night_l";nl.setAttribute("data-i18n",nk);nl.textContent=A.t(nk)}
     var h=hourAt(sunsetT);
     var mi=window.MoonInfo&&window.MoonInfo.current?window.MoonInfo.current():null;
     /* 1) cloud at sunset: only on the evenings of the 29th and 30th, when the new crescent is looked for (in the "more info" part) */
@@ -629,19 +604,6 @@
       sS.textContent=A.t("sky_sunset",{c:A.percent(String(c)),v:A.t("sky_s_"+k)});
       sNote.textContent=A.t("sky_note");
     }
-    /* 2) visibility at the horizon at sunset (Open-Meteo only) */
-    if(h&&h.vis!==null){
-      var km=Math.round(h.vis/1000), q=km>=15?"good":(km>=6?"mid":"bad");
-      row("skyVis",A.num(km)+" "+A.t("sky_km"),A.t("sky_v_"+q));
-    }else row("skyVis",null);
-    /* 3) cloud tonight: the average of the forecast hours from about half an hour after sunset until midnight */
-    var from=late?now-1800000:Math.max(sunsetT+1800000,now-1800000), sum=0, n=0;
-    wxHours.forEach(function(x){ if(x.cloud!==null&&x.t>=from&&x.t<endT){sum+=x.cloud;n++} });
-    if(!n){var hn=hourAt(now);if(hn&&hn.cloud!==null){sum=hn.cloud;n=1}}      /* the last minutes of the window: the hour that is now */
-    if(n){
-      var cn=Math.round(sum/n), kn=cn<25?"good":(cn<=60?"mid":"bad");
-      row("skyNight",A.percent(String(cn)),A.t("sky_n_"+kn));
-    }else row("skyNight",null);
     box.hidden=!sS.textContent;        /* only the cloud at sunset (29th/30th) is in this box */
   }
 

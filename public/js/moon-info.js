@@ -536,7 +536,9 @@
   function fitClip() {
     var more = document.getElementById("moonMore"), clip = document.getElementById("moonClip"), btn = document.getElementById("moonToggle");
     if (!more || !clip || !btn || more.hidden) return;
-    var limit = Math.max(220, (nowH || 360) - 44);
+    var nowEl = document.getElementById("moonPanelNow");
+    if (nowEl && !nowEl.hidden && nowEl.offsetHeight) nowH = nowEl.offsetHeight; /* the first tab is shorter now: always follow its real height */
+    var limit = Math.max(120, (nowH || 260) - 44);
     clip.style.maxHeight = "none";
     var full = clip.scrollHeight;
     if (full <= limit + 12) { /* it fits: no cut, no button */
