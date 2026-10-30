@@ -586,13 +586,29 @@
     wxHours.forEach(function(h){var dd=Math.abs(h.t-t); if(dd<bd){bd=dd;best=h}});
     return best;
   }
+  /* horizon visibility at sunset (km) with its "?" explanation: the last row of the "Moon right now" tab.
+     Not every weather source gives visibility (MET Norway does not): then the row stays hidden. */
+  function setHoriz(h){
+    var dt=document.getElementById("mHorizDt"), dd=document.getElementById("mHoriz");
+    if(!dt||!dd)return;
+    var A=window.AzanLang;
+    if(!h||h.vis===null||h.vis===undefined||!isFinite(h.vis)){
+      if(!dt.hidden){dt.hidden=true;dd.hidden=true;document.dispatchEvent(new Event("help-close"))}
+      return;
+    }
+    var km=h.vis/1000, kmTxt=km>=10?String(Math.round(km)):String(Math.round(km*10)/10);
+    var k=km>=15?"good":(km>=6?"mid":"bad");
+    dd.textContent=A.num(kmTxt)+" "+A.t("sky_km")+" \u2014 "+A.t("sky_v_"+k);
+    dd.style.direction="inherit";dd.style.textAlign="left";   /* this row is a sentence, not a bare number: the words follow the page direction but the line starts at the same left edge as the numbers above it */
+    dt.hidden=false;dd.hidden=false;
+  }
   function updateSkyOutlook(){
     var box=document.getElementById("moonSky");
     if(!box)return;
     var A=window.AzanLang, sS=document.getElementById("skySunset"), sNote=document.getElementById("skyNote");
     sS.textContent="";sNote.textContent="";
     var sm=lastTimes?toMin(lastTimes.sunset):null;
-    if(sm===null||!wxHours.length){box.hidden=true;return}
+    if(sm===null||!wxHours.length){box.hidden=true;setHoriz(null);return}
     var d=new Date(Date.now()+lastOffset*3600000);
     var midnight=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-lastOffset*3600000;   /* local midnight, real time */
     var sunsetT=midnight+sm*60000, endT=midnight+86400000, now=Date.now();
@@ -605,6 +621,7 @@
       sNote.textContent=A.t("sky_note");
     }
     box.hidden=!sS.textContent;        /* only the cloud at sunset (29th/30th) is in this box */
+    setHoriz(h);                        /* horizon visibility at sunset: last row of the "Moon right now" tab */
   }
 
   /* countdown to the next adhan (fajr, dhuhr, maghrib, tomorrow's fajr) */
