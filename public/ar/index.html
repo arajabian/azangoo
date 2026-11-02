@@ -48,7 +48,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
-<link rel="stylesheet" href="css/azan.css?v=20261154">
+<link rel="stylesheet" href="css/azan.css?v=20261156">
 <link rel="stylesheet" href="css/moon.css?v=20261165">
 </head>
 <body>
@@ -72,7 +72,7 @@
 
   <section class="dates" data-i18n-attr="aria-label:dates_label" aria-label="التاريخ والوقت">
     <div class="date"><b id="d-week">یکشنبه</b><b class="clock" id="clock">12:56:06</b><span id="d-zone"></span></div>
-    <div class="date"><b id="d-j-day">۱۹</b><span id="d-j-my">مهر ۱۴۰۵</span></div>
+    <div class="date date-shamsi"><b id="d-j-day">۱۹</b><span id="d-j-my">مهر ۱۴۰۵</span></div>
     <div class="date"><b id="d-h-day">۲۹</b><span id="d-h-my">ربیع الثانی ۱۴۴۸</span></div>
     <div class="date"><b id="d-g-day">۱۱</b><span id="d-g-my">اکتبر ۲۰۲۶</span></div>
   </section>
@@ -207,8 +207,17 @@
         </div>
         <form class="cal-panel" id="panel-cal" role="tabpanel" aria-labelledby="tab-sol">
           <p class="cal-label" id="calLabel">انتخاب سال و ماه:</p>
-          <select id="calYear" aria-label="سال"></select>
-          <select id="calMonth" aria-label="ماه"></select>
+          <div class="cal-nav">
+            <button type="button" class="cal-step" id="calPrevYear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6l-6 6 6 6M19 6l-6 6 6 6"/></svg></button>
+            <button type="button" class="cal-step" id="calPrevMonth"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="cal-center">
+              <span class="cal-month" id="calMonthName" aria-live="polite"></span>
+              <input type="text" class="cal-year" id="calYear" inputmode="numeric" autocomplete="off" maxlength="5">
+            </div>
+            <button type="button" class="cal-step next" id="calNextMonth"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button type="button" class="cal-step next" id="calNextYear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6l-6 6 6 6M19 6l-6 6 6 6"/></svg></button>
+          </div>
+          <label class="cal-all"><input type="checkbox" id="calAll"> <span id="calAllText"></span></label>
           <button type="submit" class="btn cal-ok"><span data-i18n="cal_ok">تأكيد</span></button>
           <p class="msg" id="calMsg" role="status"></p>
         </form>
@@ -256,6 +265,7 @@
         <p data-i18n="about_p1">أطلقنا موقع «أذان گو» عام ٢٠١١م، وكان يعمل آنذاك على خرائط غوغل، وظلّ يعمل لفترة طويلة بصورة جيدة ودون أي مشكلة. لكن بعد مدة أوقفت غوغل خدمة الخرائط عنّا، فأصبح تقديم أوقات الصلاة في «أذان گو» أمرًا صعبًا.</p>
         <p data-i18n="about_p2">وفي هذا العام ٢٠٢٦م، منّ الله المنّان علينا مرة أخرى بأن نكون في خدمتكم أيها المصلّون الكرام، وهذه المرة بتصميم جديد وإمكانات عصرية وصفحة يسهل عرضها واستخدامها على الهاتف المحمول.</p>
         <p data-i18n="about_p3">هدفنا أن يصل صوت الأذان إلى بيتك ومكان عملك وأينما كنت، أيًّا كانت البقعة التي تعيش فيها من العالم. ولهذا نحسب أوقات الصلاة للمكان الذي تختاره على الخريطة، ونوفّر إلى جانبها اتجاه القبلة وصوت الأذان وأدعية اليوم وأدعية شهر رمضان ورؤية الهلال والتقويم، بأربع لغات: الفارسية والإنجليزية والأردية والعربية.</p>
+        <p data-i18n="about_calc">تُحسب أوقات الصلاة في «أذان گو» على أساس حسابات علمية، وباستخدام خطّ الطول وخطّ العرض لمكان إقامتك، وهي ثمرة سنوات من البحث في موقع «أذان گو»، حتى تحصل على أدقّ أوقات الصلاة للمكان الذي تعيش فيه.</p>
         <p data-i18n="about_p4">«أذان گو» غير تابع لأي جهة أو مؤسسة أو منظمة أو جماعة، حكومية كانت أو غير حكومية، في أي مكان من العالم.</p>
         <p data-i18n="about_p5">نأمل أن نكون قد قدّمنا خدمة، ولو يسيرة، للمصلّين. ولا شك أنه لولا لطف الله تعالى ورحمته وعناية الحجة المهدي (عجّل الله فرجه الشريف) لما تيسّر لنا هذا العمل. وفي الختام نلتمس منكم أيها المصلّون الأعزاء الدعاء؛ فلا تحرمونا من دعائكم عند الأذان والصلاة، ولا تنسوا الدعاء بتعجيل فرج مولانا إمام الزمان (عجّل الله فرجه الشريف).</p>
         <p class="about-dua" lang="ar" dir="rtl">فَضْلُ الْوَقْتِ الْأَوَّلِ عَلَى الْآخِرِ كَفَضْلِ الْآخِرَةِ عَلَى الدُّنْيَا</p>
@@ -294,14 +304,14 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.L||document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
-<script src="js/lang.js?v=20261160"></script>
+<script src="js/lang.js?v=20261161"></script>
 <script src="js/official.js?v=20261120"></script>
 <script src="js/azangoo-prayer-times.js"></script>
 <script src="js/moon-info.js?v=20261161"></script>
 <script src="js/calendar-pdf.js?v=20261109"></script>
 <script src="js/contact.js?v=20261145"></script>
 <script src="js/theme.js"></script>
-<script src="js/calendar.js?v=20261031"></script>
+<script src="js/calendar.js?v=20261102"></script>
 <script src="js/azan.js?v=20261153"></script>
 <script src="js/hadith.js?v=20261139"></script>
 </body>
