@@ -5,6 +5,7 @@
   /* clock and dates: always the local time of the selected place.
      lastOffset (hours from UTC) starts as the device offset and is replaced when a place is found. */
   var lastOffset=-new Date().getTimezoneOffset()/60,shownDay="",onNewDay=null;
+  var lastZone=null,zoneChecked=0;   /* IANA zone of the selected place: the offset is re-derived from it, so DST changes are never missed */
   var pad=function(n){return n<10?"0"+n:n};
   var clockEl=document.getElementById("clock"),zoneEl=document.getElementById("d-zone"),weekEl=document.getElementById("d-week");
 
@@ -23,6 +24,10 @@
   }
 
   function tick(skipNewDay){
+    if(lastZone&&window.AzangooPrayerTimes&&Date.now()-zoneChecked>30000){
+      zoneChecked=Date.now();
+      try{var zo=AzangooPrayerTimes.offsetAt(lastZone,Date.now());if(isFinite(zo))lastOffset=zo}catch(e){}
+    }
     var A=window.AzanLang, d=new Date(Date.now()+lastOffset*3600000);
     clockEl.textContent=num(pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds()));
     zoneEl.textContent=A.t("clock_zone")+" \u00B7 "+num(zoneLabel(lastOffset));
@@ -407,6 +412,10 @@
     var ll=marker.getLatLng(),id=++seq;
     getOffset(ll).then(function(o){
       if(id!==seq)return;                                   /* a newer position replaced this one */
+      lastZone=o.zone||null;zoneChecked=Date.now();
+      if(o.zone&&window.AzangooPrayerTimes){                /* the zone name is exact; the service's offset number may be stale or wrong */
+        try{var zr=AzangooPrayerTimes.offsetAt(o.zone,Date.now());if(isFinite(zr))o.h=zr}catch(e){}
+      }
       var r;
       try{
         r=AzangooPrayerTimes.calculateForNow({
