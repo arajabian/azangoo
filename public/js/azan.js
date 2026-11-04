@@ -772,7 +772,7 @@
     sahar:{kind:"fajr",timerKey:"dua_timer_sahar",files:ramFiles("Dua_for_Sahar-","ABCDEFGH"),
            fallback:[317.44,292.467,234.005,334.472,298.58,5.695,319.426,404.01]},          /* lengths in seconds, used until the browser reports the real ones */
     iftar:{kind:"maghrib",timerKey:"dua_timer_iftar",files:ramFiles("Dua-Eftar-","ABCDEFGHI"),
-           fallback:[62.454,164.452,134.646,158.114,135.414,56.785,143.12,78.833,69.115]}
+           fallback:[62.454,164.452,134.646,158.114,135.414,56.785,143.12,78.833,69.721]}
   };
   var RAM_LIST=[RAM_SETS.sahar,RAM_SETS.iftar];
   RAM_LIST.forEach(function(S){S.pre=null;S.warm=false;S.busy=false});
